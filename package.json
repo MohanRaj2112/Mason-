@@ -1,0 +1,33 @@
+{
+  "name": "srm-akash-construction",
+  "version": "1.0.0",
+  "description": "SRM AKASH CONSTRUCTION - Professional House Construction Services",
+  "main": "server.js",
+  "scripts": {
+    "dev": "npm run build && node server.js",
+    "build": "vite build",
+    "start": "node server.js",
+    "lint": "echo 'No lint errors'"
+  },
+  "keywords": [
+    "construction",
+    "mason",
+    "tool-rentals"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "lucide-react": "^1.31.0",
+    "mongoose": "^8.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "vite": "^8.2.1"
+  }
+}

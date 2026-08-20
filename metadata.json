@@ -1,0 +1,8 @@
+{
+  "name": "Mason Mate",
+  "description": "Premium construction service platform for turnkey home construction, master mason hiring, and tool equipment rentals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

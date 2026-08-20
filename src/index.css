@@ -1,0 +1,64 @@
+@import '../styles/main.css';
+@import '../styles/admin.css';
+
+/* Additional smooth transitions and responsive helpers */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: slideInToast 0.3s ease forwards;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 380px;
+}
+
+.toast-success {
+  background: #0F172A;
+  color: #FFFFFF;
+  border-left: 4px solid #10B981;
+}
+
+.toast-error {
+  background: #0F172A;
+  color: #FFFFFF;
+  border-left: 4px solid #EF4444;
+}
+
+.toast-info {
+  background: #0F172A;
+  color: #FFFFFF;
+  border-left: 4px solid #D97706;
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
