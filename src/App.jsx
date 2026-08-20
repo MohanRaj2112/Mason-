@@ -24,6 +24,7 @@ function ScrollToTop() {
       window.scrollTo(0, 0);
     } else {
       const id = hash.replace('#', '');
+<<<<<<< HEAD
       const scrollToElement = () => {
         const element = document.getElementById(id);
         if (element) {
@@ -35,6 +36,12 @@ function ScrollToTop() {
       // Safety timeout in case element was still rendering after page change
       const timer = setTimeout(scrollToElement, 150);
       return () => clearTimeout(timer);
+=======
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
     }
   }, [pathname, hash]);
 

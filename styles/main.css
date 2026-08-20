@@ -57,10 +57,13 @@ html {
     scroll-behavior: smooth;
 }
 
+<<<<<<< HEAD
 section[id] {
     scroll-margin-top: calc(var(--nav-height) + 16px);
 }
 
+=======
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
 body {
     font-family: var(--font-main);
     color: var(--text-main);
@@ -846,6 +849,7 @@ h4 { font-size: 1.25rem; }
     border-top: 1px solid var(--border-light);
 }
 
+<<<<<<< HEAD
 /* ── About Section (Premium Redesign) ── */
 .section-about-premium {
     background-color: var(--bg-surface);
@@ -1091,6 +1095,85 @@ h4 { font-size: 1.25rem; }
 
     .about-main-heading {
         font-size: 1.75rem;
+=======
+/* ── About Section ── */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.about-img-box {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.about-img-box img {
+    width: 100%;
+    height: 480px;
+    object-fit: cover;
+}
+
+.about-badge-floating {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    background: var(--primary);
+    color: var(--text-white);
+    padding: 20px 28px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 2px solid var(--accent);
+}
+
+.about-badge-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.about-badge-lbl {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+}
+
+.stats-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 32px;
+}
+
+.stat-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.stat-box-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.stat-box-lbl {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
     }
 }
 
@@ -1669,6 +1752,7 @@ footer {
     }
 }
 
+<<<<<<< HEAD
 /* ==================================================
    TOOLS RENTAL — SIMPLE & CLEAN DESIGN SYSTEM
    ================================================== */
@@ -2671,3 +2755,5 @@ footer {
 }
 
 
+=======
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7

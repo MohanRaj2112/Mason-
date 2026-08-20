@@ -6,7 +6,10 @@ import { initialToolsData } from '../data/tools';
 import { ServiceCard } from '../components/ServiceCard';
 import { ProjectCard } from '../components/ProjectCard';
 import { ToolCard } from '../components/ToolCard';
+<<<<<<< HEAD
 import founderImg from '../assets/images/founder_portrait_1786882840416.jpg';
+=======
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
 
 export const Home = () => {
   const openWhatsApp = (msg) => {
@@ -140,6 +143,7 @@ export const Home = () => {
         </div>
       </section>
 
+<<<<<<< HEAD
       {/* ── ABOUT / FOUNDER & EXCELLENCE ── */}
       <section className="section section-about-premium" id="about">
         <div className="container">
@@ -225,10 +229,52 @@ export const Home = () => {
                   Get a Quote <span className="cta-arrow">→</span>
                 </Link>
                 <Link to="/contact" className="btn btn-outline btn-lg">
+=======
+      {/* ── ABOUT / EXCELLENCE ── */}
+      <section className="section section-alt" id="about">
+        <div className="container">
+          <div className="about-grid">
+            <div className="about-text">
+              <span className="section-eyebrow">ENGINEERING INTEGRITY</span>
+              <h2>Building Strong Foundations for Over 15 Years</h2>
+              <p>
+                Founded under <strong>SRM AKASH CONSTRUCTION</strong>, Mason Mate has established itself as the benchmark for residential engineering excellence in Salem and Coimbatore.
+              </p>
+              <p>
+                We believe that every home is a lifetime investment. That's why we eliminate the traditional uncertainty of contractor delays, fluctuating raw material costs, and subpar workmanship through transparent milestone billing and structural quality checklists.
+              </p>
+              <div className="flex gap-16" style={{ marginTop: '24px', flexWrap: 'wrap' }}>
+                <Link to="/booking" className="btn btn-quote-cta">
+                  Schedule On-Site Consultation <span className="cta-arrow">→</span>
+                </Link>
+                <Link to="/contact" className="btn btn-outline">
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
                   Contact Civil Engineers
                 </Link>
               </div>
             </div>
+<<<<<<< HEAD
+=======
+            
+            <div className="about-stats-grid">
+              <div className="about-stat-box">
+                <div className="about-stat-box-num">500+</div>
+                <div className="about-stat-box-label">Homes &amp; Villas Built</div>
+              </div>
+              <div className="about-stat-box">
+                <div className="about-stat-box-num">120+</div>
+                <div className="about-stat-box-label">Vetted Master Masons</div>
+              </div>
+              <div className="about-stat-box">
+                <div className="about-stat-box-num">100%</div>
+                <div className="about-stat-box-label">IS 456 Compliant</div>
+              </div>
+              <div className="about-stat-box">
+                <div className="about-stat-box-num">0</div>
+                <div className="about-stat-box-label">Hidden Extra Charges</div>
+              </div>
+            </div>
+>>>>>>> 1db21cd3fbb8d2a56e53f3cfdb93a3fa06e2b6a7
           </div>
         </div>
       </section>
