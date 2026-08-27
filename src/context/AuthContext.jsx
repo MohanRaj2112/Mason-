@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
+<<<<<<< HEAD
   const [token, setToken] = useState(() => {
     try {
       return localStorage.getItem('mm_auth_token') || null;
@@ -18,6 +19,8 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
 
   useEffect(() => {
     try {
@@ -31,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
+<<<<<<< HEAD
   useEffect(() => {
     try {
       if (token) {
@@ -58,16 +62,33 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.removeItem('cp_user');
       localStorage.removeItem('mm_auth_token');
+=======
+  const login = (user) => {
+    setCurrentUser(user);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('cp_user');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     } catch {}
   };
 
   const isAdmin = currentUser?.role === 'admin' || 
                   currentUser?.username?.toLowerCase() === 'admin' || 
+<<<<<<< HEAD
                   currentUser?.email?.toLowerCase() === 'admin@srmakash.com' ||
                   currentUser?.email?.toLowerCase() === 'admin@masonmate.in';
 
   return (
     <AuthContext.Provider value={{ currentUser, token, login, logout, isAdmin }}>
+=======
+                  currentUser?.email?.toLowerCase() === 'admin@srmakash.com';
+
+  return (
+    <AuthContext.Provider value={{ currentUser, login, logout, isAdmin }}>
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       {children}
     </AuthContext.Provider>
   );

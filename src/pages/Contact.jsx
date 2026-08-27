@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
 import { useToast } from '../context/ToastContext';
 
 const defaultReviews = [
@@ -24,12 +28,17 @@ export const Contact = () => {
   const [reviews, setReviews] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+<<<<<<< HEAD
       return stored.length > 0 ? [...stored, ...defaultReviews] : defaultReviews;
+=======
+      return [...stored.reverse(), ...defaultReviews];
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     } catch {
       return defaultReviews;
     }
   });
 
+<<<<<<< HEAD
   // Load reviews from MongoDB API
   useEffect(() => {
     const fetchReviews = async () => {
@@ -48,14 +57,21 @@ export const Contact = () => {
     fetchReviews();
   }, []);
 
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
   // Review Form state
   const [reviewRating, setReviewRating] = useState(5);
   const [revName, setRevName] = useState('');
   const [revLocation, setRevLocation] = useState('');
   const [revText, setRevText] = useState('');
+<<<<<<< HEAD
   const [submittingReview, setSubmittingReview] = useState(false);
 
   const handleInquirySubmit = async (e) => {
+=======
+
+  const handleInquirySubmit = (e) => {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     e.preventDefault();
     if (!inquiry.name || !inquiry.phone || !inquiry.message) {
       showToast('Please fill all required fields marked with *', 'error');
@@ -63,6 +79,7 @@ export const Contact = () => {
     }
 
     setSendingInquiry(true);
+<<<<<<< HEAD
 
     const contactPayload = {
       name: inquiry.name.trim(),
@@ -87,6 +104,10 @@ export const Contact = () => {
         showToast('Inquiry sent! Our engineers will call you within 2 hours. 📞', 'success', 5000);
       }
 
+=======
+    setTimeout(() => {
+      showToast('Inquiry sent! Our engineers will call you within 2 hours. 📞', 'success', 5000);
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       setInquiry({
         name: '',
         phone: '',
@@ -94,6 +115,7 @@ export const Contact = () => {
         service: '',
         message: ''
       });
+<<<<<<< HEAD
     } catch (err) {
       console.warn('Inquiry API error, falling back:', err);
       showToast('Inquiry sent! Our engineers will call you shortly.', 'success', 5000);
@@ -103,13 +125,23 @@ export const Contact = () => {
   };
 
   const handleReviewSubmit = async (e) => {
+=======
+      setSendingInquiry(false);
+    }, 1000);
+  };
+
+  const handleReviewSubmit = (e) => {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     e.preventDefault();
     if (!revName.trim() || !revText.trim() || reviewRating === 0) {
       showToast('Please fill out your name, star rating, and review text.', 'error');
       return;
     }
 
+<<<<<<< HEAD
     setSubmittingReview(true);
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     const newRev = {
       name: revName.trim(),
       loc: revLocation.trim() || 'Client',
@@ -119,6 +151,7 @@ export const Contact = () => {
     };
 
     try {
+<<<<<<< HEAD
       // 1. Post to MongoDB Reviews API
       await fetch('/api/reviews', {
         method: 'POST',
@@ -144,6 +177,19 @@ export const Contact = () => {
     } finally {
       setSubmittingReview(false);
     }
+=======
+      const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+      stored.push(newRev);
+      localStorage.setItem('cp_reviews', JSON.stringify(stored));
+    } catch {}
+
+    setReviews([newRev, ...reviews]);
+    setRevName('');
+    setRevLocation('');
+    setRevText('');
+    setReviewRating(5);
+    showToast('Thank you for your review! ⭐', 'success');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
   };
 
   const openWhatsApp = (msg) => {
@@ -389,12 +435,17 @@ export const Contact = () => {
                 />
               </div>
 
+<<<<<<< HEAD
               <button
                 type="submit"
                 className="btn btn-accent btn-lg"
                 disabled={submittingReview}
               >
                 {submittingReview ? '⏳ Submitting...' : '⭐ Submit Feedback'}
+=======
+              <button type="submit" className="btn btn-accent btn-lg">
+                ⭐ Submit Feedback
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
               </button>
             </form>
           </div>

@@ -251,6 +251,7 @@ export const Admin = () => {
   useEffect(() => {
     const syncServer = async () => {
       try {
+<<<<<<< HEAD
         const [bRes, pRes, projRes, srvRes, cRes, uRes] = await Promise.allSettled([
           fetch('/api/bookings'),
           fetch('/api/tools'),
@@ -258,6 +259,11 @@ export const Admin = () => {
           fetch('/api/services'),
           fetch('/api/contacts'),
           fetch('/api/users')
+=======
+        const [bRes, pRes] = await Promise.allSettled([
+          fetch('/api/bookings'),
+          fetch('/api/products')
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
         ]);
         if (bRes.status === 'fulfilled' && bRes.value.ok) {
           const data = await bRes.value.json();
@@ -268,12 +274,17 @@ export const Admin = () => {
           if (Array.isArray(data) && data.length > 0) {
             setTools(data.map(item => ({
               ...item,
+<<<<<<< HEAD
               _id: item._id || item.toolId || item.id || `tool_${Date.now()}`,
               id: item.toolId || item._id || item.id,
+=======
+              _id: item._id || item.id || `tool_${Date.now()}`,
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
               availabilityStatus: item.availabilityStatus || (item.available !== false ? 'Available' : 'Rented')
             })));
           }
         }
+<<<<<<< HEAD
         if (projRes.status === 'fulfilled' && projRes.value.ok) {
           const data = await projRes.value.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -311,6 +322,8 @@ export const Admin = () => {
             })));
           }
         }
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       } catch (e) {
         console.warn('Server sync notice:', e);
       }
@@ -456,6 +469,7 @@ export const Admin = () => {
   };
 
   // Edit Tool Handler
+<<<<<<< HEAD
   const handleEditToolSubmit = async (e) => {
     e.preventDefault();
     if (!editingTool) return;
@@ -465,12 +479,22 @@ export const Admin = () => {
       ...editingTool,
       price: parseInt(editingTool.price, 10),
       pricePerDay: parseInt(editingTool.price, 10),
+=======
+  const handleEditToolSubmit = (e) => {
+    e.preventDefault();
+    if (!editingTool) return;
+
+    const updated = tools.map(t => (t._id === editingTool._id || t.id === editingTool.id ? {
+      ...editingTool,
+      price: parseInt(editingTool.price, 10),
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       available: editingTool.availabilityStatus === 'Available'
     } : t));
 
     setTools(updated);
     setEditingTool(null);
     showToast(`Updated "${editingTool.name}" details.`, 'success');
+<<<<<<< HEAD
 
     try {
       await fetch(`/api/tools/${targetId}`, {
@@ -485,6 +509,12 @@ export const Admin = () => {
 
   // Add Project Handler
   const handleAddProjectSubmit = async (e) => {
+=======
+  };
+
+  // Add Project Handler
+  const handleAddProjectSubmit = (e) => {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     e.preventDefault();
     if (!newProjectData.title.trim() || !newProjectData.location.trim()) {
       showToast('Please provide project title and location.', 'error');
@@ -493,7 +523,10 @@ export const Admin = () => {
 
     const created = {
       id: 'proj-' + Date.now(),
+<<<<<<< HEAD
       projectId: 'proj-' + Date.now(),
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       title: newProjectData.title.trim(),
       category: newProjectData.category,
       tag: newProjectData.category,
@@ -522,6 +555,7 @@ export const Admin = () => {
     });
 
     showToast(`Added project "${created.title}"!`, 'success');
+<<<<<<< HEAD
 
     try {
       await fetch('/api/projects', {
@@ -541,6 +575,16 @@ export const Admin = () => {
 
     const targetId = editingProject.projectId || editingProject.id || editingProject._id;
     const updated = projects.map(p => ((p.id === targetId || p.projectId === targetId || p._id === targetId) ? {
+=======
+  };
+
+  // Edit Project Handler
+  const handleEditProjectSubmit = (e) => {
+    e.preventDefault();
+    if (!editingProject) return;
+
+    const updated = projects.map(p => (p.id === editingProject.id ? {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       ...editingProject,
       tag: editingProject.category
     } : p));
@@ -548,6 +592,7 @@ export const Admin = () => {
     setProjects(updated);
     setEditingProject(null);
     showToast(`Updated "${editingProject.title}" details.`, 'success');
+<<<<<<< HEAD
 
     try {
       await fetch(`/api/projects/${targetId}`, {
@@ -592,20 +637,50 @@ export const Admin = () => {
       try {
         await fetch(`/api/contacts/${deletingItem.id}`, { method: 'DELETE' });
       } catch {}
+=======
+  };
+
+  // Delete Item Confirmed
+  const handleConfirmDelete = () => {
+    if (!deletingItem) return;
+
+    if (deletingItem.type === 'tool') {
+      const updated = tools.filter(t => t._id !== deletingItem.id && t.id !== deletingItem.id);
+      setTools(updated);
+      showToast(`Removed "${deletingItem.name}" from inventory.`, 'success');
+    } else if (deletingItem.type === 'project') {
+      const updated = projects.filter(p => p.id !== deletingItem.id);
+      setProjects(updated);
+      showToast(`Removed project "${deletingItem.name}".`, 'success');
+    } else if (deletingItem.type === 'booking') {
+      const updated = bookings.filter(b => b.bookingId !== deletingItem.id);
+      setBookings(updated);
+      showToast(`Deleted booking record ${deletingItem.id}.`, 'success');
+    } else if (deletingItem.type === 'message') {
+      const updated = messages.filter(m => m.id !== deletingItem.id);
+      setMessages(updated);
+      showToast(`Inquiry removed.`, 'success');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
     }
 
     setDeletingItem(null);
   };
 
   // Tool availability quick toggle
+<<<<<<< HEAD
   const handleToggleToolAvailability = async (toolId, newStatus) => {
     const updated = tools.map(t => (t._id === toolId || t.toolId === toolId || t.id === toolId ? {
+=======
+  const handleToggleToolAvailability = (toolId, newStatus) => {
+    const updated = tools.map(t => (t._id === toolId || t.id === toolId ? {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
       ...t,
       availabilityStatus: newStatus,
       available: newStatus === 'Available'
     } : t));
     setTools(updated);
     showToast(`Equipment status updated to ${newStatus}`, 'info');
+<<<<<<< HEAD
 
     try {
       await fetch(`/api/tools/${toolId}`, {
@@ -614,6 +689,8 @@ export const Admin = () => {
         body: JSON.stringify({ availabilityStatus: newStatus, available: newStatus === 'Available' })
       });
     } catch {}
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
   };
 
   // CSV Export
