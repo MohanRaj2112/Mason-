@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Construction Services & Pricing – Mason Mate</title>
+    <meta name="description"
+        content="Explore Mason Mate's turnkey house construction packages, master mason rates, and specialized builder services with itemized pricing." />
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-surface);
+            transition: var(--transition);
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+            transform: scale(1.02);
+        }
+
+        .pricing-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: var(--text-white);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 16px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .plan-price .amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .plan-price .unit {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .plan-features {
+            text-align: left;
+            margin: 24px 0 32px;
+            list-style: none;
+        }
+
+        .plan-features li {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .chk-icon {
+            color: #059669;
+            font-weight: 800;
+        }
+
+        .x-icon {
+            color: var(--text-light);
+        }
+
+        .mason-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .pricing-grid, .mason-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-grid, .mason-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mason-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .mason-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mason-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .mason-rate {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 12px 0;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: var(--bg-main);
+            border: 1px solid var(--border-light);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50px;
+            color: var(--text-muted);
+            margin: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        <div class="container notice-bar-inner">
+            <div>
+                🏗️ <strong>Transparent Pricing Guarantee</strong> — Call for Itemized Bill: <a href="tel:+919159687408">+91 9159687408</a>
+            </div>
+            <div>
+                🎁 <span>Book online to get 10% discount on labor charges!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-badge">🏗️</div>
+                <div class="logo-text">Mason <span>Mate</span></div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link active">Services</a></li>
+                <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+                <li><a href="products.html" class="nav-link">Tool Rentals</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="flex gap-12 nav-cta-desktop">
+                <a href="booking.html" class="btn btn-accent btn-sm">Get a Quote</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html" class="nav-link">🏠 Home</a>
+        <a href="services.html" class="nav-link active">🔧 Services</a>
+        <a href="products.html" class="nav-link">🛒 Tool Rentals</a>
+        <a href="booking.html" class="nav-link">📅 Book / Get Quote</a>
+        <a href="contact.html" class="nav-link">📞 Contact</a>
+    </div>
+
+    <!-- Page Header Hero -->
+    <section class="hero" style="padding:60px 0 80px">
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-eyebrow">SERVICES &amp; PACKAGES</span>
+                <h1 style="font-size:2.8rem;margin-bottom:16px">Engineering Solutions Tailored for Your Property</h1>
+                <p class="hero-desc">
+                    Explore our turnkey house construction packages, master mason daily rates, and specialized structural services — transparently priced with zero hidden costs.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Construction Pricing Plans -->
+    <section class="section" id="construction">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-eyebrow">HOUSE CONSTRUCTION PACKAGES</span>
+                <h2>Turnkey Building Plans</h2>
+                <p>All-inclusive construction per square foot with certified engineering standards and material guarantees.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Basic Plan -->
+                <div class="pricing-card">
+                    <div>
+                        <div style="font-size:2.5rem;margin-bottom:12px">🧱</div>
+                        <h3 style="font-size:1.25rem">Basic Package</h3>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px">
+                            Essential construction for budget-conscious homeowners
+                        </p>
+                        <div class="plan-price" style="margin-top:20px">
+                            <span class="amount">₹1,299</span> <span class="unit">/ Sq.Ft</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="chk-icon">✓</span> RCC Column &amp; Slab Foundation</li>
+                            <li><span class="chk-icon">✓</span> Red Brick / Solid Block Masonry</li>
+                            <li><span class="chk-icon">✓</span> Standard Electrical &amp; Plumbing Piping</li>
+                            <li><span class="chk-icon">✓</span> Double Coat Plastering &amp; Primer</li>
+                            <li><span class="x-icon">✕</span> Premium Tile Flooring</li>
+                            <li><span class="x-icon">✕</span> Modular Kitchen &amp; Wardrobes</li>
+                        </ul>
+                    </div>
+                    <a href="booking.html?plan=basic" class="btn btn-outline btn-full">Select Basic Plan</a>
+                </div>
+
+                <!-- Standard Plan -->
+                <div class="pricing-card featured">
+                    <span class="popular-badge">⭐ Most Popular</span>
+                    <div>
+                        <div style="font-size:2.5rem;margin-bottom:12px">🏠</div>
+                        <h3 style="font-size:1.25rem">Standard Package</h3>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px">
+                            Complete residential building with premium finishing
+                        </p>
+                        <div class="plan-price" style="margin-top:20px">
+                            <span class="amount">₹1,799</span> <span class="unit">/ Sq.Ft</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="chk-icon">✓</span> All Basic Structure Features</li>
+                            <li><span class="chk-icon">✓</span> Vitrified Tile Flooring (2x2)</li>
+                            <li><span class="chk-icon">✓</span> Modular Switches &amp; Copper Wiring</li>
+                            <li><span class="chk-icon">✓</span> Branded Bathroom Fittings (Jaguar/Parryware)</li>
+                            <li><span class="chk-icon">✓</span> Weatherproof Exterior &amp; Interior Paint</li>
+                            <li><span class="x-icon">✕</span> Smart Automation Systems</li>
+                        </ul>
+                    </div>
+                    <a href="booking.html?plan=standard" class="btn btn-accent btn-full">Select Standard Plan</a>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card">
+                    <div>
+                        <div style="font-size:2.5rem;margin-bottom:12px">🏛️</div>
+                        <h3 style="font-size:1.25rem">Luxury Premium Plan</h3>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px">
+                            Luxury architectural design with elite imported materials
+                        </p>
+                        <div class="plan-price" style="margin-top:20px">
+                            <span class="amount">₹2,499</span> <span class="unit">/ Sq.Ft</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="chk-icon">✓</span> All Standard Features Included</li>
+                            <li><span class="chk-icon">✓</span> Architectural Design &amp; 3D Elevation</li>
+                            <li><span class="chk-icon">✓</span> Italian Marble / Granite Flooring</li>
+                            <li><span class="chk-icon">✓</span> Teak Wood Doors &amp; UPVC Windows</li>
+                            <li><span class="chk-icon">✓</span> Full Interior Design &amp; Modular Kitchen</li>
+                            <li><span class="chk-icon">✓</span> Dedicated Senior Site Engineer</li>
+                        </ul>
+                    </div>
+                    <a href="booking.html?plan=premium" class="btn btn-primary btn-full">Select Premium Plan</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mason Hiring Section -->
+    <section class="section section-alt" id="mason">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-eyebrow">VERIFIED WORKFORCE</span>
+                <h2>Hire Master Masons &amp; Skilled Craftsmen</h2>
+                <p>Hire background-verified, experienced workers on a daily or contractual basis with full transparent billing.</p>
+            </div>
+
+            <div class="mason-grid">
+                <div class="mason-card">
+                    <div class="mason-avatar">👷</div>
+                    <h3 style="font-size:1.15rem">Head Mason</h3>
+                    <div class="mason-rate">₹900 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">Brick Masonry</span>
+                        <span class="skill-tag">Plastering</span>
+                        <span class="skill-tag">RCC Casting</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=head-mason" class="btn btn-primary btn-sm btn-full">Book Mason</a>
+                </div>
+
+                <div class="mason-card">
+                    <div class="mason-avatar">🪚</div>
+                    <h3 style="font-size:1.15rem">Woodwork Carpenter</h3>
+                    <div class="mason-rate">₹850 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">Door Frames</span>
+                        <span class="skill-tag">Cabinets</span>
+                        <span class="skill-tag">Shuttering</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=carpenter" class="btn btn-primary btn-sm btn-full">Book Carpenter</a>
+                </div>
+
+                <div class="mason-card">
+                    <div class="mason-avatar">⚡</div>
+                    <h3 style="font-size:1.15rem">Licensed Electrician</h3>
+                    <div class="mason-rate">₹950 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">Concealed Conduit</span>
+                        <span class="skill-tag">DB Box Wiring</span>
+                        <span class="skill-tag">Safety Testing</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=electrician" class="btn btn-primary btn-sm btn-full">Book Electrician</a>
+                </div>
+
+                <div class="mason-card">
+                    <div class="mason-avatar">🔧</div>
+                    <h3 style="font-size:1.15rem">Plumbing Specialist</h3>
+                    <div class="mason-rate">₹880 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">CPVC / GI Piping</span>
+                        <span class="skill-tag">Overhead Tank</span>
+                        <span class="skill-tag">Sanitary Ware</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=plumber" class="btn btn-primary btn-sm btn-full">Book Plumber</a>
+                </div>
+
+                <div class="mason-card">
+                    <div class="mason-avatar">🪣</div>
+                    <h3 style="font-size:1.15rem">Tile &amp; Marble Specialist</h3>
+                    <div class="mason-rate">₹800 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">Vitrified Floor</span>
+                        <span class="skill-tag">Wall Cladding</span>
+                        <span class="skill-tag">Granite Cutting</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=tile-layer" class="btn btn-primary btn-sm btn-full">Book Tile Specialist</a>
+                </div>
+
+                <div class="mason-card">
+                    <div class="mason-avatar">🖌️</div>
+                    <h3 style="font-size:1.15rem">Professional Painter</h3>
+                    <div class="mason-rate">₹700 <span style="font-size:0.8rem;color:var(--text-muted);font-weight:500">/ Day</span></div>
+                    <div style="margin-bottom:16px">
+                        <span class="skill-tag">Putty Finishing</span>
+                        <span class="skill-tag">Texture Paint</span>
+                        <span class="skill-tag">Waterproof Coat</span>
+                    </div>
+                    <a href="booking.html?type=mason&role=painter" class="btn btn-primary btn-sm btn-full">Book Painter</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call To Action Banner -->
+    <section class="section" style="padding-top:0">
+        <div class="container" style="margin-top:60px">
+            <div class="cta-banner">
+                <h2>Need a Custom Estimate for Your Property?</h2>
+                <p>Our site engineers visit your property for a free measurement and itemized consultation with zero obligation.</p>
+                <div class="flex gap-16" style="flex-wrap:wrap">
+                    <a href="booking.html" class="btn btn-accent btn-lg">📅 Request Free Site Visit</a>
+                    <button class="btn btn-outline-white btn-lg" onclick="openWhatsApp('Hello Mason Mate! I need a custom quote.')">💬 WhatsApp Direct</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom:16px;color:var(--text-white)">
+                        <div class="logo-badge">🏗️</div>
+                        <div class="logo-text">Mason <span style="color:var(--accent)">Mate</span></div>
+                    </div>
+                    <p>Your trusted engineering partner for residential house construction, master mason hiring, and commercial tool rentals.</p>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="products.html">Tool Rentals</a></li>
+                        <li><a href="booking.html">Get a Quote</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Services</h5>
+                    <ul>
+                        <li><a href="#construction">Turnkey House Construction</a></li>
+                        <li><a href="#mason">Hire Master Masons</a></li>
+                        <li><a href="products.html">Tool Rentals</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Contact Information</h5>
+                    <div class="footer-contact-item">
+                        <span>📞</span>
+                        <span><a href="tel:+919159687408" style="color:rgba(255,255,255,0.7)">+91 9159687408</a></span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <span>💬</span>
+                        <span><a href="#" onclick="openWhatsApp()" style="color:rgba(255,255,255,0.7)">WhatsApp Direct</a></span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <span>📍</span>
+                        <span>Salem &amp; Coimbatore, Tamil Nadu</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 <span>Mason Mate</span> (SRM AKASH CONSTRUCTION). All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Service & Request Quote – Mason Mate</title>
+    <meta name="description"
+        content="Book house construction, master mason hiring, or tool rentals online with transparent estimation and instant confirmation." />
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        .booking-wrap {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .steps-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .step-circle.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--text-white);
+        }
+
+        .step-circle.done {
+            background: #059669;
+            border-color: #059669;
+            color: var(--text-white);
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .step-label.active {
+            color: var(--primary);
+        }
+
+        .step-connector {
+            flex: 1;
+            height: 2px;
+            background: var(--border-light);
+            margin: 0 12px;
+        }
+
+        .step-connector.done {
+            background: var(--accent);
+        }
+
+        .form-panel {
+            display: none;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        .service-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stype-card {
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-surface);
+        }
+
+        .stype-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .stype-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .stype-card .si {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .stype-card .sn {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .stype-card .sp {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .summary-card {
+            background: var(--bg-dark);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            color: var(--text-white);
+            position: sticky;
+            top: calc(var(--nav-height) + 20px);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .summary-card h4 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .summary-row strong {
+            color: var(--text-white);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 12px;
+        }
+
+        .summary-total .val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .pay-method {
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            background: var(--bg-surface);
+        }
+
+        .pay-method:hover {
+            border-color: var(--accent);
+        }
+
+        .pay-method.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        @media (max-width: 900px) {
+            .booking-wrap { grid-template-columns: 1fr; }
+            .service-type-grid { grid-template-columns: repeat(2, 1fr); }
+            .payment-methods { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .service-type-grid { grid-template-columns: 1fr; }
+            .steps-bar { flex-wrap: wrap; }
+            .step-connector { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        <div class="container notice-bar-inner">
+            <div>
+                🏗️ <strong>Booking Hotline:</strong> Call <a href="tel:+919159687408">+91 9159687408</a> for immediate phone booking &amp; site visit assistance.
+            </div>
+            <div>
+                <span>30% advance booking deposit guarantees schedule reservation.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-badge">🏗️</div>
+                <div class="logo-text">Mason <span>Mate</span></div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="products.html" class="nav-link">Tool Rentals</a></li>
+                <li><a href="booking.html" class="nav-link active">Get a Quote</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="flex gap-12 nav-cta-desktop">
+                <a href="tel:+919159687408" class="btn btn-outline btn-sm">📞 Call Helpline</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html" class="nav-link">🏠 Home</a>
+        <a href="services.html" class="nav-link">🔧 Services</a>
+        <a href="products.html" class="nav-link">🛒 Tool Rentals</a>
+        <a href="booking.html" class="nav-link active">📅 Book / Get Quote</a>
+        <a href="contact.html" class="nav-link">📞 Contact</a>
+    </div>
+
+    <!-- Page Header Hero -->
+    <section class="hero" style="padding:60px 0 80px">
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-eyebrow">ONLINE BOOKING WIZARD</span>
+                <h1 style="font-size:2.8rem;margin-bottom:16px">Book Service &amp; Request Free Quote</h1>
+                <p class="hero-desc">
+                    Schedule a site measurement, hire vetted master masons, or reserve commercial equipment in 4 simple steps.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Booking Section -->
+    <section class="section" style="padding-top:48px">
+        <div class="container">
+            <!-- Progress Bar -->
+            <div class="steps-bar" id="stepsBar">
+                <div class="step-item">
+                    <div class="step-circle active" id="sc1">1</div>
+                    <span class="step-label active" id="sl1">Service</span>
+                </div>
+                <div class="step-connector" id="conn1"></div>
+                <div class="step-item">
+                    <div class="step-circle" id="sc2">2</div>
+                    <span class="step-label" id="sl2">Details</span>
+                </div>
+                <div class="step-connector" id="conn2"></div>
+                <div class="step-item">
+                    <div class="step-circle" id="sc3">3</div>
+                    <span class="step-label" id="sl3">Payment</span>
+                </div>
+                <div class="step-connector" id="conn3"></div>
+                <div class="step-item">
+                    <div class="step-circle" id="sc4">4</div>
+                    <span class="step-label" id="sl4">Confirmation</span>
+                </div>
+            </div>
+
+            <div class="booking-wrap">
+                <!-- Left Form Panels -->
+                <div>
+                    <!-- Step 1: Service Selection -->
+                    <div class="form-panel active card" id="panel1">
+                        <h3>🔧 Select Construction Service</h3>
+                        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:24px">
+                            Choose the type of service required for your project site:
+                        </p>
+                        <div class="service-type-grid" id="serviceTypeGrid">
+                            <div class="stype-card" onclick="selectService(this,'Turnkey House Construction','₹1,799/sq.ft')">
+                                <div class="si">🏠</div>
+                                <div class="sn">House Construction</div>
+                                <div class="sp">Turnkey Home Package</div>
+                            </div>
+                            <div class="stype-card" onclick="selectService(this,'Renovation & Remodeling','₹799/sq.ft')">
+                                <div class="si">🔨</div>
+                                <div class="sn">Renovation &amp; Repairs</div>
+                                <div class="sp">Structure Modifications</div>
+                            </div>
+                            <div class="stype-card" onclick="selectService(this,'Master Mason Hiring','₹900/day per mason')">
+                                <div class="si">👷</div>
+                                <div class="sn">Hire Master Mason</div>
+                                <div class="sp">Brick &amp; Tile Workers</div>
+                            </div>
+                            <div class="stype-card" onclick="selectService(this,'Tool & Equipment Rental','As Per Catalog')">
+                                <div class="si">🛒</div>
+                                <div class="sn">Tool Rental</div>
+                                <div class="sp">Power Tools &amp; Mixers</div>
+                            </div>
+                            <div class="stype-card" onclick="selectService(this,'Roofing & Waterproofing','₹350/sq.ft')">
+                                <div class="si">🏗️</div>
+                                <div class="sn">Roofing &amp; Waterproof</div>
+                                <div class="sp">Slab Weatherproofing</div>
+                            </div>
+                            <div class="stype-card" onclick="selectService(this,'Free Site Measurement','Free Estimate')">
+                                <div class="si">📍</div>
+                                <div class="sn">Free Site Visit</div>
+                                <div class="sp">On-Site Estimation</div>
+                            </div>
+                        </div>
+                        <div id="serviceError" style="color:#DC2626;font-size:0.85rem;margin-bottom:16px;display:none">
+                            ⚠️ Please select a service to proceed.
+                        </div>
+                        <div class="flex gap-12" style="margin-top:24px">
+                            <button class="btn btn-accent btn-lg" onclick="goStep(2)">Next: Fill Site Details →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Site Details -->
+                    <div class="form-panel card" id="panel2">
+                        <h3>📋 Customer &amp; Site Details</h3>
+                        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:24px">
+                            Provide your project address and schedule requirements:
+                        </p>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="custName" placeholder="e.g. Ramesh Kumar" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="custPhone" placeholder="+91 9159687408" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="custEmail" placeholder="ramesh@gmail.com" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Site Address *</label>
+                            <textarea class="form-control" id="custAddress" placeholder="Complete site address with landmark..." rows="3"></textarea>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Required Start Date *</label>
+                                <input type="date" class="form-control" id="startDate" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expected Completion Date</label>
+                                <input type="date" class="form-control" id="endDate" />
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Number of Workers Required</label>
+                                <select class="form-control" id="workerCount">
+                                    <option value="1">1 Worker</option>
+                                    <option value="2">2 Workers</option>
+                                    <option value="3">3 Workers</option>
+                                    <option value="4">4 Workers</option>
+                                    <option value="5+">5+ Workers</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Project Built-Up Area (Sq.Ft)</label>
+                                <input type="number" class="form-control" id="projSize" placeholder="e.g. 1500" min="100" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Special Notes / Engineering Instructions</label>
+                            <textarea class="form-control" id="custNotes" placeholder="Any specific requirements regarding steel grade, cement, soil condition..." rows="2"></textarea>
+                        </div>
+                        <div id="detailsError" style="color:#DC2626;font-size:0.85rem;margin-bottom:16px;display:none">
+                            ⚠️ Please fill all required fields marked with *.
+                        </div>
+                        <div class="flex gap-12" style="margin-top:24px">
+                            <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+                            <button class="btn btn-accent btn-lg" onclick="goStep(3)">Next: Payment Method →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Payment Method -->
+                    <div class="form-panel card" id="panel3">
+                        <h3>💳 Advance Payment Options</h3>
+                        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:24px">
+                            Select payment method for the 30% advance booking deposit:
+                        </p>
+                        <div class="payment-methods" id="paymentMethods">
+                            <div class="pay-method selected" onclick="selectPayMethod(this,'UPI')">
+                                <div style="font-size:1.8rem;margin-bottom:4px">📱</div>
+                                <div style="font-weight:700;font-size:0.85rem">UPI / GPay</div>
+                            </div>
+                            <div class="pay-method" onclick="selectPayMethod(this,'Card')">
+                                <div style="font-size:1.8rem;margin-bottom:4px">💳</div>
+                                <div style="font-weight:700;font-size:0.85rem">Card Payment</div>
+                            </div>
+                            <div class="pay-method" onclick="selectPayMethod(this,'Net Banking')">
+                                <div style="font-size:1.8rem;margin-bottom:4px">🏦</div>
+                                <div style="font-weight:700;font-size:0.85rem">Net Banking</div>
+                            </div>
+                            <div class="pay-method" onclick="selectPayMethod(this,'Cash on Visit')">
+                                <div style="font-size:1.8rem;margin-bottom:4px">💵</div>
+                                <div style="font-weight:700;font-size:0.85rem">Cash On Site</div>
+                            </div>
+                        </div>
+
+                        <!-- UPI Input -->
+                        <div id="upiPanel" class="form-group">
+                            <label class="form-label">UPI ID / PhonePe Number</label>
+                            <input type="text" class="form-control" id="upiId" placeholder="username@upi or 9159687408" />
+                            <span style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">You will receive a UPI payment request notification.</span>
+                        </div>
+
+                        <!-- Card Input -->
+                        <div id="cardPanel" style="display:none">
+                            <div class="form-group">
+                                <label class="form-label">Card Number</label>
+                                <input type="text" class="form-control" id="cardNum" placeholder="4123 4567 8901 2345" maxlength="19" />
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CVV Code</label>
+                                    <input type="password" class="form-control" placeholder="•••" maxlength="3" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-12" style="margin-top:28px">
+                            <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+                            <button class="btn btn-accent btn-lg" onclick="processPayment()">🔒 Confirm Booking &amp; Pay Advance</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Confirmation -->
+                    <div class="form-panel card" id="panel4" style="text-align:center;padding:48px 32px">
+                        <div style="font-size:4rem;margin-bottom:12px">✅</div>
+                        <h2>Booking Confirmed Successfully!</h2>
+                        <p style="color:var(--text-muted);max-width:500px;margin:12px auto 24px">
+                            Thank you! Your booking reference has been submitted. Our engineering team will call you within 2 hours to confirm your site visit schedule.
+                        </p>
+                        <div style="background:var(--accent-light);border:1px solid var(--accent);padding:14px 28px;border-radius:var(--radius-md);display:inline-block;font-size:1.4rem;font-weight:800;color:var(--primary);margin-bottom:32px" id="confirmId">
+                            MM-XXXXXX
+                        </div>
+                        <div class="flex gap-16 justify-between" style="justify-content:center;flex-wrap:wrap">
+                            <a href="index.html" class="btn btn-primary">🏠 Back to Home</a>
+                            <button class="btn btn-accent" onclick="openWhatsApp('Hello Mason Mate, my booking ID is ' + document.getElementById('confirmId').textContent)">💬 Chat on WhatsApp</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Summary Card -->
+                <div>
+                    <div class="summary-card" id="summaryCard">
+                        <h4>📋 Booking Summary</h4>
+                        <div class="summary-row"><span>Service Type</span><strong id="sumService">Turnkey House Construction</strong></div>
+                        <div class="summary-row"><span>Start Date</span><strong id="sumDate">Not Set</strong></div>
+                        <div class="summary-row"><span>Expected Duration</span><strong id="sumDuration">—</strong></div>
+                        <div class="summary-row"><span>Worker Count</span><strong id="sumWorkers">1 Worker</strong></div>
+                        <div class="summary-row"><span>Built-Up Area</span><strong id="sumSize">— Sq.Ft</strong></div>
+                        <div class="summary-row"><span>Payment Mode</span><strong id="sumPayment">UPI</strong></div>
+                        <div class="summary-total">
+                            <span style="font-size:0.9rem;color:rgba(255,255,255,0.7)">Advance Estimate</span>
+                            <span class="val" id="sumTotal">₹0</span>
+                        </div>
+                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:12px">
+                            *Final bill calculated after free on-site measurement and engineering assessment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom:16px;color:var(--text-white)">
+                        <div class="logo-badge">🏗️</div>
+                        <div class="logo-text">Mason <span style="color:var(--accent)">Mate</span></div>
+                    </div>
+                    <p>Your trusted engineering partner for house construction, master mason hiring, and commercial tool rentals.</p>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="products.html">Tool Rentals</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <div class="footer-contact-item">
+                        <span>📞</span>
+                        <span><a href="tel:+919159687408" style="color:rgba(255,255,255,0.7)">+91 9159687408</a></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 <span>Mason Mate</span>. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+    <script src="js/main.js"></script>
+    <script src="js/booking.js"></script>
+</body>
+
+</html>

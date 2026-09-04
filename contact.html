@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us – Mason Mate</title>
+    <meta name="description"
+        content="Contact Mason Mate for free construction consultations, site measurement, or tool rental assistance in Tamil Nadu." />
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .contact-info-card {
+            background: var(--bg-dark);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            color: var(--text-white);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .ci-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ci-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(217, 119, 6, 0.18);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .star-input {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 16px 0;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .star-input span {
+            color: var(--border-light);
+            transition: var(--transition);
+        }
+
+        .star-input span.active, .star-input span:hover {
+            color: var(--accent);
+        }
+
+        @media(max-width:900px) {
+            .contact-grid, .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        <div class="container notice-bar-inner">
+            <div>
+                📞 <strong>Hotline:</strong> Call <a href="tel:+919159687408">+91 9159687408</a> or chat direct on WhatsApp.
+            </div>
+            <div>
+                <span>Operating Mon – Sat: 8:00 AM – 7:00 PM</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-badge">🏗️</div>
+                <div class="logo-text">Mason <span>Mate</span></div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="products.html" class="nav-link">Tool Rentals</a></li>
+                <li><a href="booking.html" class="nav-link">Get a Quote</a></li>
+                <li><a href="contact.html" class="nav-link active">Contact</a></li>
+            </ul>
+            <div class="flex gap-12 nav-cta-desktop">
+                <a href="tel:+919159687408" class="btn btn-accent btn-sm">📞 Call Direct</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html" class="nav-link">🏠 Home</a>
+        <a href="services.html" class="nav-link">🔧 Services</a>
+        <a href="products.html" class="nav-link">🛒 Tool Rentals</a>
+        <a href="booking.html" class="nav-link">📅 Book / Get Quote</a>
+        <a href="contact.html" class="nav-link active">📞 Contact</a>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero" style="padding:60px 0 80px">
+        <div class="container">
+            <div class="hero-content">
+                <span class="section-eyebrow">GET IN TOUCH</span>
+                <h1 style="font-size:2.8rem;margin-bottom:16px">Contact Mason Mate Engineering</h1>
+                <p class="hero-desc">
+                    Have questions regarding an upcoming residential build, worker dispatch, or commercial tool delivery? Reach our site engineers direct.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Contact Section -->
+    <section class="section" style="padding-top:48px">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Info Column -->
+                <div>
+                    <div class="contact-info-card">
+                        <h3 style="color:var(--accent);margin-bottom:8px">Mason Mate Headquarters</h3>
+                        <p style="color:rgba(255,255,255,0.7);font-size:0.92rem;margin-bottom:28px">
+                            Our civil engineering consultants are available Monday through Saturday.
+                        </p>
+
+                        <div class="ci-item">
+                            <div class="ci-icon">📞</div>
+                            <div>
+                                <strong style="display:block;font-size:0.9rem">Helpline Phone</strong>
+                                <span style="font-size:0.85rem;color:rgba(255,255,255,0.7)">
+                                    <a href="tel:+919159687408" style="color:var(--accent)">+91 9159687408</a>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="ci-item">
+                            <div class="ci-icon">💬</div>
+                            <div>
+                                <strong style="display:block;font-size:0.9rem">WhatsApp Support</strong>
+                                <span style="font-size:0.85rem;color:rgba(255,255,255,0.7)">
+                                    <a href="#" onclick="openWhatsApp('Hello Mason Mate! I need site information.')" style="color:var(--accent)">Instant WhatsApp Chat</a>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="ci-item">
+                            <div class="ci-icon">📧</div>
+                            <div>
+                                <strong style="display:block;font-size:0.9rem">Email Contact</strong>
+                                <span style="font-size:0.85rem;color:rgba(255,255,255,0.7)">
+                                    contact@masonmate.in
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="ci-item">
+                            <div class="ci-icon">📍</div>
+                            <div>
+                                <strong style="display:block;font-size:0.9rem">Service Locations</strong>
+                                <span style="font-size:0.85rem;color:rgba(255,255,255,0.7)">
+                                    Salem &amp; Coimbatore, Tamil Nadu, India
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:28px">
+                            <button onclick="openWhatsApp()" class="btn btn-accent btn-full">💬 Chat on WhatsApp</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="card">
+                    <h3>Send Us a Direct Message</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:24px">
+                        Fill out the form below to receive a response within 2 business hours:
+                    </p>
+
+                    <form id="contactForm" onsubmit="submitContact(event)">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="cfName" placeholder="Your name" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="cfPhone" placeholder="+91 9159687408" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="cfEmail" placeholder="you@email.com" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Interested Service</label>
+                            <select class="form-control" id="cfService">
+                                <option value="">Select service...</option>
+                                <option>Turnkey House Construction</option>
+                                <option>Home Renovation</option>
+                                <option>Hire Master Mason</option>
+                                <option>Tool &amp; Equipment Rental</option>
+                                <option>Free Site Visit Request</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Project Details / Message *</label>
+                            <textarea class="form-control" id="cfMessage" rows="4" placeholder="Mention project location, built-up area, or specific tools needed..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent btn-full btn-lg" id="cfSubmitBtn">
+                            📨 Send Inquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section section-alt" id="reviews">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-eyebrow">CLIENT FEEDBACK</span>
+                <h2>Verified Customer Reviews</h2>
+                <p>Read what homeowners and partner contractors say about Mason Mate.</p>
+            </div>
+
+            <div class="reviews-grid" id="reviewsGrid">
+                <!-- Rendered by JS -->
+            </div>
+
+            <!-- Write Review Card -->
+            <div class="card" style="margin-top:40px;text-align:center">
+                <h3>Share Your Experience</h3>
+                <p style="color:var(--text-muted);font-size:0.9rem">Worked with Mason Mate on a project? Leave us your review:</p>
+                <div class="star-input" id="starInput">
+                    <span onclick="setRating(1)" data-star="1">★</span>
+                    <span onclick="setRating(2)" data-star="2">★</span>
+                    <span onclick="setRating(3)" data-star="3">★</span>
+                    <span onclick="setRating(4)" data-star="4">★</span>
+                    <span onclick="setRating(5)" data-star="5">★</span>
+                </div>
+                <div class="grid-2" style="max-width:600px;margin:0 auto">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="revName" placeholder="Your name *" />
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="revLocation" placeholder="City / Area" />
+                    </div>
+                </div>
+                <div class="form-group" style="max-width:600px;margin:0 auto 20px">
+                    <textarea class="form-control" id="revText" rows="3" placeholder="Share your experience..."></textarea>
+                </div>
+                <button class="btn btn-accent" onclick="submitReview()">⭐ Submit Feedback</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom:16px;color:var(--text-white)">
+                        <div class="logo-badge">🏗️</div>
+                        <div class="logo-text">Mason <span style="color:var(--accent)">Mate</span></div>
+                    </div>
+                    <p>Your trusted partner for house construction, master mason hiring, and commercial tool rentals.</p>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="products.html">Tool Rentals</a></li>
+                        <li><a href="booking.html">Get a Quote</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <div class="footer-contact-item">
+                        <span>📞</span>
+                        <span><a href="tel:+919159687408" style="color:rgba(255,255,255,0.7)">+91 9159687408</a></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 <span>Mason Mate</span>. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+    <script src="js/main.js"></script>
+    <script>
+        const defaultReviews = [
+            { name: 'Rajesh Kumar', loc: 'Salem', rating: 5, text: 'Mason Mate completed our 3BHK home on time in 8 months. High quality and weekly progress reports!', date: 'January 2026' },
+            { name: 'Priya Sundar', loc: 'Coimbatore', rating: 5, text: 'Rented a drum cement mixer and scaffolding set. Serviced equipment and delivered right on site!', date: 'December 2025' },
+            { name: 'Murugan Doss', loc: 'Salem', rating: 5, text: 'Hired 3 master masons for floor tile cladding. Punctual, polite, and skilled professionals.', date: 'November 2025' }
+        ];
+
+        let rating = 0;
+
+        function renderReviews() {
+            const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+            const all = [...stored.reverse(), ...defaultReviews];
+            const grid = document.getElementById('reviewsGrid');
+            if(!grid) return;
+            grid.innerHTML = all.map(r => `
+                <div class="card">
+                    <div style="color:var(--accent);margin-bottom:8px">${'★'.repeat(r.rating)}</div>
+                    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:16px">"${r.text}"</p>
+                    <strong style="display:block;font-size:0.92rem">${r.name}</strong>
+                    <span style="font-size:0.8rem;color:var(--text-muted)">${r.loc || 'Client'}</span>
+                </div>
+            `).join('');
+        }
+
+        function setRating(n) {
+            rating = n;
+            document.querySelectorAll('#starInput span').forEach((s, i) => {
+                s.classList.toggle('active', i < n);
+            });
+        }
+
+        function submitReview() {
+            const name = document.getElementById('revName').value.trim();
+            const text = document.getElementById('revText').value.trim();
+            const loc = document.getElementById('revLocation').value.trim();
+            if (!name || !text || rating === 0) {
+                showToast('Please fill out your name, star rating, and review text.', 'error');
+                return;
+            }
+            const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+            stored.push({ name, text, loc, rating, date: 'Just now' });
+            localStorage.setItem('cp_reviews', JSON.stringify(stored));
+            document.getElementById('revName').value = '';
+            document.getElementById('revText').value = '';
+            document.getElementById('revLocation').value = '';
+            setRating(0);
+            renderReviews();
+            showToast('Thank you for your review! ⭐', 'success');
+        }
+
+        function submitContact(e) {
+            e.preventDefault();
+            const btn = document.getElementById('cfSubmitBtn');
+            btn.textContent = '⏳ Sending Inquiry...';
+            btn.disabled = true;
+            setTimeout(() => {
+                showToast('Inquiry sent! Our engineers will call you within 2 hours. 📞', 'success', 5000);
+                e.target.reset();
+                btn.textContent = '📨 Send Inquiry';
+                btn.disabled = false;
+            }, 1200);
+        }
+
+        renderReviews();
+    </script>
+</body>
+
+</html>
