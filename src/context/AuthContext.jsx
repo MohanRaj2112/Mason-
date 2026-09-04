@@ -11,6 +11,10 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
   const [token, setToken] = useState(() => {
     try {
       return localStorage.getItem('mm_auth_token') || null;
@@ -18,6 +22,11 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
 
   useEffect(() => {
     try {
@@ -31,6 +40,10 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
   useEffect(() => {
     try {
       if (token) {
@@ -58,16 +71,42 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.removeItem('cp_user');
       localStorage.removeItem('mm_auth_token');
+<<<<<<< HEAD
+=======
+=======
+  const login = (user) => {
+    setCurrentUser(user);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('cp_user');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     } catch {}
   };
 
   const isAdmin = currentUser?.role === 'admin' || 
                   currentUser?.username?.toLowerCase() === 'admin' || 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
                   currentUser?.email?.toLowerCase() === 'admin@srmakash.com' ||
                   currentUser?.email?.toLowerCase() === 'admin@masonmate.in';
 
   return (
     <AuthContext.Provider value={{ currentUser, token, login, logout, isAdmin }}>
+<<<<<<< HEAD
+=======
+=======
+                  currentUser?.email?.toLowerCase() === 'admin@srmakash.com';
+
+  return (
+    <AuthContext.Provider value={{ currentUser, login, logout, isAdmin }}>
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
       {children}
     </AuthContext.Provider>
   );
@@ -80,4 +119,7 @@ export const useAuth = () => {
   }
   return context;
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1

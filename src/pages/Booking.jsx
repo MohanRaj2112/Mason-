@@ -265,7 +265,23 @@ export const Booking = () => {
       <div className="container" style={{ marginTop: '-32px', position: 'relative', zIndex: 10 }}>
         {/* SUCCESS STATE */}
         {submittedSuccess ? (
+<<<<<<< HEAD
           <div className="card booking-success-card">
+=======
+          <div
+            className="card"
+            style={{
+              maxWidth: '760px',
+              margin: '0 auto',
+              padding: '48px 36px',
+              textAlign: 'center',
+              borderRadius: '20px',
+              boxShadow: 'var(--shadow-xl)',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-light)'
+            }}
+          >
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             <div
               style={{
                 width: '76px',
@@ -364,9 +380,32 @@ export const Booking = () => {
           </div>
         ) : (
           /* BOOKING FORM CONTAINER */
+<<<<<<< HEAD
           <div className="booking-form-wrapper">
             {/* ── LEFT: FORM FIELDS ── */}
             <div className="card booking-form-card">
+=======
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.85fr) minmax(0, 1.15fr)',
+              gap: '32px',
+              alignItems: 'start'
+            }}
+            className="booking-form-wrapper"
+          >
+            {/* ── LEFT: FORM FIELDS ── */}
+            <div
+              className="card"
+              style={{
+                borderRadius: '20px',
+                padding: '36px',
+                boxShadow: 'var(--shadow-md)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)'
+              }}
+            >
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
               <form onSubmit={handleSubmitBooking}>
                 {/* ERROR STATE BANNER */}
                 {errorMessage && (
@@ -427,7 +466,17 @@ export const Booking = () => {
                     Select the service category that matches your immediate site requirement.
                   </p>
 
+<<<<<<< HEAD
                   <div className="booking-type-grid">
+=======
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                      gap: '14px'
+                    }}
+                  >
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
                     {BOOKING_TYPES.map(type => {
                       const isSelected = bookingType === type.id;
                       return (
@@ -951,8 +1000,22 @@ export const Booking = () => {
             </div>
 
             {/* ── RIGHT: SUMMARY CARD ── */}
+<<<<<<< HEAD
             <div className="booking-sidebar-sticky">
               <div className="booking-summary-box">
+=======
+            <div style={{ position: 'sticky', top: '100px' }}>
+              <div
+                style={{
+                  background: 'var(--bg-dark)',
+                  color: '#fff',
+                  padding: '30px',
+                  borderRadius: '20px',
+                  boxShadow: 'var(--shadow-xl)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)'
+                }}
+              >
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.12)', paddingBottom: '16px', marginBottom: '20px' }}>
                   <h4 style={{ color: '#fff', fontSize: '1.15rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     📋 Booking Summary

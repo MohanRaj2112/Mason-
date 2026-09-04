@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+<<<<<<< HEAD
+import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
 import { useToast } from '../context/ToastContext';
 
 const defaultReviews = [
@@ -24,12 +32,24 @@ export const Contact = () => {
   const [reviews, setReviews] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+<<<<<<< HEAD
       return stored.length > 0 ? [...stored, ...defaultReviews] : defaultReviews;
+=======
+<<<<<<< HEAD
+      return stored.length > 0 ? [...stored, ...defaultReviews] : defaultReviews;
+=======
+      return [...stored.reverse(), ...defaultReviews];
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     } catch {
       return defaultReviews;
     }
   });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
   // Load reviews from MongoDB API
   useEffect(() => {
     const fetchReviews = async () => {
@@ -48,14 +68,30 @@ export const Contact = () => {
     fetchReviews();
   }, []);
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
   // Review Form state
   const [reviewRating, setReviewRating] = useState(5);
   const [revName, setRevName] = useState('');
   const [revLocation, setRevLocation] = useState('');
   const [revText, setRevText] = useState('');
+<<<<<<< HEAD
   const [submittingReview, setSubmittingReview] = useState(false);
 
   const handleInquirySubmit = async (e) => {
+=======
+<<<<<<< HEAD
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const handleInquirySubmit = async (e) => {
+=======
+
+  const handleInquirySubmit = (e) => {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     e.preventDefault();
     if (!inquiry.name || !inquiry.phone || !inquiry.message) {
       showToast('Please fill all required fields marked with *', 'error');
@@ -63,6 +99,10 @@ export const Contact = () => {
     }
 
     setSendingInquiry(true);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
 
     const contactPayload = {
       name: inquiry.name.trim(),
@@ -87,6 +127,13 @@ export const Contact = () => {
         showToast('Inquiry sent! Our engineers will call you within 2 hours. 📞', 'success', 5000);
       }
 
+<<<<<<< HEAD
+=======
+=======
+    setTimeout(() => {
+      showToast('Inquiry sent! Our engineers will call you within 2 hours. 📞', 'success', 5000);
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
       setInquiry({
         name: '',
         phone: '',
@@ -94,6 +141,10 @@ export const Contact = () => {
         service: '',
         message: ''
       });
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     } catch (err) {
       console.warn('Inquiry API error, falling back:', err);
       showToast('Inquiry sent! Our engineers will call you shortly.', 'success', 5000);
@@ -103,13 +154,30 @@ export const Contact = () => {
   };
 
   const handleReviewSubmit = async (e) => {
+<<<<<<< HEAD
+=======
+=======
+      setSendingInquiry(false);
+    }, 1000);
+  };
+
+  const handleReviewSubmit = (e) => {
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     e.preventDefault();
     if (!revName.trim() || !revText.trim() || reviewRating === 0) {
       showToast('Please fill out your name, star rating, and review text.', 'error');
       return;
     }
 
+<<<<<<< HEAD
     setSubmittingReview(true);
+=======
+<<<<<<< HEAD
+    setSubmittingReview(true);
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     const newRev = {
       name: revName.trim(),
       loc: revLocation.trim() || 'Client',
@@ -119,6 +187,10 @@ export const Contact = () => {
     };
 
     try {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
       // 1. Post to MongoDB Reviews API
       await fetch('/api/reviews', {
         method: 'POST',
@@ -144,6 +216,22 @@ export const Contact = () => {
     } finally {
       setSubmittingReview(false);
     }
+<<<<<<< HEAD
+=======
+=======
+      const stored = JSON.parse(localStorage.getItem('cp_reviews') || '[]');
+      stored.push(newRev);
+      localStorage.setItem('cp_reviews', JSON.stringify(stored));
+    } catch {}
+
+    setReviews([newRev, ...reviews]);
+    setRevName('');
+    setRevLocation('');
+    setRevText('');
+    setReviewRating(5);
+    showToast('Thank you for your review! ⭐', 'success');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
   };
 
   const openWhatsApp = (msg) => {
@@ -170,10 +258,17 @@ export const Contact = () => {
       {/* ── CONTACT INFO & FORM ── */}
       <section className="section" style={{ paddingTop: '48px' }}>
         <div className="container">
+<<<<<<< HEAD
           <div className="contact-grid">
             {/* Info Column */}
             <div>
               <div className="contact-info-card">
+=======
+          <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '40px', alignItems: 'start' }}>
+            {/* Info Column */}
+            <div>
+              <div className="contact-info-card" style={{ background: 'var(--bg-dark)', borderRadius: 'var(--radius-xl)', padding: '40px', color: 'var(--text-white)', border: '1px solid rgba(217, 119, 6, 0.3)', boxShadow: 'var(--shadow-xl)' }}>
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
                 <h3 style={{ color: 'var(--accent)', marginBottom: '8px' }}>Mason Mate Headquarters</h3>
                 <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.92rem', marginBottom: '28px' }}>
                   Our civil engineering consultants are available Monday through Saturday.
@@ -228,7 +323,11 @@ export const Contact = () => {
             </div>
 
             {/* Inquiry Form */}
+<<<<<<< HEAD
             <div className="card contact-form-card">
+=======
+            <div className="card">
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
               <h3>Send Us a Direct Message</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '24px' }}>
                 Fill out the form below to receive a response within 2 business hours:
@@ -321,7 +420,11 @@ export const Contact = () => {
             <p>Read what homeowners and partner contractors say about Mason Mate.</p>
           </div>
 
+<<<<<<< HEAD
           <div className="reviews-grid">
+=======
+          <div className="reviews-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '32px' }}>
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             {reviews.map((r, i) => (
               <div key={i} className="card">
                 <div style={{ color: 'var(--accent)', marginBottom: '8px', fontSize: '1.2rem' }}>
@@ -337,7 +440,11 @@ export const Contact = () => {
           </div>
 
           {/* Write Review Form */}
+<<<<<<< HEAD
           <div className="card review-form-card">
+=======
+          <div className="card" style={{ marginTop: '40px', textAlign: 'center', maxWidth: '650px', margin: '40px auto 0' }}>
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             <h3>Share Your Experience</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>
               Worked with Mason Mate on a project? Leave us your review:
@@ -389,12 +496,23 @@ export const Contact = () => {
                 />
               </div>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
               <button
                 type="submit"
                 className="btn btn-accent btn-lg"
                 disabled={submittingReview}
               >
                 {submittingReview ? '⏳ Submitting...' : '⭐ Submit Feedback'}
+<<<<<<< HEAD
+=======
+=======
+              <button type="submit" className="btn btn-accent btn-lg">
+                ⭐ Submit Feedback
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
               </button>
             </form>
           </div>

@@ -13,7 +13,14 @@ export const Auth = () => {
   const [loginId, setLoginId] = useState('');
   const [loginPwd, setLoginPwd] = useState('');
   const [loginError, setLoginError] = useState('');
+<<<<<<< HEAD
   const [isSubmitting, setIsSubmitting] = useState(false);
+=======
+<<<<<<< HEAD
+  const [isSubmitting, setIsSubmitting] = useState(false);
+=======
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
 
   // Signup form state
   const [signupFirst, setSignupFirst] = useState('');
@@ -43,6 +50,10 @@ export const Auth = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoginError('');
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     setIsSubmitting(true);
 
     if (!loginId.trim() || !loginPwd) {
@@ -123,12 +134,57 @@ export const Auth = () => {
     };
     login(fallbackUser);
     showToast(`Signed in successfully as ${fallbackUser.name}!`, 'success');
+<<<<<<< HEAD
+=======
+=======
+
+    if (!loginId.trim() || !loginPwd) {
+      setLoginError('Please enter both ID and password.');
+      return;
+    }
+
+    // Admin default login check
+    if ((loginId === 'admin' || loginId === 'admin@srmakash.com') && loginPwd === 'admin123') {
+      const adminUser = { username: 'Admin', email: 'admin@srmakash.com', role: 'admin' };
+      login(adminUser);
+      showToast('Welcome Admin! Redirecting to Admin Panel...', 'success');
+      setTimeout(() => navigate('/admin'), 600);
+      return;
+    }
+
+    try {
+      const res = await fetch('/users');
+      if (res.ok) {
+        const users = await res.json();
+        const found = users.find(u => u.username === loginId || u.email === loginId || u.mobile === loginId);
+        if (found) {
+          const user = { username: found.username || found.first, email: found.email, role: 'customer' };
+          login(user);
+          showToast(`Welcome back, ${user.username}!`, 'success');
+          setTimeout(() => navigate('/'), 600);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Backend login check offline:', err);
+    }
+
+    // Local fallback user login
+    const user = { username: loginId.split('@')[0], email: loginId, role: 'customer' };
+    login(user);
+    showToast(`Signed in successfully as ${user.username}!`, 'success');
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     setTimeout(() => navigate('/'), 600);
   };
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setSignupError('');
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     setIsSubmitting(true);
 
     if (!signupPhone.trim() || !signupPwd) {
@@ -178,12 +234,48 @@ export const Auth = () => {
       email: signupEmail,
       role: 'user'
     };
+<<<<<<< HEAD
+=======
+=======
+
+    if (!signupPhone.trim() || !signupPwd) {
+      setSignupError('Mobile number and password are required.');
+      return;
+    }
+
+    const username = signupFirst ? `${signupFirst} ${signupLast}`.trim() : (signupEmail.split('@')[0] || 'Customer');
+
+    try {
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, mobile: signupPhone, email: signupEmail, password: signupPwd })
+      });
+      if (res.ok) {
+        const newUser = { username, mobile: signupPhone, email: signupEmail, role: 'customer' };
+        login(newUser);
+        showToast('Account created successfully! ✨', 'success');
+        setTimeout(() => navigate('/'), 600);
+        return;
+      }
+    } catch (err) {
+      console.warn('Signup server error:', err);
+    }
+
+    // Local fallback signup
+    const newUser = { username, mobile: signupPhone, email: signupEmail, role: 'customer' };
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     login(newUser);
     showToast('Account created! Welcome to Mason Mate.', 'success');
     setTimeout(() => navigate('/'), 600);
   };
 
   const handleSocialLogin = (provider) => {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     const user = {
       userId: 'USR-' + Math.floor(100000 + Math.random() * 900000),
       name: `${provider} Client`,
@@ -191,14 +283,25 @@ export const Auth = () => {
       email: `client@${provider.toLowerCase().replace(/\s+/g, '')}.com`,
       role: 'user'
     };
+<<<<<<< HEAD
+=======
+=======
+    const user = { username: `${provider} Client`, email: `client@${provider.toLowerCase()}.com`, role: 'customer' };
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
     login(user);
     showToast(`Signed in with ${provider}!`, 'success');
     setTimeout(() => navigate('/'), 600);
   };
 
   return (
+<<<<<<< HEAD
     <div className="auth-page">
       <div className="card auth-card">
+=======
+    <div className="auth-page" style={{ padding: '60px 20px', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="card" style={{ maxWidth: '480px', width: '100%', padding: '36px' }}>
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div className="logo-badge" style={{ display: 'inline-flex', width: '54px', height: '54px', fontSize: '1.8rem', marginBottom: '12px', background: 'var(--bg-dark)', borderRadius: 'var(--radius-md)', alignItems: 'center', justifyContent: 'center' }}>
             🏗️
@@ -214,14 +317,30 @@ export const Auth = () => {
           <button
             className={`btn btn-sm ${tab === 'login' ? 'btn-primary' : 'btn-outline'}`}
             style={{ border: 'none', background: tab === 'login' ? 'var(--primary)' : 'transparent', color: tab === 'login' ? '#fff' : 'var(--text-muted)' }}
+<<<<<<< HEAD
             onClick={() => { setTab('login'); setLoginError(''); setSignupError(''); }}
+=======
+<<<<<<< HEAD
+            onClick={() => { setTab('login'); setLoginError(''); setSignupError(''); }}
+=======
+            onClick={() => setTab('login')}
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
           >
             Sign In
           </button>
           <button
             className={`btn btn-sm ${tab === 'signup' ? 'btn-primary' : 'btn-outline'}`}
             style={{ border: 'none', background: tab === 'signup' ? 'var(--primary)' : 'transparent', color: tab === 'signup' ? '#fff' : 'var(--text-muted)' }}
+<<<<<<< HEAD
             onClick={() => { setTab('signup'); setLoginError(''); setSignupError(''); }}
+=======
+<<<<<<< HEAD
+            onClick={() => { setTab('signup'); setLoginError(''); setSignupError(''); }}
+=======
+            onClick={() => setTab('signup')}
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
           >
             Create Account
           </button>
@@ -269,6 +388,10 @@ export const Auth = () => {
               />
             </div>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             <button
               type="submit"
               className="btn btn-accent btn-full btn-lg"
@@ -276,6 +399,13 @@ export const Auth = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? '⏳ Signing In...' : '🔐 Sign In'}
+<<<<<<< HEAD
+=======
+=======
+            <button type="submit" className="btn btn-accent btn-full btn-lg" style={{ marginTop: '8px' }}>
+              🔐 Sign In
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             </button>
 
             <div style={{ margin: '16px 0', padding: '10px', background: 'var(--accent-light)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--accent)', fontSize: '0.78rem', color: 'var(--primary)' }}>
@@ -360,6 +490,10 @@ export const Auth = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             <button
               type="submit"
               className="btn btn-accent btn-full btn-lg"
@@ -367,6 +501,13 @@ export const Auth = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? '⏳ Creating Account...' : '✨ Create Free Account'}
+<<<<<<< HEAD
+=======
+=======
+            <button type="submit" className="btn btn-accent btn-full btn-lg" style={{ marginTop: '12px' }}>
+              ✨ Create Free Account
+>>>>>>> f6a00e4559b3961fd783765ab8ac059602ce3ac7
+>>>>>>> e10a3db42ed8ad8ba5257ceebb959b77dd75f7b1
             </button>
           </form>
         )}
