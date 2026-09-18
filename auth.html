@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login / Sign Up – Mason Mate</title>
+    <meta name="description"
+        content="Log in or create a Mason Mate account to track construction bookings and tool rental orders." />
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        body {
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+
+        .auth-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 18px;
+            background: var(--bg-main);
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            background: var(--bg-surface);
+            color: var(--primary);
+            border-bottom-color: var(--accent);
+        }
+
+        .auth-body {
+            padding: 36px;
+        }
+
+        .social-auth {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .social-auth-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            color: var(--text-main);
+        }
+
+        .social-auth-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-main);
+        }
+
+        .auth-panel {
+            display: none;
+        }
+
+        .auth-panel.active {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border-light);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            width: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-badge">🏗️</div>
+                <div class="logo-text">Mason <span>Mate</span></div>
+            </a>
+            <a href="index.html" class="btn btn-outline btn-sm">← Back to Site</a>
+        </div>
+    </nav>
+
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">🔐 Account Login</button>
+                <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">✨ Sign Up</button>
+            </div>
+
+            <div style="padding:16px 36px 0">
+                <!-- Admin credential hint -->
+                <details style="background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius-md);padding:10px 14px;font-size:0.82rem;color:var(--primary);cursor:pointer;">
+                    <summary style="font-weight:800;color:var(--primary)">⚙️ Admin Access Credentials ›</summary>
+                    <div style="margin-top:8px;line-height:1.6">
+                        Login ID: <code style="background:var(--bg-surface);padding:2px 6px;border-radius:4px;font-weight:800">admin</code><br />
+                        Password: <code style="background:var(--bg-surface);padding:2px 6px;border-radius:4px;font-weight:800">admin123</code><br />
+                        <span style="font-size:0.75rem;color:var(--text-muted)">Administrators are redirected to the management panel after login.</span>
+                    </div>
+                </details>
+            </div>
+
+            <div class="auth-body">
+                <!-- Social Auth -->
+                <div class="social-auth">
+                    <button class="social-auth-btn" onclick="socialLogin('Google')">
+                        <span>🌐</span> Google
+                    </button>
+                    <button class="social-auth-btn" onclick="socialLogin('Facebook')">
+                        <span>📘</span> Facebook
+                    </button>
+                </div>
+
+                <!-- Login Panel -->
+                <div class="auth-panel active" id="loginPanel">
+                    <h2 style="font-size:1.4rem;margin-bottom:4px">Welcome Back!</h2>
+                    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:24px">
+                        Sign in to manage your construction bookings and rental orders.
+                    </p>
+
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number or Email</label>
+                            <input type="text" class="form-control" id="loginId" placeholder="Phone or email address" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPwd" placeholder="••••••••" required />
+                        </div>
+
+                        <div class="flex justify-between" style="margin-bottom:20px;font-size:0.85rem">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                                <input type="checkbox" id="rememberMe" /> Remember me
+                            </label>
+                            <span style="color:var(--accent);font-weight:700;cursor:pointer" onclick="showForgot()">Forgot Password?</span>
+                        </div>
+
+                        <div id="loginError" style="color:#DC2626;font-size:0.85rem;margin-bottom:16px;display:none;padding:10px;background:#FEE2E2;border-radius:var(--radius-sm)"></div>
+
+                        <button type="submit" class="btn btn-accent btn-full btn-lg">🔐 Sign In</button>
+                    </form>
+
+                    <p style="text-align:center;font-size:0.85rem;color:var(--text-muted);margin-top:20px">
+                        Don't have an account? <a onclick="switchTab('signup')" style="color:var(--accent);font-weight:700;cursor:pointer">Create one free →</a>
+                    </p>
+                </div>
+
+                <!-- Signup Panel -->
+                <div class="auth-panel" id="signupPanel">
+                    <h2 style="font-size:1.4rem;margin-bottom:4px">Create Account</h2>
+                    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:24px">
+                        Join Mason Mate to track projects, manage rentals, and unlock discounts.
+                    </p>
+
+                    <form onsubmit="handleSignup(event)">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="signupFirst" placeholder="First name" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="signupLast" placeholder="Last name" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="signupPhone" placeholder="+91 9159687408" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="signupEmail" placeholder="you@email.com" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="signupPwd" placeholder="Create strong password" required oninput="checkStrength(this.value)" />
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span id="strengthLabel" style="font-size:0.75rem;color:var(--text-muted)"></span>
+                        </div>
+
+                        <div id="signupError" style="color:#DC2626;font-size:0.85rem;margin-bottom:16px;display:none;padding:10px;background:#FEE2E2;border-radius:var(--radius-sm)"></div>
+
+                        <button type="submit" class="btn btn-accent btn-full btn-lg">✨ Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>
