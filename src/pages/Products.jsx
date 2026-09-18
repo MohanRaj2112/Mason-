@@ -132,8 +132,113 @@ export const Products = () => {
   }, [tools, selectedCategory, searchQuery, sortBy]);
 
   return (
+    <div className="products-page">
+      {/* ── HERO BANNER ── */}
+      <section className="hero" style={{ padding: '60px 0 80px' }}>
+        <div className="container">
+          <div className="hero-content">
+            <span className="section-eyebrow">EQUIPMENT &amp; TOOLS CATALOG</span>
+            <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>Commercial Tool &amp; Equipment Rentals</h1>
+            <p className="hero-desc">
+              Browse heavy power tools, concrete mixers, scaffolding frames, and sanitary equipment available for daily, weekly, or monthly site rentals with doorstep delivery.
             </p>
           </div>
         </div>
       </section>
+
+      {/* ── MAIN CATALOG SECTION ── */}
+      <section className="section" style={{ paddingTop: '40px' }}>
+        <div className="container">
+          <div className="flex justify-between" style={{ alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <h2 style={{ fontSize: '1.85rem', marginBottom: '4px', color: 'var(--primary)' }}>Tools Rental</h2>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Construction tools and equipment available for rental.</p>
+            </div>
+            <button className="btn btn-add-tool" id="openAddToolBtn" onClick={() => setShowAddModal(true)}>
+              <span className="plus-icon">+</span> Add Tools
+            </button>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="filter-bar">
+            <div className="search-box">
+              <span>🔍</span>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search power drills, mixers, scaffolding..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="cat-filters" id="catFilters">
+              {toolCategories.map(cat => (
+                <button
+                  key={cat.id}
+                  className={`cat-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+                  onClick={() => handleCategorySelect(cat.id)}
+                >
+                  {cat.icon} {cat.label}
+                </button>
+              ))}
+            </div>
+            <select
+              className="sort-select"
+              id="sortSelect"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="recommended">Sort: Recommended</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="name-asc">Name: A–Z</option>
+              <option value="availability">Availability First</option>
+            </select>
+          </div>
+
+          <div className="flex justify-between" style={{ marginBottom: '24px' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              Showing <strong id="countDisplay" style={{ color: 'var(--primary)' }}>{filteredTools.length}</strong> items in rental catalog
+            </p>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              ⚡ Guaranteed doorstep delivery &amp; on-site inspection
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+              Loading equipment catalog...
+            </div>
+          ) : filteredTools.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+              <h3>No equipment found matching your criteria</h3>
+              <p>Try clearing your search query or selecting a different category.</p>
+              <button
+                className="btn btn-outline"
+                style={{ marginTop: '16px' }}
+                onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="products-grid" id="productsGrid">
+              {filteredTools.map(tool => (
+                <ToolCard key={tool._id || tool.id} tool={tool} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Add Tool Modal */}
+      <AddToolModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAddTool={handleAddNewTool}
+      />
+    </div>
+  );
+};
 

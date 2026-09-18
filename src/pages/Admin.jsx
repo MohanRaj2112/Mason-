@@ -251,6 +251,9 @@ export const Admin = () => {
   useEffect(() => {
     const syncServer = async () => {
       try {
+        const [bRes, pRes] = await Promise.allSettled([
+          fetch('/api/bookings'),
+          fetch('/api/tools')
         ]);
         if (bRes.status === 'fulfilled' && bRes.value.ok) {
           const data = await bRes.value.json();
@@ -412,12 +415,22 @@ export const Admin = () => {
   };
 
   // Edit Tool Handler
+  const handleEditToolSubmit = (e) => {
+    e.preventDefault();
+    if (!editingTool) return;
+    const updated = tools.map(t => (t._id === editingTool._id || t.id === editingTool.id) ? {
+      ...t,
+      ...editingTool,
       available: editingTool.availabilityStatus === 'Available'
-    } : t));
+    } : t);
 
     setTools(updated);
     setEditingTool(null);
     showToast(`Updated "${editingTool.name}" details.`, 'success');
+  };
+
+  // Add Project Handler
+  const handleAddProjectSubmit = (e) => {
     e.preventDefault();
     if (!newProjectData.title.trim() || !newProjectData.location.trim()) {
       showToast('Please provide project title and location.', 'error');
@@ -455,15 +468,36 @@ export const Admin = () => {
     });
 
     showToast(`Added project "${created.title}"!`, 'success');
+  };
+
+  // Edit Project Handler
+  const handleEditProjectSubmit = (e) => {
+    e.preventDefault();
+    if (!editingProject) return;
+    const updated = projects.map(p => (p.id === editingProject.id || p.projectId === editingProject.projectId) ? {
+      ...p,
       ...editingProject,
       tag: editingProject.category
-    } : p));
+    } : p);
 
     setProjects(updated);
     setEditingProject(null);
     showToast(`Updated "${editingProject.title}" details.`, 'success');
-    }
+  };
 
+  // Delete Handler
+  const handleConfirmDelete = () => {
+    if (!deletingItem) return;
+    if (deletingItem.type === 'tool') {
+      setTools(tools.filter(t => (t._id || t.id) !== (deletingItem.id || deletingItem.item?._id || deletingItem.item?.id)));
+      showToast('Tool removed.', 'success');
+    } else if (deletingItem.type === 'project') {
+      setProjects(projects.filter(p => (p.id || p.projectId) !== (deletingItem.id || deletingItem.item?.id || deletingItem.item?.projectId)));
+      showToast('Project removed.', 'success');
+    } else if (deletingItem.type === 'booking') {
+      setBookings(bookings.filter(b => b.bookingId !== (deletingItem.id || deletingItem.item?.bookingId)));
+      showToast('Booking removed.', 'success');
+    }
     setDeletingItem(null);
   };
 

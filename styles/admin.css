@@ -505,8 +505,9 @@ body.admin-body {
 }
 
 .topbar-action-btn {
-    height: 36px;
-    padding: 0 14px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 16px;
     border-radius: var(--adm-radius-md);
     font-family: var(--font-admin-sans);
     font-size: 13px;
@@ -522,6 +523,26 @@ body.admin-body {
     box-sizing: border-box;
     transition: var(--adm-transition);
     border: 1px solid transparent;
+    text-decoration: none;
+    max-width: 100%;
+}
+
+.topbar-action-btn:focus-visible {
+    outline: 2px solid var(--adm-accent);
+    outline-offset: 2px;
+}
+
+.topbar-action-btn:active {
+    transform: translateY(1px);
+}
+
+.topbar-action-btn:disabled,
+.topbar-action-btn.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .btn-primary-admin {
@@ -532,6 +553,8 @@ body.admin-body {
 
 .btn-primary-admin:hover {
     background: var(--adm-primary-hover);
+    border-color: var(--adm-primary-hover);
+    color: var(--adm-text-white);
     transform: translateY(-1px);
     box-shadow: var(--adm-shadow-sm);
 }
@@ -544,6 +567,8 @@ body.admin-body {
 
 .btn-accent-admin:hover {
     background: var(--adm-accent-hover);
+    border-color: var(--adm-accent-hover);
+    color: var(--adm-text-white);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
 }
@@ -557,6 +582,8 @@ body.admin-body {
 .btn-secondary-admin:hover {
     background: var(--adm-bg);
     border-color: #CBD5E1;
+    color: var(--adm-text-main);
+    transform: translateY(-1px);
 }
 
 .btn-danger-admin {
@@ -567,7 +594,24 @@ body.admin-body {
 
 .btn-danger-admin:hover {
     background: #DC2626;
+    border-color: #DC2626;
+    color: var(--adm-text-white);
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.btn-success-admin {
+    background: var(--adm-success);
+    color: var(--adm-text-white);
+    border-color: var(--adm-success);
+}
+
+.btn-success-admin:hover {
+    background: #047857;
+    border-color: #047857;
+    color: var(--adm-text-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
 }
 
 .notif-bell-btn {
@@ -1224,10 +1268,12 @@ body.admin-body {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .table-mini-btn {
-    height: 28px;
+    height: 30px;
+    min-height: 30px;
     padding: 0 10px;
     border-radius: var(--adm-radius-sm);
     font-size: 12px;
@@ -1244,7 +1290,24 @@ body.admin-body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 5px;
+    text-decoration: none;
+}
+
+.table-mini-btn:focus-visible {
+    outline: 2px solid var(--adm-accent);
+    outline-offset: 1px;
+}
+
+.table-mini-btn:active {
+    transform: translateY(1px);
+}
+
+.table-mini-btn:disabled,
+.table-mini-btn.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .table-mini-btn:hover {
@@ -1611,10 +1674,24 @@ textarea.adm-form-control {
     }
     .card-header-actions {
         width: 100%;
+        flex-wrap: wrap;
     }
     .card-header-actions .admin-input, 
     .card-header-actions .admin-select {
         flex: 1;
         width: 100%;
+    }
+    .admin-modal-footer {
+        flex-direction: column-reverse;
+        gap: 10px;
+        padding: 14px 18px;
+    }
+    .admin-modal-footer .topbar-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .admin-modal-box {
+        width: 95%;
+        margin: 12px;
     }
 }

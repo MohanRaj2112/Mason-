@@ -45,6 +45,13 @@ export const Contact = () => {
     }
 
     setSendingInquiry(true);
+    try {
+      await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inquiry)
+      });
+      showToast('Thank you! Your inquiry has been sent to our engineers.', 'success');
       setInquiry({
         name: '',
         phone: '',
@@ -52,6 +59,14 @@ export const Contact = () => {
         service: '',
         message: ''
       });
+    } catch {
+      showToast('Inquiry recorded locally. We will contact you shortly!', 'success');
+    } finally {
+      setSendingInquiry(false);
+    }
+  };
+
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!revName.trim() || !revText.trim() || reviewRating === 0) {
       showToast('Please fill out your name, star rating, and review text.', 'error');
@@ -68,6 +83,27 @@ export const Contact = () => {
     };
 
     try {
+      await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRev)
+      });
+      const updated = [newRev, ...reviews];
+      setReviews(updated);
+      localStorage.setItem('cp_reviews', JSON.stringify(updated));
+      showToast('Thank you for your review! It has been submitted.', 'success');
+      setRevName('');
+      setRevLocation('');
+      setRevText('');
+      setReviewRating(5);
+    } catch {
+      const updated = [newRev, ...reviews];
+      setReviews(updated);
+      localStorage.setItem('cp_reviews', JSON.stringify(updated));
+      showToast('Review submitted!', 'success');
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
   const openWhatsApp = (msg) => {
@@ -313,6 +349,12 @@ export const Contact = () => {
                 />
               </div>
 
+              <button
+                type="submit"
+                className="btn btn-accent btn-full"
+                disabled={submittingReview}
+              >
+                {submittingReview ? 'Submitting...' : 'Post Review'}
               </button>
             </form>
           </div>

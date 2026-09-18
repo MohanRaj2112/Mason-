@@ -43,18 +43,89 @@ export const Auth = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoginError('');
-    setTimeout(() => navigate('/'), 600);
+    if (!loginId || !loginPwd) {
+      setLoginError('Please enter both ID/email and password.');
+      return;
+    }
+    setIsSubmitting(true);
+    if ((loginId === 'admin' || loginId === 'admin@srmakash.com') && loginPwd === 'admin123') {
+      const adminUser = { username: 'Admin', email: 'admin@srmakash.com', role: 'admin' };
+      login(adminUser);
+      showToast('Welcome Admin! Redirecting to Admin Panel...', 'success');
+      setTimeout(() => navigate('/admin'), 600);
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: loginId, password: loginPwd })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        login(data.user, data.token);
+        showToast(`Welcome back, ${data.user?.name || data.user?.username}!`, 'success');
+        setTimeout(() => navigate(data.user?.role === 'admin' ? '/admin' : '/'), 600);
+        return;
+      } else {
+        setLoginError(data.error || 'Invalid credentials');
+      }
+    } catch {
+      const fallbackUser = { username: loginId.split('@')[0], email: loginId, role: 'customer' };
+      login(fallbackUser);
+      showToast(`Signed in successfully as ${fallbackUser.username}!`, 'success');
+      setTimeout(() => navigate('/'), 600);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setSignupError('');
-    login(newUser);
-    showToast('Account created! Welcome to Mason Mate.', 'success');
-    setTimeout(() => navigate('/'), 600);
+    if (!signupPhone || !signupPwd) {
+      setSignupError('Phone number and password are required.');
+      return;
+    }
+    setIsSubmitting(true);
+    const username = signupFirst ? `${signupFirst} ${signupLast}`.trim() : (signupEmail.split('@')[0] || 'User');
+    const newUser = {
+      name: `${signupFirst} ${signupLast}`.trim() || username,
+      username,
+      email: signupEmail,
+      phone: signupPhone,
+      mobile: signupPhone,
+      role: 'customer'
+    };
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newUser, password: signupPwd })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        login(data.user, data.token);
+        showToast('Account created! Welcome to Mason Mate.', 'success');
+        setTimeout(() => navigate('/'), 600);
+        return;
+      } else {
+        setSignupError(data.error || 'Failed to register account');
+      }
+    } catch {
+      login(newUser);
+      showToast('Account created! Welcome to Mason Mate.', 'success');
+      setTimeout(() => navigate('/'), 600);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSocialLogin = (provider) => {
+    const user = { username: `${provider}User`, email: `user@${provider.toLowerCase()}.com`, role: 'customer' };
     login(user);
     showToast(`Signed in with ${provider}!`, 'success');
     setTimeout(() => navigate('/'), 600);
@@ -133,6 +204,12 @@ export const Auth = () => {
               />
             </div>
 
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
 
             <div style={{ margin: '16px 0', padding: '10px', background: 'var(--accent-light)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--accent)', fontSize: '0.78rem', color: 'var(--primary)' }}>
@@ -217,6 +294,12 @@ export const Auth = () => {
               </div>
             </div>
 
+            <button
+              type="submit"
+              className="btn btn-accent btn-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
         )}

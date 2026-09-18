@@ -140,14 +140,6 @@ export const Home = () => {
         </div>
       </section>
 
-                  Contact Civil Engineers
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── TESTIMONIALS ── */}
       <section className="section section-alt">
         <div className="container">

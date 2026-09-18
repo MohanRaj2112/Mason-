@@ -24,11 +24,46 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-    } catch {}
+  const login = (userData, token) => {
+    setCurrentUser(userData);
+    try {
+      localStorage.setItem('cp_user', JSON.stringify(userData));
+      if (token) {
+        localStorage.setItem('cp_token', token);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('cp_user');
+      localStorage.removeItem('cp_token');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateUser = (data) => {
+    setCurrentUser(prev => {
+      const updated = { ...prev, ...data };
+      try {
+        localStorage.setItem('cp_user', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
   };
 
   const isAdmin = currentUser?.role === 'admin' || 
                   currentUser?.username?.toLowerCase() === 'admin' || 
+                  currentUser?.email?.toLowerCase().includes('admin');
+
+  return (
+    <AuthContext.Provider value={{ currentUser, login, logout, updateUser, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

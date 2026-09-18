@@ -414,18 +414,16 @@ export const RentalModal = ({ isOpen, onClose, tool, onSuccess }) => {
             <div className="rental-modal-actions">
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn btn-outline btn-rental-cancel"
                 onClick={onClose}
                 disabled={isSubmitting}
-                style={{ flex: '1' }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn btn-accent"
+                className="btn btn-accent btn-rental-submit"
                 disabled={isSubmitting}
-                style={{ flex: '2' }}
                 id="submit-rental-btn"
               >
                 {isSubmitting ? (
