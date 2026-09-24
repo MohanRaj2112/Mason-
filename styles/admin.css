@@ -218,6 +218,27 @@ body.admin-body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+}
+
+.sidebar-close-btn {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--adm-text-white);
+    font-size: 15px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: var(--adm-transition);
+}
+
+.sidebar-close-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #FCA5A5;
 }
 
 .sidebar-brand {
@@ -1362,10 +1383,11 @@ body.admin-body {
     border-radius: var(--adm-radius-xl);
     border: 1px solid var(--adm-border);
     box-shadow: var(--adm-shadow-xl);
-    width: 100%;
-    max-width: 580px;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: min(600px, calc(100% - 32px)) !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
     position: relative;
     transform: scale(0.96);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1634,24 +1656,31 @@ textarea.adm-form-control {
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
     .admin-sidebar {
         transform: translateX(-100%);
+        width: min(280px, 80vw);
+        z-index: 1000;
     }
     .admin-sidebar.open {
         transform: translateX(0);
     }
     .admin-main-wrapper {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100%;
+        min-width: 0;
     }
     .mobile-sidebar-toggle {
         display: flex;
     }
+    .sidebar-close-btn {
+        display: flex;
+    }
     .admin-topbar {
-        padding: 0 18px;
+        padding: 0 16px;
     }
     .admin-view-content {
-        padding: 20px 16px;
+        padding: 20px 14px;
     }
     .topbar-search-box {
         display: none;
@@ -1666,11 +1695,13 @@ textarea.adm-form-control {
         grid-template-columns: 1fr;
     }
     .adm-form-row-2, .adm-form-row-3 {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 12px;
     }
     .admin-card-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
     .card-header-actions {
         width: 100%;
@@ -1691,7 +1722,7 @@ textarea.adm-form-control {
         justify-content: center;
     }
     .admin-modal-box {
-        width: 95%;
-        margin: 12px;
+        width: min(600px, calc(100% - 32px)) !important;
+        margin: auto;
     }
 }

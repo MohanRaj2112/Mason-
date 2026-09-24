@@ -7,6 +7,7 @@ import { ServiceCard } from '../components/ServiceCard';
 import { ProjectCard } from '../components/ProjectCard';
 import { ToolCard } from '../components/ToolCard';
 import founderImg from '../assets/images/founder_portrait_1786882840416.jpg';
+import daddyImg from '../assets/images/daddy.jpeg';
 
 export const Home = () => {
   const openWhatsApp = (msg) => {
@@ -136,6 +137,100 @@ export const Home = () => {
             {featuredProjects.map(project => (
               <ProjectCard key={project.id} project={project} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ABOUT SECTION — OWNER & FOUNDER ── */}
+      <section className="section" id="about">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-eyebrow">OWNER / FOUNDER</span>
+            <h2>Built on Practical Construction Experience</h2>
+            <p>Direct field leadership, licensed civil engineering standards, and dependable on-site execution.</p>
+          </div>
+
+          <div className="about-owner-grid">
+            {/* LEFT: OWNER IMAGE CARD */}
+            <div className="about-owner-image-card">
+              <div className="about-owner-img-wrapper">
+                <img
+                  src="/images/daddy.png"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = daddyImg;
+                  }}
+                  alt="Mohanraj – Founder & Chief Contractor, Mason Mate"
+                  loading="lazy"
+                />
+                <div className="about-owner-badge-pill">
+                  <span>15+ Years Field Leadership</span>
+                </div>
+              </div>
+              <div className="about-owner-caption">
+                <h4>Mohanraj</h4>
+                <p>Founder &amp; Chief Contractor • SRM AKASH CONSTRUCTION</p>
+                <div className="about-owner-loc">📍 Salem &amp; Coimbatore, Tamil Nadu</div>
+              </div>
+            </div>
+
+            {/* RIGHT: MASON MATE STORY, INTRODUCTION & EXPERTISE */}
+            <div className="about-owner-content">
+              <div className="about-story-badge">ABOUT MASON MATE</div>
+              <h3>Delivering Reliable Construction &amp; Heavy Equipment Across Tamil Nadu</h3>
+
+              <p className="about-lead">
+                Mason Mate is built with practical construction experience and a focus on delivering reliable construction services.
+              </p>
+
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '20px' }}>
+                Founded under SRM AKASH CONSTRUCTION, Mason Mate bridges the gap between homeowners, commercial developers, and trustworthy on-site execution. What began over 15 years ago as dedicated civil engineering contracting has evolved into an integrated platform offering turnkey residential construction, trade-tested master mason hiring, and commercial tool equipment rentals.
+              </p>
+
+              <div className="about-highlights-grid">
+                <div className="about-highlight-item">
+                  <span className="about-hl-icon">🏗️</span>
+                  <div>
+                    <strong>Turnkey Residential Builds</strong>
+                    <p>Complete structural drafting, IS 456 compliant RCC framing, stage-wise inspections, and key-in-hand handover.</p>
+                  </div>
+                </div>
+                <div className="about-highlight-item">
+                  <span className="about-hl-icon">👷</span>
+                  <div>
+                    <strong>Trade-Tested Master Masons</strong>
+                    <p>Vetted chief mistris, bricklayers, plasterers, and tile artisans available on daily or contract milestone basis.</p>
+                  </div>
+                </div>
+                <div className="about-highlight-item">
+                  <span className="about-hl-icon">🛠️</span>
+                  <div>
+                    <strong>Heavy Tools &amp; Machinery Fleet</strong>
+                    <p>Concrete mixers, scaffold frames, needle vibrators, and core cutters delivered on-site with operator guidance.</p>
+                  </div>
+                </div>
+                <div className="about-highlight-item">
+                  <span className="about-hl-icon">📋</span>
+                  <div>
+                    <strong>Transparent Project Sign-Offs</strong>
+                    <p>Itemized BOQ billing, stage-by-stage engineering approvals, weekly WhatsApp site logs, and zero hidden costs.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="about-actions">
+                <Link to="/booking" className="btn btn-accent btn-lg">
+                  📅 Book Free Site Visit
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => openWhatsApp('Hello Mohanraj / Mason Mate! I would like to consult about our upcoming house construction project.')}
+                  className="btn btn-outline btn-lg"
+                >
+                  💬 Chat on WhatsApp (+91 9159687408)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

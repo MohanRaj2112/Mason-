@@ -24,6 +24,12 @@ function ScrollToTop() {
       window.scrollTo(0, 0);
     } else {
       const id = hash.replace('#', '');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   }, [pathname, hash]);
 
@@ -55,9 +61,11 @@ export function App() {
             <ScrollToTop />
             <Layout>
               <Routes>
-                {/* Home Routes */}
+                {/* Home & About Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/index.html" element={<Home />} />
+                <Route path="/about" element={<Navigate to="/#about" replace />} />
+                <Route path="/about.html" element={<Navigate to="/#about" replace />} />
 
                 {/* Services Routes */}
                 <Route path="/services" element={<Services />} />

@@ -240,6 +240,17 @@ export const Admin = () => {
     return 'badge-default';
   };
 
+  // Close mobile sidebar on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Sync projects to localStorage
   useEffect(() => {
     try {
@@ -577,6 +588,15 @@ export const Admin = () => {
               <div className="brand-subtitle">Console Dashboard</div>
             </div>
           </Link>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+            title="Close navigation"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Sidebar Navigation */}
