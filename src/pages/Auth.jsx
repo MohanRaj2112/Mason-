@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Building2, Lock, User, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -9,13 +10,11 @@ export const Auth = () => {
   const { login } = useAuth();
   const { showToast } = useToast();
 
-  // Login form state
   const [loginId, setLoginId] = useState('');
   const [loginPwd, setLoginPwd] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Signup form state
   const [signupFirst, setSignupFirst] = useState('');
   const [signupLast, setSignupLast] = useState('');
   const [signupPhone, setSignupPhone] = useState('');
@@ -23,7 +22,6 @@ export const Auth = () => {
   const [signupPwd, setSignupPwd] = useState('');
   const [signupError, setSignupError] = useState('');
 
-  // Password strength calculation
   const getPasswordStrength = (pwd) => {
     if (!pwd) return { width: '0%', text: 'Enter password to check strength', color: 'var(--border-light)' };
     let score = 0;
@@ -90,7 +88,7 @@ export const Auth = () => {
       return;
     }
     setIsSubmitting(true);
-    const username = signupFirst ? `${signupFirst} ${signupLast}`.trim() : (signupEmail.split('@')[0] || 'User');
+    const username = signupFirst ? `${signupFirst} ${signupLast}`.trim() : signupEmail.split('@')[0] || 'User';
     const newUser = {
       name: `${signupFirst} ${signupLast}`.trim() || username,
       username,
@@ -135,28 +133,39 @@ export const Auth = () => {
     <div className="auth-page">
       <div className="card auth-card">
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div className="logo-badge" style={{ display: 'inline-flex', width: '54px', height: '54px', fontSize: '1.8rem', marginBottom: '12px', background: 'var(--bg-dark)', borderRadius: 'var(--radius-md)', alignItems: 'center', justifyContent: 'center' }}>
-            🏗️
+          <div className="auth-brand-icon">
+            <Building2 size={24} />
           </div>
-          <h2 style={{ fontSize: '1.8rem', color: 'var(--primary)' }}>Mason Mate Account</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            Track engineering site logs, manage equipment rentals &amp; invoices.
+          <span className="section-eyebrow" style={{ marginBottom: '4px' }}>
+            SRM AKASH CONSTRUCTION
+          </span>
+          <h2 style={{ fontSize: '1.75rem', color: 'var(--primary)' }}>Mason Mate Portal</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+            Access engineering site logs, manage equipment rentals &amp; bookings.
           </p>
         </div>
 
         {/* Auth Tabs */}
-        <div className="auth-tabs" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'var(--bg-main)', padding: '6px', borderRadius: 'var(--radius-md)', marginBottom: '28px' }}>
+        <div className="auth-tabs">
           <button
-            className={`btn btn-sm ${tab === 'login' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ border: 'none', background: tab === 'login' ? 'var(--primary)' : 'transparent', color: tab === 'login' ? '#fff' : 'var(--text-muted)' }}
-            onClick={() => { setTab('login'); setLoginError(''); setSignupError(''); }}
+            type="button"
+            className={`auth-tab-btn ${tab === 'login' ? 'active' : ''}`}
+            onClick={() => {
+              setTab('login');
+              setLoginError('');
+              setSignupError('');
+            }}
           >
             Sign In
           </button>
           <button
-            className={`btn btn-sm ${tab === 'signup' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ border: 'none', background: tab === 'signup' ? 'var(--primary)' : 'transparent', color: tab === 'signup' ? '#fff' : 'var(--text-muted)' }}
-            onClick={() => { setTab('signup'); setLoginError(''); setSignupError(''); }}
+            type="button"
+            className={`auth-tab-btn ${tab === 'signup' ? 'active' : ''}`}
+            onClick={() => {
+              setTab('signup');
+              setLoginError('');
+              setSignupError('');
+            }}
           >
             Create Account
           </button>
@@ -166,8 +175,18 @@ export const Auth = () => {
         {tab === 'login' && (
           <form onSubmit={handleLoginSubmit}>
             {loginError && (
-              <div style={{ color: '#EF4444', fontSize: '0.85rem', marginBottom: '16px', background: '#FEF2F2', padding: '10px', borderRadius: '6px' }}>
-                ⚠️ {loginError}
+              <div
+                style={{
+                  color: '#991B1B',
+                  fontSize: '0.85rem',
+                  marginBottom: '16px',
+                  background: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  padding: '10px 14px',
+                  borderRadius: '8px'
+                }}
+              >
+                {loginError}
               </div>
             )}
 
@@ -185,11 +204,16 @@ export const Auth = () => {
 
             <div className="form-group">
               <div className="flex justify-between items-center" style={{ marginBottom: '6px' }}>
-                <label className="form-label" style={{ margin: 0 }}>Password</label>
+                <label className="form-label" style={{ margin: 0 }}>
+                  Password
+                </label>
                 <a
                   href="#"
-                  onClick={(e) => { e.preventDefault(); showToast('Password reset link sent to your phone/email! 📩', 'info'); }}
-                  style={{ fontSize: '0.8rem', color: 'var(--accent)' }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    showToast('Password reset link sent to your phone/email.', 'info');
+                  }}
+                  style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}
                 >
                   Forgot password?
                 </a>
@@ -206,14 +230,18 @@ export const Auth = () => {
 
             <button
               type="submit"
-              className="btn btn-primary btn-full"
+              className="btn btn-quote-cta btn-full btn-lg"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+              <span>{isSubmitting ? 'Signing in...' : 'Sign In'}</span>
+              <ArrowRight size={16} className="cta-arrow" />
             </button>
 
-            <div style={{ margin: '16px 0', padding: '10px', background: 'var(--accent-light)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--accent)', fontSize: '0.78rem', color: 'var(--primary)' }}>
-              🔑 <strong>Admin demo login:</strong> User: <code>admin</code> | Password: <code>admin123</code>
+            <div className="auth-demo-box">
+              <Lock size={14} style={{ flexShrink: 0, color: 'var(--accent)' }} />
+              <span>
+                <strong>Admin Access:</strong> Username <code>admin</code> · Password <code>admin123</code>
+              </span>
             </div>
           </form>
         )}
@@ -222,8 +250,18 @@ export const Auth = () => {
         {tab === 'signup' && (
           <form onSubmit={handleSignupSubmit}>
             {signupError && (
-              <div style={{ color: '#EF4444', fontSize: '0.85rem', marginBottom: '16px', background: '#FEF2F2', padding: '10px', borderRadius: '6px' }}>
-                ⚠️ {signupError}
+              <div
+                style={{
+                  color: '#991B1B',
+                  fontSize: '0.85rem',
+                  marginBottom: '16px',
+                  background: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  padding: '10px 14px',
+                  borderRadius: '8px'
+                }}
+              >
+                {signupError}
               </div>
             )}
 
@@ -283,12 +321,33 @@ export const Auth = () => {
                 onChange={(e) => setSignupPwd(e.target.value)}
                 required
               />
-              {/* Password strength bar */}
               <div style={{ marginTop: '8px' }}>
-                <div style={{ height: '4px', width: '100%', background: 'var(--border-light)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: strength.width, background: strength.color, transition: 'all 0.3s' }}></div>
+                <div
+                  style={{
+                    height: '4px',
+                    width: '100%',
+                    background: 'var(--border-light)',
+                    borderRadius: '2px',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      width: strength.width,
+                      background: strength.color,
+                      transition: 'all 0.3s'
+                    }}
+                  />
                 </div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    marginTop: '4px',
+                    display: 'block'
+                  }}
+                >
                   {strength.text}
                 </span>
               </div>
@@ -296,19 +355,28 @@ export const Auth = () => {
 
             <button
               type="submit"
-              className="btn btn-accent btn-full"
+              className="btn btn-quote-cta btn-full btn-lg"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Creating account...' : 'Create Account'}
+              <span>{isSubmitting ? 'Creating account...' : 'Create Account'}</span>
+              <ArrowRight size={16} className="cta-arrow" />
             </button>
           </form>
         )}
 
-        {/* Social Login Separator */}
-        <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0 16px', gap: '12px' }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }}></div>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>OR CONTINUE WITH</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }}></div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            margin: '24px 0 16px',
+            gap: '12px'
+          }}
+        >
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+            QUICK ACCESS
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
         </div>
 
         <div className="grid-2" style={{ gap: '12px' }}>
@@ -316,20 +384,21 @@ export const Auth = () => {
             type="button"
             className="btn btn-outline btn-sm"
             onClick={() => handleSocialLogin('Google')}
-            style={{ justifyContent: 'center' }}
           >
-            Google
+            <User size={14} />
+            <span>Google Sign-In</span>
           </button>
           <button
             type="button"
             className="btn btn-outline btn-sm"
             onClick={() => handleSocialLogin('Mobile OTP')}
-            style={{ justifyContent: 'center' }}
           >
-            📱 Mobile OTP
+            <span>Mobile OTP</span>
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+export default Auth;

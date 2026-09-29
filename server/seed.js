@@ -129,7 +129,7 @@ const initialProjects = [
         specs: '3,200 Sq.Ft | 8 Months Build Time',
         description: '3,200 Sq.Ft luxury residence featuring earthquake-resistant framing, cantilever balconies, and rainwater harvesting cistern.',
         location: 'Fairlands, Salem',
-        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/project_luxury_villa_1790694687569.jpg',
         status: 'Completed'
     },
     {
@@ -140,7 +140,7 @@ const initialProjects = [
         specs: '5,800 Sq.Ft | 6 Months Structural Phase',
         description: 'Precision column casting, grade 53 slab reinforcement, and AAC lightweight block masonry completed in record 6 months.',
         location: 'RS Puram, Coimbatore',
-        image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f3?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/hero_construction_site_1790694659406.jpg',
         status: 'Completed'
     },
     {
@@ -151,7 +151,7 @@ const initialProjects = [
         specs: '2,600 Sq.Ft | Custom Teak & Athangudi',
         description: 'Intricate pillar installations, exposed kiln-burnt clay brick finish, and polished handmade Athangudi floor tiles.',
         location: 'Suramangalam, Salem',
-        image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/service_masonry_work_1790694699452.jpg',
         status: 'Completed'
     },
     {
@@ -162,7 +162,7 @@ const initialProjects = [
         specs: '4,100 Sq.Ft | Structural Retrofitting',
         description: 'Reinforced beam retrofitting, double-glazed curtain wall facade masonry, and full waterproof terrace screeding.',
         location: 'Gandhipuram, Coimbatore',
-        image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/footer_architecture_bg_1790694673575.jpg',
         status: 'Completed'
     },
     {
@@ -173,7 +173,7 @@ const initialProjects = [
         specs: '1,800 Sq.Ft | Solar & Thermal Insulated',
         description: 'Hollow interlock compressed earth brickwork, solar-ready roof slab, and thermal insulated exterior lime plastering.',
         location: 'Yercaud Foothills, Salem',
-        image: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/project_luxury_villa_1790694687569.jpg',
         status: 'Completed'
     },
     {
@@ -184,7 +184,7 @@ const initialProjects = [
         specs: '3,900 Sq.Ft | Italian Marble & Teak',
         description: 'Cantilevered infinity deck, Italian Statuario marble masonry, smart home conduit integration, and landscaped terrace.',
         location: 'Singanallur, Coimbatore',
-        image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         status: 'Completed'
     }
 ];
@@ -198,7 +198,7 @@ const initialTools = [
         price: 450,
         period: 'Per Day',
         icon: '🔨',
-        image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -217,7 +217,7 @@ const initialTools = [
         price: 850,
         period: 'Per Day',
         icon: '🪣',
-        image: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -236,7 +236,7 @@ const initialTools = [
         price: 600,
         period: 'Per Day',
         icon: '🏗️',
-        image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f3?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/hero_construction_site_1790694659406.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -255,7 +255,7 @@ const initialTools = [
         price: 500,
         period: 'Per Day',
         icon: '⚡',
-        image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -274,7 +274,7 @@ const initialTools = [
         price: 150,
         period: 'Per Day',
         icon: '🦺',
-        image: 'https://images.unsplash.com/photo-1535732820275-9ffd998cac22?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/hero_construction_site_1790694659406.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -293,7 +293,7 @@ const initialTools = [
         price: 350,
         period: 'Per Day',
         icon: '🔧',
-        image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -312,7 +312,7 @@ const initialTools = [
         price: 550,
         period: 'Per Day',
         icon: '🌊',
-        image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/footer_architecture_bg_1790694673575.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -331,7 +331,7 @@ const initialTools = [
         price: 700,
         period: 'Per Day',
         icon: '📐',
-        image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/service_masonry_work_1790694699452.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',
@@ -350,7 +350,7 @@ const initialTools = [
         price: 650,
         period: 'Per Day',
         icon: '⛏️',
-        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+        image: '/src/assets/images/equipment_rental_fleet_1790694712199.jpg',
         availability: true,
         available: true,
         availabilityStatus: 'Available',

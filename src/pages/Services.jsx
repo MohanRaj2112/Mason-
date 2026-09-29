@@ -1,22 +1,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { servicesData, masterMasonsData } from '../data/services';
+import { ArrowRight, Check, HardHat, Phone } from 'lucide-react';
+import { servicesData, turnkeyPackages, masterMasonsData } from '../data/services';
 import { ServiceCard } from '../components/ServiceCard';
+import { SectionHeading } from '../components/SectionHeading';
+import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
 
 export const Services = () => {
   return (
     <div className="services-page">
-      {/* ── HERO BANNER ── */}
-      <section className="hero" style={{ padding: '60px 0 72px' }}>
+      {/* ── PAGE HERO BANNER ── */}
+      <section
+        className="hero page-hero"
+        style={{
+          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.92) 0%, rgba(15, 23, 42, 0.82) 55%, rgba(168, 42, 16, 0.36) 100%), url(${heroBgImg})`
+        }}
+      >
         <div className="container">
           <div className="hero-content">
-            <span className="section-eyebrow">SRM AKASH CONSTRUCTION</span>
-            <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>
-              Comprehensive Construction &amp; Engineering Services
-            </h1>
+            <div className="hero-kicker">
+              <span>SRM AKASH CONSTRUCTION</span>
+              <span aria-hidden="true">·</span>
+              <span>ENGINEERING CAPABILITIES</span>
+            </div>
+            <h1>Comprehensive Construction &amp; Masonry Services</h1>
             <p className="hero-desc">
-              From turnkey house construction and skilled workforce deployment to calibrated machinery rentals, we deliver certified structural engineering across Tamil Nadu.
+              From turnkey residential construction and trade-tested master mason deployment to calibrated machinery rentals, we deliver certified structural execution across Tamil Nadu.
             </p>
+            <div className="hero-actions" style={{ marginBottom: 0 }}>
+              <Link to="/booking" className="btn btn-quote-cta btn-lg">
+                <span>Request Project Quote</span>
+                <ArrowRight size={17} className="cta-arrow" />
+              </Link>
+              <a href="tel:+919159687408" className="btn btn-outline-white btn-lg">
+                <Phone size={16} />
+                <span>+91 9159687408</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -24,86 +44,99 @@ export const Services = () => {
       {/* ── ALL SERVICES GRID ── */}
       <section className="section" id="all-services">
         <div className="container">
-          <div className="section-header">
-            <span className="section-eyebrow">OUR CAPABILITIES</span>
-            <h2>Construction Services Overview</h2>
-            <p>
-              Engineered for longevity, Vastu compliance, and complete cost transparency.
-            </p>
-          </div>
+          <SectionHeading
+            eyebrow="OUR CAPABILITIES"
+            title="Construction & Engineering Divisions"
+            subtitle="Engineered for structural longevity, Vastu compliance, and complete BOQ cost transparency."
+          />
 
           <div className="grid-3">
-            {servicesData.map(service => (
-              <ServiceCard key={service.id} service={service} />
+            {servicesData.map((service, idx) => (
+              <ServiceCard key={service.id} service={service} index={idx} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TURNKEY CONSTRUCTION PACKAGES ── */}
+      <section className="section section-alt" id="packages">
+        <div className="container">
+          <SectionHeading
+            eyebrow="TRANSPARENT SPECIFICATION TIERS"
+            title="Turnkey Residential Construction Packages"
+            subtitle="Compare our standardized per-square-foot material and structural specifications with zero hidden charges."
+          />
+
+          <div className="grid-3">
+            {turnkeyPackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className={`package-card ${pkg.isPopular ? 'package-card-featured' : ''}`}
+              >
+                <div className="package-header">
+                  <div className="package-meta-kicker">{pkg.tag}</div>
+                  <h3>{pkg.title}</h3>
+                  <div className="package-rate-row tabular-nums">
+                    <span className="package-rate">{pkg.rate}</span>
+                    <span className="package-unit">{pkg.unit}</span>
+                  </div>
+                  <p className="package-desc">{pkg.description}</p>
+                </div>
+
+                <ul className="package-features">
+                  {pkg.features.map((feat, i) => (
+                    <li key={i}>
+                      <Check size={15} className="package-check" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  to={pkg.link}
+                  className={`btn ${pkg.isPopular ? 'btn-quote-cta' : 'btn-primary'} btn-full`}
+                >
+                  <span>{pkg.buttonText.replace('→', '').trim()}</span>
+                  <ArrowRight size={16} className="cta-arrow" />
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── MASTER MASONS WORKFORCE CATALOG ── */}
-      <section className="section section-alt" id="masons">
+      <section className="section" id="masons">
         <div className="container">
-          <div className="section-header">
-            <span className="section-eyebrow">CERTIFIED WORKFORCE</span>
-            <h2>Hire Master Masons &amp; Specialists</h2>
-            <p>
-              Trade-tested mistris, bricklayers, plasterers, and tile specialists available for daily wage or contract deployment.
-            </p>
-          </div>
+          <SectionHeading
+            eyebrow="CERTIFIED WORKFORCE"
+            title="Hire Master Masons & Trade Specialists"
+            subtitle="Trade-tested mistris, bricklayers, plasterers, and tile specialists available for daily wage or milestone contract deployment."
+          />
 
           <div className="grid-3">
-            {masterMasonsData.map(mason => (
-              <div 
-                key={mason.id} 
-                className="card"
-                style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-                  <div style={{ 
-                    fontSize: '2rem', 
-                    width: '54px', 
-                    height: '54px', 
-                    borderRadius: 'var(--radius-md)', 
-                    background: 'var(--accent-light)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {mason.avatar}
+            {masterMasonsData.map((mason) => (
+              <div key={mason.id} className="mason-card">
+                <div className="mason-card-top">
+                  <div className="mason-icon-box">
+                    <HardHat size={22} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.15rem', color: 'var(--primary)', marginBottom: '2px' }}>
-                      {mason.name}
-                    </h3>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700 }}>
-                      {mason.spec}
-                    </div>
+                    <div className="mason-spec-line">{mason.spec}</div>
+                    <h3 className="mason-title">{mason.name}</h3>
                   </div>
                 </div>
 
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', flexGrow: 1, marginBottom: '20px', lineHeight: '1.55' }}>
-                  {mason.description}
-                </p>
+                <p className="mason-desc">{mason.description}</p>
 
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  background: 'var(--bg-main)',
-                  borderRadius: 'var(--radius-sm)',
-                  marginBottom: '16px',
-                  border: '1px solid var(--border-light)'
-                }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Rate</span>
-                  <span style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--primary)' }}>{mason.rate}</span>
+                <div className="mason-rate-bar">
+                  <span className="mason-rate-label">Daily Deployment Rate</span>
+                  <strong className="mason-rate-val tabular-nums">{mason.rate}</strong>
                 </div>
 
-                <Link 
-                  to={mason.bookingLink} 
-                  className="btn btn-outline btn-full"
-                >
-                  {mason.buttonText} →
+                <Link to={mason.bookingLink} className="btn btn-outline btn-full">
+                  <span>{mason.buttonText}</span>
+                  <ArrowRight size={15} />
                 </Link>
               </div>
             ))}
@@ -112,22 +145,34 @@ export const Services = () => {
       </section>
 
       {/* ── FREE SITE VISIT CTA ── */}
-      <section className="cta-banner" style={{ margin: '0 24px 80px' }}>
+      <section className="section section-alt" style={{ paddingTop: 0 }}>
         <div className="container">
-          <h2>Need a Custom BOQ or Soil Assessment?</h2>
-          <p>
-            Our senior civil engineer will visit your plot, conduct structural feasibility measurements, and present a transparent Bill of Quantities (BOQ) with zero commitment.
-          </p>
-          <div className="flex gap-16" style={{ flexWrap: 'wrap' }}>
-            <Link to="/booking" className="btn btn-accent btn-lg">
-              📅 Book Free Site Visit Now
-            </Link>
-            <Link to="/contact" className="btn btn-outline-white btn-lg">
-              💬 Speak with Our Lead Engineer
-            </Link>
+          <div className="cta-banner">
+            <div className="cta-banner-inner">
+              <div>
+                <span className="section-eyebrow" style={{ color: '#FDBA74' }}>
+                  SITE ASSESSMENT &amp; BOQ
+                </span>
+                <h2>Need a Custom BOQ or Soil Feasibility Report?</h2>
+                <p>
+                  Our senior civil engineer will visit your plot, conduct structural feasibility measurements, and present a transparent Bill of Quantities with zero obligation.
+                </p>
+              </div>
+              <div className="cta-banner-actions">
+                <Link to="/booking" className="btn btn-quote-cta btn-lg">
+                  <span>Book Free Site Visit</span>
+                  <ArrowRight size={17} className="cta-arrow" />
+                </Link>
+                <Link to="/contact" className="btn btn-outline-white btn-lg">
+                  <span>Speak with Our Lead Engineer</span>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
     </div>
   );
 };
+
+export default Services;

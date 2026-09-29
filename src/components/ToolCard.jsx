@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ShoppingCart, Calendar, Zap } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { RentalModal } from './RentalModal';
+import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
 
 export const ToolCard = ({ tool }) => {
   const { addToCart } = useCart();
@@ -25,8 +27,7 @@ export const ToolCard = ({ tool }) => {
   }
 
   const periodText = tool.period ? `/${tool.period.replace('Per ', '')}` : '/Day';
-  const imageSrc = tool.image || tool.imageUrl || '';
-  const fallbackIcon = tool.icon || '🔨';
+  const imageSrc = tool.image || tool.imageUrl || equipmentImg;
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -44,60 +45,59 @@ export const ToolCard = ({ tool }) => {
 
   return (
     <>
-      <div className="tool-card" id={`tool-${toolId}`}>
+      <article className="tool-card" id={`tool-${toolId}`}>
         <div className="tool-card-media">
-          {tool.badge && <span className="tool-badge-pill">{tool.badge}</span>}
-          <span className={`tool-avail-badge ${statusClass}`}>
-            <span className="tool-avail-dot"></span> {statusText}
-          </span>
-          {imageSrc ? (
-            <img
-              src={imageSrc}
-              alt={tool.name}
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                if (e.currentTarget.nextElementSibling) {
-                  e.currentTarget.nextElementSibling.style.display = 'flex';
-                }
-              }}
-            />
-          ) : null}
-          <div
-            className="tool-fallback-icon"
-            style={{ display: imageSrc ? 'none' : 'flex' }}
-          >
-            {fallbackIcon}
-          </div>
+          <img
+            src={imageSrc}
+            alt={tool.name}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = equipmentImg;
+            }}
+          />
+          <div className="tool-media-scrim" />
         </div>
+
         <div className="tool-card-body">
           <div>
-            <div className="tool-category-label">
-              {tool.category ? tool.category.replace('-', ' ').toUpperCase() : 'EQUIPMENT'}
+            {/* Clean unboxed metadata row */}
+            <div className="tool-meta-row">
+              <span>{tool.category ? tool.category.replace('-', ' ') : 'Equipment'}</span>
+              <span aria-hidden="true">·</span>
+              <span className={`tool-status-text ${statusClass}`}>
+                {statusText}
+              </span>
             </div>
+
             <h3 className="tool-title">{tool.name}</h3>
             <p className="tool-desc">
               {tool.desc || tool.description || 'Professional site-ready equipment with guaranteed calibration.'}
             </p>
           </div>
+
           <div>
             <div className="tool-price-row">
-              <div>
+              <div className="tabular-nums">
                 <span className="tool-price-val">₹{(Number(tool.price) || 0).toLocaleString('en-IN')}</span>
                 <span className="tool-price-period">{periodText}</span>
               </div>
-              <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+              <span className="tool-delivery-note">
                 {tool.contactOption || 'Site Delivery'}
               </span>
             </div>
+
             <div className="tool-card-actions">
               <button
+                type="button"
                 className="btn btn-primary btn-sm btn-tool-cart"
                 onClick={handleAddToCart}
                 disabled={statusClass === 'maintenance'}
               >
-                🛒 Add to Cart
+                <ShoppingCart size={15} />
+                <span>Add to Cart</span>
               </button>
               <div className="tool-card-subactions">
                 <button
@@ -106,20 +106,22 @@ export const ToolCard = ({ tool }) => {
                   onClick={handleRentNowClick}
                   title="Rent Now"
                 >
-                  ⚡ Rent
+                  <Zap size={14} />
+                  <span>Rent Now</span>
                 </button>
                 <Link
                   to={`/booking?type=tool_rental&tool=${encodeURIComponent(tool.name)}`}
                   className="btn btn-outline btn-sm"
                   title="Quick Quote"
                 >
-                  📅 Quote
+                  <Calendar size={14} />
+                  <span>Quote</span>
                 </Link>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </article>
 
       <RentalModal
         isOpen={showRentalModal}
@@ -134,3 +136,4 @@ export const ToolCard = ({ tool }) => {
   );
 };
 
+export default ToolCard;

@@ -1,11 +1,19 @@
+import heroSiteImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import villaImg from '../assets/images/project_luxury_villa_1790694687569.jpg';
+import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
+import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
+import footerArchImg from '../assets/images/footer_architecture_bg_1790694673575.jpg';
+
 export const servicesData = [
   {
     id: 'turnkey-construction',
+    number: '01',
     title: 'Turnkey House Construction',
     category: 'construction',
     icon: '🏗️',
-    tag: 'All-Inclusive',
-    description: 'Complete end-to-end residential construction from soil testing, structural RCC framing, red-brick masonry to custom architectural finishes.',
+    tag: 'All-Inclusive Civil Build',
+    image: villaImg,
+    description: 'Complete end-to-end residential construction from soil testing, structural RCC framing, and red-brick masonry to custom architectural finishes.',
     features: [
       'Architectural 2D/3D floor plans & structural drawings',
       'Fe550D TMT steel & Grade 53 high-strength cement',
@@ -14,14 +22,16 @@ export const servicesData = [
     ],
     priceRange: '₹1,750 – ₹2,650 / Sq.Ft',
     link: '/booking?type=construction',
-    buttonText: 'Get Construction Quote →'
+    buttonText: 'Learn More →'
   },
   {
     id: 'master-masons',
-    title: 'Hire Master Masons',
+    number: '02',
+    title: 'Masonry Services & Master Masons',
     category: 'workforce',
     icon: '👷',
     tag: 'Verified Workforce',
+    image: masonryImg,
     description: 'Book trade-tested, background-verified master masons (mistris) and skilled helpers on a daily wage or milestone contract basis.',
     features: [
       'Precision Flemish & English bond brick & AAC block work',
@@ -31,14 +41,16 @@ export const servicesData = [
     ],
     priceRange: '₹650 – ₹1,150 / Day',
     link: '/booking?type=mason',
-    buttonText: 'Hire Certified Masons →'
+    buttonText: 'Learn More →'
   },
   {
     id: 'tool-rentals',
-    title: 'Tools & Equipment Rental',
+    number: '03',
+    title: 'Construction Equipment & Tool Rental',
     category: 'rentals',
     icon: '🔨',
-    tag: 'Site Delivery',
+    tag: 'Site Delivery Fleet',
+    image: equipmentImg,
     description: 'Commercial-grade concrete mixers, demolition rotary hammers, needle vibrators, and modular scaffolding delivered directly to your site.',
     features: [
       'Daily serviced, calibrated & safety-tested machinery',
@@ -48,14 +60,16 @@ export const servicesData = [
     ],
     priceRange: 'From ₹150 / Day',
     link: '/products',
-    buttonText: 'Explore Rental Catalog →'
+    buttonText: 'Learn More →'
   },
   {
     id: 'renovation-remodeling',
-    title: 'Renovation & Remodeling',
+    number: '04',
+    title: 'Renovation & Structural Remodeling',
     category: 'construction',
     icon: '🏠',
     tag: 'Civil Retrofit',
+    image: heroSiteImg,
     description: 'Comprehensive structural remodeling, beam retrofitting, second-floor vertical expansions, and modern bathroom and kitchen makeovers.',
     features: [
       'RCC structural beam reinforcement & load analysis',
@@ -65,14 +79,16 @@ export const servicesData = [
     ],
     priceRange: 'From ₹850 / Sq.Ft',
     link: '/booking?type=renovation',
-    buttonText: 'Book Remodeling Visit →'
+    buttonText: 'Learn More →'
   },
   {
     id: 'plumbing-electrical',
-    title: 'Plumbing & Electrical Fitting',
+    number: '05',
+    title: 'Building Maintenance, Plumbing & Electrical',
     category: 'services',
     icon: '⚡',
     tag: 'Concealed Systems',
+    image: footerArchImg,
     description: 'Certified civil plumbers and electricians for concealed CPVC/UPVC pipelines, sanitary installations, and copper modular wiring.',
     features: [
       'High-pressure concealed CPVC line testing',
@@ -82,14 +98,16 @@ export const servicesData = [
     ],
     priceRange: 'From ₹600 / Day',
     link: '/booking?type=plumbing',
-    buttonText: 'Book Technical Team →'
+    buttonText: 'Learn More →'
   },
   {
     id: 'architectural-design',
+    number: '06',
     title: 'Architectural & 3D Elevation',
     category: 'design',
     icon: '📐',
-    tag: '100% Vastu',
+    tag: '100% Vastu Compliant',
+    image: villaImg,
     description: 'Customized floor plans aligned with 100% Vastu Shastra principles, 3D photorealistic elevations, and municipal approval liaisons.',
     features: [
       '100% Vastu-compliant residential floor layouts',
@@ -99,7 +117,7 @@ export const servicesData = [
     ],
     priceRange: 'Free with Build Plans',
     link: '/booking',
-    buttonText: 'Schedule Consultation →'
+    buttonText: 'Learn More →'
   }
 ];
 
@@ -107,7 +125,7 @@ export const turnkeyPackages = [
   {
     id: 'standard',
     title: 'Standard Package',
-    tag: 'ECONOMY & RELIABLE',
+    tag: 'Economy & Reliable',
     isPopular: false,
     rate: '₹1,750',
     unit: '/ Sq.Ft',
@@ -128,7 +146,7 @@ export const turnkeyPackages = [
   {
     id: 'premium',
     title: 'Premium Package',
-    tag: '⭐ MOST POPULAR',
+    tag: 'Most Popular',
     isPopular: true,
     rate: '₹2,150',
     unit: '/ Sq.Ft',
@@ -149,7 +167,7 @@ export const turnkeyPackages = [
   {
     id: 'luxury',
     title: 'Architectural Luxury',
-    tag: 'LUXURY VILLA',
+    tag: 'Luxury Villa',
     isPopular: false,
     rate: '₹2,650',
     unit: '/ Sq.Ft',

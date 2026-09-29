@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { initialToolsData } from '../data/tools';
 import { servicesData } from '../data/services';
+import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
 
 const BOOKING_TYPES = [
   {
@@ -247,10 +248,20 @@ export const Booking = () => {
   return (
     <div className="booking-page" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '96px' }}>
       {/* ── HEADER ── */}
-      <section className="hero" style={{ padding: '56px 0 64px' }}>
+      <section
+        className="hero page-hero"
+        style={{
+          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.92) 0%, rgba(15, 23, 42, 0.82) 55%, rgba(168, 42, 16, 0.36) 100%), url(${heroBgImg})`,
+          padding: '64px 0 72px'
+        }}
+      >
         <div className="container">
           <div className="hero-content" style={{ maxWidth: '800px' }}>
-            <span className="section-eyebrow">BOOK YOUR SERVICE</span>
+            <div className="hero-kicker">
+              <span>BOOK YOUR SERVICE</span>
+              <span aria-hidden="true">·</span>
+              <span>ON-SITE CONSULTATION</span>
+            </div>
             <h1 style={{ fontSize: 'clamp(2.1rem, 4.5vw, 3rem)', marginBottom: '14px', lineHeight: '1.2' }}>
               Plan Your Construction Requirement with Mason Mate
             </h1>
@@ -445,17 +456,15 @@ export const Booking = () => {
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '1.8rem' }}>{type.icon}</span>
+                            <span style={{ fontSize: '1.5rem' }}>{type.icon}</span>
                             {type.badge && (
                               <span
                                 style={{
                                   fontSize: '0.72rem',
                                   fontWeight: 700,
-                                  padding: '2px 8px',
-                                  borderRadius: '50px',
-                                  background: isSelected ? 'var(--accent)' : 'var(--bg-surface)',
-                                  color: isSelected ? '#fff' : 'var(--text-muted)',
-                                  border: '1px solid ' + (isSelected ? 'var(--accent)' : 'var(--border-light)')
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.06em',
+                                  color: isSelected ? 'var(--accent)' : 'var(--text-muted)'
                                 }}
                               >
                                 {type.badge}

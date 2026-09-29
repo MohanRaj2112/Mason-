@@ -1,62 +1,74 @@
+import villaImg from '../assets/images/project_luxury_villa_1790694687569.jpg';
+import heroSiteImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
+import footerArchImg from '../assets/images/footer_architecture_bg_1790694673575.jpg';
+import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
+
 export const projectsData = [
   {
     id: 'proj-1',
     title: 'Contemporary 4BHK Duplex Villa',
     category: 'Turnkey Build',
     tag: 'Turnkey Build',
-    specs: '3,200 Sq.Ft | 8 Months Build Time',
-    description: '3,200 Sq.Ft luxury residence featuring earthquake-resistant framing, cantilever balconies, and rainwater harvesting cistern.',
+    featured: true,
+    specs: '3,200 Sq.Ft · 8 Months Build Time',
+    description: '3,200 Sq.Ft luxury residence featuring earthquake-resistant IS 456 RCC framing, cantilevered concrete balconies, Burma teakwood joinery, and rainwater harvesting cistern.',
     location: 'Fairlands, Salem',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'
+    image: villaImg
   },
   {
     id: 'proj-2',
     title: 'G+2 Residential Apartment Complex',
     category: 'Structural RCC',
     tag: 'Structural RCC',
-    specs: '5,800 Sq.Ft | 6 Months Structural Phase',
-    description: 'Precision column casting, grade 53 slab reinforcement, and AAC lightweight block masonry completed in record 6 months.',
+    featured: false,
+    specs: '5,800 Sq.Ft · 6 Months Structural Phase',
+    description: 'Precision column casting, grade 53 slab reinforcement, and AAC lightweight block masonry completed on schedule.',
     location: 'RS Puram, Coimbatore',
-    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f3?auto=format&fit=crop&w=800&q=80'
+    image: heroSiteImg
   },
   {
     id: 'proj-3',
-    title: 'Chettinad Styled Courtyard Home',
+    title: 'Heritage Brick & Courtyard Residence',
     category: 'Heritage Masonry',
     tag: 'Heritage Masonry',
-    specs: '2,600 Sq.Ft | Custom Teak & Athangudi',
-    description: 'Intricate pillar installations, exposed kiln-burnt clay brick finish, and polished handmade Athangudi floor tiles.',
+    featured: false,
+    specs: '2,600 Sq.Ft · Custom Teak & Kiln Brick',
+    description: 'Intricate structural pillar installations, exposed kiln-burnt clay brick finish, and precision master mason craftsmanship.',
     location: 'Suramangalam, Salem',
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+    image: masonryImg
   },
   {
     id: 'proj-4',
-    title: 'Commercial Complex Remodeling',
+    title: 'Commercial Complex Structural Build',
     category: 'Renovation',
-    tag: 'Renovation',
-    specs: '4,100 Sq.Ft | Structural Retrofitting',
+    tag: 'Commercial RCC',
+    featured: false,
+    specs: '4,100 Sq.Ft · Structural Retrofitting',
     description: 'Reinforced beam retrofitting, double-glazed curtain wall facade masonry, and full waterproof terrace screeding.',
     location: 'Gandhipuram, Coimbatore',
-    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80'
+    image: footerArchImg
   },
   {
     id: 'proj-5',
     title: 'Sustainable 2BHK Eco Farmhouse',
     category: 'Eco-Friendly',
     tag: 'Eco-Friendly',
-    specs: '1,800 Sq.Ft | Solar & Thermal Insulated',
+    featured: false,
+    specs: '1,800 Sq.Ft · Solar & Thermal Insulated',
     description: 'Hollow interlock compressed earth brickwork, solar-ready roof slab, and thermal insulated exterior lime plastering.',
     location: 'Yercaud Foothills, Salem',
-    image: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80'
+    image: villaImg
   },
   {
     id: 'proj-6',
-    title: 'Minimalist Lakeview Luxury Villa',
+    title: 'Heavy Civil & Site Infrastructure Deployment',
     category: 'Turnkey Luxury',
-    tag: 'Turnkey Luxury',
-    specs: '3,900 Sq.Ft | Italian Marble & Teak',
-    description: 'Cantilevered infinity deck, Italian Statuario marble masonry, smart home conduit integration, and landscaped terrace.',
+    tag: 'Site Engineering',
+    featured: false,
+    specs: '3,900 Sq.Ft · Full Machinery & Crew',
+    description: 'Turnkey civil execution supported by our in-house fleet of diesel concrete mixers, tubular scaffolding, and master masons.',
     location: 'Singanallur, Coimbatore',
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'
+    image: equipmentImg
   }
 ];

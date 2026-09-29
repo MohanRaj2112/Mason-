@@ -73,6 +73,8 @@ app.use(express.urlencoded({ extended: true }));
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
 app.use('/assets', express.static(path.join(__dirname, 'dist/assets')));
+app.use('/src/assets', express.static(path.join(__dirname, 'src/assets')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 
