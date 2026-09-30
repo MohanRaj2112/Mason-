@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -6,15 +6,15 @@ import {
   MapPin,
   Mail,
   Clock,
-  CheckCircle2,
   ShieldCheck,
   Hammer,
   Building2,
-  HardHat
+  HardHat,
+  Wrench
 } from 'lucide-react';
 import { servicesData } from '../data/services';
 import { projectsData } from '../data/projects';
-import { initialToolsData } from '../data/tools';
+import { initialToolsData, toolCategories } from '../data/tools';
 import { ServiceCard } from '../components/ServiceCard';
 import { ProjectCard } from '../components/ProjectCard';
 import { ToolCard } from '../components/ToolCard';
@@ -26,16 +26,24 @@ import villaImg from '../assets/images/project_luxury_villa_1790694687569.jpg';
 import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
 
 export const Home = () => {
+  const [selectedToolCat, setSelectedToolCat] = useState('all');
+
   const openWhatsApp = (msg) => {
     const phone = '919159687408';
     const text = encodeURIComponent(
-      msg || 'Hello Mason Mate, I would like to inquire about residential construction and equipment rentals.'
+      msg || 'Hello SRM Akash Construction (MasonMate), I would like to inquire about residential construction and equipment rentals.'
     );
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank', 'noopener,noreferrer');
   };
 
-  const featuredProjects = projectsData.slice(0, 5);
-  const featuredTools = initialToolsData.filter((t) => t.featured).slice(0, 3);
+  const featuredProjects = projectsData.slice(0, 6);
+
+  const displayedTools = useMemo(() => {
+    if (selectedToolCat === 'all') {
+      return initialToolsData.slice(0, 9);
+    }
+    return initialToolsData.filter((t) => t.category === selectedToolCat);
+  }, [selectedToolCat]);
 
   return (
     <div className="home-page">
@@ -44,38 +52,47 @@ export const Home = () => {
         className="hero hero-home"
         id="hero"
         style={{
-          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.91) 0%, rgba(15, 23, 42, 0.80) 52%, rgba(168, 42, 16, 0.38) 100%), url(${heroBgImg})`
+          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.92) 0%, rgba(15, 23, 42, 0.84) 55%, rgba(234, 88, 12, 0.35) 100%), url(${heroBgImg})`
         }}
       >
         <div className="container">
           <div className="hero-content">
             <div className="hero-kicker">
-              <span>BUILDING YOUR VISION</span>
-              <span aria-hidden="true">·</span>
               <span>SRM AKASH CONSTRUCTION</span>
+              <span aria-hidden="true">·</span>
+              <span>MASONMATE PLATFORM</span>
             </div>
 
             <h1 className="hero-main-title">
-              Quality Construction.
+              Building Your Vision With
               <br />
-              <span>Built to Last.</span>
+              <span>Strength &amp; Quality</span>
             </h1>
 
             <p className="hero-desc">
-              Professional construction services, skilled master masonry workmanship, and reliable commercial equipment solutions for your residential and commercial projects across Salem and Coimbatore.
+              Trusted turnkey house construction, certified master mason workforce deployment, and commercial construction tools &amp; equipment rentals across Salem and Coimbatore.
             </p>
 
             <div className="hero-actions">
               <Link to="/services" className="btn btn-quote-cta btn-lg">
-                <span>Explore Our Services</span>
+                <span>Explore Services</span>
                 <ArrowRight size={18} className="cta-arrow" />
               </Link>
-              <Link to="/contact" className="btn btn-outline-white btn-lg">
-                <span>Contact Us</span>
+              <Link to="/booking?type=mason" className="btn btn-outline-white btn-lg">
+                <HardHat size={18} />
+                <span>Book a Mason</span>
               </Link>
-              <Link to="/booking" className="btn btn-outline-white btn-lg">
-                <span>Book Free Site Visit</span>
-              </Link>
+              <a
+                href="#tools"
+                className="btn btn-outline-white btn-lg"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Wrench size={17} />
+                <span>Construction Tools</span>
+              </a>
             </div>
 
             <div className="hero-stats-row">
@@ -104,9 +121,9 @@ export const Home = () => {
       <section className="section" id="services">
         <div className="container">
           <SectionHeading
-            eyebrow="CORE CAPABILITIES"
-            title="Professional Construction Services"
-            subtitle="End-to-end civil engineering, master masonry workforce deployment, structural renovations, and heavy equipment rentals."
+            eyebrow="SRM AKASH CONSTRUCTION SERVICES"
+            title="Professional Construction & Mason Services"
+            subtitle="End-to-end civil engineering, master masonry workforce deployment, structural renovations, building maintenance, and heavy equipment rentals."
           />
 
           <div className="grid-3">
@@ -124,8 +141,54 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* ── 3. ABOUT / BUSINESS SECTION ── */}
-      <section className="section section-alt" id="about">
+      {/* ── 3. DEDICATED CONSTRUCTION TOOLS & EQUIPMENT SECTION ── */}
+      <section className="section section-alt" id="tools">
+        <div className="container">
+          <SectionHeading
+            eyebrow="CONSTRUCTION TOOLS & EQUIPMENT"
+            title="Construction Tools & Site Machinery"
+            subtitle="Rent calibrated construction tools and site equipment—including hammers, rotary drills, extension ladders, shovels, cement mixers, cutting machines, wheelbarrows, measuring tools, and safety gear."
+            align="left"
+            action={
+              <Link to="/products" className="btn btn-accent">
+                <span>View Full Rental Catalog ({initialToolsData.length} Tools)</span>
+                <ArrowRight size={16} />
+              </Link>
+            }
+          />
+
+          {/* Interactive Category Filter Bar */}
+          <div className="home-tools-filter-bar">
+            {toolCategories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`cat-btn ${selectedToolCat === cat.id ? 'active' : ''}`}
+                onClick={() => setSelectedToolCat(cat.id)}
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="grid-3">
+            {displayedTools.map((tool) => (
+              <ToolCard key={tool._id || tool.id} tool={tool} />
+            ))}
+          </div>
+
+          <div className="section-bottom-cta">
+            <Link to="/products" className="btn btn-outline btn-lg">
+              <span>Explore All Equipment &amp; Bulk Rental Rates</span>
+              <ArrowRight size={17} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. ABOUT / BUSINESS SECTION ── */}
+      <section className="section" id="about">
         <div className="container">
           <div className="about-business-grid">
             {/* Left: Construction & Architectural Visuals */}
@@ -161,7 +224,7 @@ export const Home = () => {
                 Engineering Dependable Homes &amp; Infrastructure Across Tamil Nadu
               </h2>
               <p className="about-lead-copy">
-                Founded under SRM AKASH CONSTRUCTION, Mason Mate unites licensed civil engineering oversight, trade-tested master masons, and a calibrated machinery fleet under one accountable roof.
+                Founded under <strong>SRM Akash Construction</strong>, MasonMate unites licensed civil engineering oversight, trade-tested master masons, and a calibrated construction machinery fleet under one accountable platform.
               </p>
               <p className="about-body-copy">
                 Whether you are constructing a custom independent duplex villa from the ground up, remodeling an existing structure, or hiring specialized masonry crews and equipment on a daily schedule, every project is governed by strict IS 456 structural compliance, transparent Bill of Quantities (BOQ) pricing, and milestone sign-offs.
@@ -169,28 +232,36 @@ export const Home = () => {
 
               <div className="about-pillars-grid">
                 <div className="about-pillar-item">
-                  <Building2 size={20} className="about-pillar-icon" />
+                  <div className="about-pillar-icon-wrap">
+                    <Building2 size={20} className="about-pillar-icon" />
+                  </div>
                   <div>
                     <strong>Turnkey Residential Builds</strong>
                     <p>Soil testing, structural RCC framing, Fe550D TMT steel, and key-in-hand execution.</p>
                   </div>
                 </div>
                 <div className="about-pillar-item">
-                  <HardHat size={20} className="about-pillar-icon" />
+                  <div className="about-pillar-icon-wrap">
+                    <HardHat size={20} className="about-pillar-icon" />
+                  </div>
                   <div>
                     <strong>Vetted Master Masons</strong>
                     <p>Experienced chief mistris, bricklayers, plasterers, and tile artisans on demand.</p>
                   </div>
                 </div>
                 <div className="about-pillar-item">
-                  <Hammer size={20} className="about-pillar-icon" />
+                  <div className="about-pillar-icon-wrap">
+                    <Hammer size={20} className="about-pillar-icon" />
+                  </div>
                   <div>
                     <strong>Commercial Tool Fleet</strong>
-                    <p>Concrete mixers, scaffolding sets, needle vibrators, and breakers delivered to site.</p>
+                    <p>Concrete mixers, scaffolding sets, drills, ladders, and breakers delivered to site.</p>
                   </div>
                 </div>
                 <div className="about-pillar-item">
-                  <ShieldCheck size={20} className="about-pillar-icon" />
+                  <div className="about-pillar-icon-wrap">
+                    <ShieldCheck size={20} className="about-pillar-icon" />
+                  </div>
                   <div>
                     <strong>Transparent Sign-Offs</strong>
                     <p>Itemized stage billing, weekly progress logs, and a 10-year structural warranty.</p>
@@ -209,8 +280,8 @@ export const Home = () => {
                   <span>Projects Completed</span>
                 </div>
                 <div className="about-metric-cell">
-                  <strong className="tabular-nums">6</strong>
-                  <span>Core Services</span>
+                  <strong className="tabular-nums">12+</strong>
+                  <span>Tool Categories</span>
                 </div>
                 <div className="about-metric-cell">
                   <strong className="tabular-nums">4.9★</strong>
@@ -220,19 +291,19 @@ export const Home = () => {
             </div>
           </div>
 
-          {/* ── 4. ADMIN / OWNER LEADERSHIP SECTION ── */}
+          {/* ── LEADERSHIP SECTION ── */}
           <div className="leadership-section-wrap" id="leadership">
             <AdminOwnerCard
               name="Er. Mohanraj"
               role="Founder & Chief Managing Contractor"
-              company="SRM AKASH CONSTRUCTION · Mason Mate"
+              company="SRM Akash Construction · MasonMate"
               location="Salem & Coimbatore, Tamil Nadu"
               experience="15+ Years Field Leadership"
               description="With over 15 years of hands-on site supervision and civil contracting across Salem and Coimbatore, Mohanraj personally oversees structural quality checks, foundation reinforcements, and transparent client handovers."
               phone="+91 9159687408"
               onWhatsAppClick={() =>
                 openWhatsApp(
-                  'Hello Mohanraj / Mason Mate! I would like to consult about our upcoming house construction project.'
+                  'Hello Mohanraj / SRM Akash Construction! I would like to consult about our upcoming house construction project.'
                 )
               }
             />
@@ -241,7 +312,7 @@ export const Home = () => {
       </section>
 
       {/* ── 5. LANDMARK PROJECTS / WORK SECTION ── */}
-      <section className="section" id="projects">
+      <section className="section section-alt" id="projects">
         <div className="container">
           <SectionHeading
             eyebrow="PROJECT PORTFOLIO"
@@ -249,50 +320,22 @@ export const Home = () => {
             subtitle="Explore our completed residential villas, structural RCC apartment frames, and architectural renovations across Salem and Coimbatore."
             align="left"
             action={
-              <Link to="/booking?type=construction" className="btn btn-outline">
+              <Link to="/booking?type=construction" className="btn btn-primary">
                 <span>Start Your Project</span>
                 <ArrowRight size={16} />
               </Link>
             }
           />
 
-          <div className="project-showcase-grid">
-            {featuredProjects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                featured={index === 0}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. EQUIPMENT & TOOLS RENTAL PREVIEW ── */}
-      <section className="section section-alt" id="tool-rentals-preview">
-        <div className="container">
-          <SectionHeading
-            eyebrow="COMMERCIAL EQUIPMENT FLEET"
-            title="Construction Machinery & Tool Rentals"
-            subtitle="Daily serviced concrete mixers, scaffolding frames, demolition hammers, and de-watering pumps available for rapid site delivery."
-            align="left"
-            action={
-              <Link to="/products" className="btn btn-accent">
-                <span>Browse All {initialToolsData.length} Equipment Units</span>
-                <ArrowRight size={16} />
-              </Link>
-            }
-          />
-
           <div className="grid-3">
-            {featuredTools.map((tool) => (
-              <ToolCard key={tool._id || tool.id} tool={tool} />
+            {featuredProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 7. CLIENT TESTIMONIALS ── */}
+      {/* ── 6. CLIENT TESTIMONIALS ── */}
       <section className="section" id="testimonials">
         <div className="container">
           <SectionHeading
@@ -309,11 +352,11 @@ export const Home = () => {
                 <span>3BHK Duplex Turnkey Build</span>
               </div>
               <p className="testimonial-quote">
-                "Mason Mate built our 3BHK duplex in Salem in just 8 months. Their weekly WhatsApp photo logs and structural stage approvals gave us complete peace of mind."
+                "SRM Akash Construction built our 3BHK duplex in Salem in just 8 months. Their weekly WhatsApp photo logs and structural stage approvals gave us complete peace of mind."
               </p>
               <div className="testimonial-author">
                 <strong>Rajesh Kumar</strong>
-                <span>Residential Villa Owner</span>
+                <span>Residential Villa Owner · ★★★★★</span>
               </div>
             </div>
 
@@ -324,11 +367,11 @@ export const Home = () => {
                 <span>Master Masonry &amp; Flooring</span>
               </div>
               <p className="testimonial-quote">
-                "We hired 4 master masons for plastering and granite flooring. The team was punctual, highly skilled, and maintained a clean site with zero material wastage."
+                "We hired 4 master masons through MasonMate for plastering and granite flooring. The team was punctual, highly skilled, and maintained a clean site with zero material wastage."
               </p>
               <div className="testimonial-author">
                 <strong>Dr. Meenakshi Sundaram</strong>
-                <span>Homeowner</span>
+                <span>Homeowner · ★★★★★</span>
               </div>
             </div>
 
@@ -339,35 +382,37 @@ export const Home = () => {
                 <span>Commercial Fleet Rental</span>
               </div>
               <p className="testimonial-quote">
-                "Rented diesel concrete mixers and steel scaffolding for our commercial complex. Machinery arrived on schedule in calibrated condition with prompt support."
+                "Rented diesel concrete mixers, rotary drills, and steel scaffolding for our commercial complex. Machinery arrived on schedule in calibrated condition with prompt support."
               </p>
               <div className="testimonial-author">
                 <strong>Murugan Builders</strong>
-                <span>Civil Contracting Partner</span>
+                <span>Civil Contracting Partner · ★★★★★</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 8. CORPORATE CONTACT & CONSULTATION SECTION ── */}
+      {/* ── 7. CORPORATE CONTACT & CONSULTATION SECTION ── */}
       <section className="section section-alt" id="home-contact">
         <div className="container">
           <div className="home-contact-strip-card">
             <div className="home-contact-header">
               <div>
-                <span className="section-eyebrow">GET IN TOUCH</span>
-                <h2>Ready to Discuss Your Construction Project?</h2>
+                <span className="section-eyebrow" style={{ color: '#FDBA74' }}>
+                  DIRECT CONSULTATION DESK
+                </span>
+                <h2>Ready to Start Your Construction Project?</h2>
                 <p>
-                  Connect directly with our civil engineering desk for a complimentary site inspection, structural consultation, or equipment dispatch.
+                  Connect directly with SRM Akash Construction for a complimentary site inspection, structural consultation, master mason booking, or equipment dispatch.
                 </p>
               </div>
               <div className="home-contact-cta-group">
                 <Link to="/booking" className="btn btn-quote-cta btn-lg">
-                  <span>Book Free Site Visit</span>
+                  <span>Book a Mason / Site Visit</span>
                   <ArrowRight size={17} className="cta-arrow" />
                 </Link>
-                <Link to="/contact" className="btn btn-outline btn-lg">
+                <Link to="/contact" className="btn btn-outline-white btn-lg">
                   <span>Send an Inquiry</span>
                 </Link>
               </div>
@@ -375,12 +420,14 @@ export const Home = () => {
 
             <div className="home-contact-items-grid">
               <ContactItem
+                light
                 icon={MapPin}
                 label="Office & Service Coverage"
                 value="Salem & Coimbatore"
                 subtext="Tamil Nadu, India"
               />
               <ContactItem
+                light
                 icon={Phone}
                 label="Direct Engineering Helpline"
                 value="+91 9159687408"
@@ -388,6 +435,7 @@ export const Home = () => {
                 href="tel:+919159687408"
               />
               <ContactItem
+                light
                 icon={Mail}
                 label="Email Address"
                 value="contact@masonmate.in"
@@ -395,6 +443,7 @@ export const Home = () => {
                 href="mailto:contact@masonmate.in"
               />
               <ContactItem
+                light
                 icon={Clock}
                 label="Working Hours"
                 value="Mon – Sat: 8:00 AM – 7:30 PM"

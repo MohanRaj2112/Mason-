@@ -18,7 +18,9 @@ import {
   User,
   LogOut,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  HardHat,
+  Hammer
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -30,6 +32,10 @@ export const Navbar = () => {
   const { totalCount, openCart } = useCart();
   const { showToast } = useToast();
   const mobileMenuRef = useRef(null);
+
+  const isAdmin =
+    currentUser &&
+    (currentUser.role === 'admin' || currentUser.username?.toLowerCase() === 'admin');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,20 +85,24 @@ export const Navbar = () => {
         return (pathname === '/' && hash === '#about') || pathname.startsWith('/about');
       case 'services':
         return pathname.startsWith('/services');
-      case 'projects':
-        return (pathname === '/' && hash === '#projects') || pathname.startsWith('/projects');
       case 'tools':
+        return pathname === '/' && hash === '#tools';
+      case 'rentals':
         return (
           pathname.startsWith('/products') ||
           pathname.startsWith('/tools') ||
           pathname.startsWith('/tools-rental')
         );
+      case 'projects':
+        return (pathname === '/' && hash === '#projects') || pathname.startsWith('/projects');
       case 'booking':
         return pathname.startsWith('/booking');
       case 'contact':
         return pathname.startsWith('/contact');
       case 'admin':
         return pathname.startsWith('/admin');
+      case 'auth':
+        return pathname.startsWith('/auth');
       default:
         return false;
     }
@@ -105,6 +115,8 @@ export const Navbar = () => {
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
+    } else if (!hashTarget && path === '/' && location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -116,13 +128,26 @@ export const Navbar = () => {
         role="banner"
       >
         <div className="navbar-inner">
-          {/* Zone 1: Single-element Brand Wordmark */}
-          <Link to="/" className="logo" aria-label="Mason Mate Home">
-            Mason <span>Mate</span>
+          {/* Zone 1: Brand Identity */}
+          <Link
+            to="/"
+            className="logo-brand-block"
+            aria-label="MasonMate - SRM Akash Construction Home"
+            onClick={() => handleNavClick('/')}
+          >
+            <div className="logo-mark-box">
+              <HardHat size={20} />
+            </div>
+            <div className="logo-text-stack">
+              <span className="logo-title">
+                Mason<span>Mate</span>
+              </span>
+              <span className="logo-subtitle">SRM Akash Construction</span>
+            </div>
           </Link>
 
-          {/* Zone 2: Clean Desktop Navigation Links */}
-          <nav aria-label="Main Navigation">
+          {/* Zone 2: Desktop Navigation Links */}
+          <nav aria-label="Main Navigation" className="navbar-nav-center">
             <ul className="nav-links" id="desktopNavLinks">
               <li>
                 <Link
@@ -153,20 +178,29 @@ export const Navbar = () => {
               </li>
               <li>
                 <Link
-                  to="/#projects"
-                  className={`nav-link ${isLinkActive('projects') ? 'active' : ''}`}
-                  onClick={() => handleNavClick('/#projects', '#projects')}
+                  to="/#tools"
+                  className={`nav-link ${isLinkActive('tools') ? 'active' : ''}`}
+                  onClick={() => handleNavClick('/#tools', '#tools')}
                 >
-                  Projects
+                  Tools
                 </Link>
               </li>
               <li>
                 <Link
                   to="/products"
-                  className={`nav-link ${isLinkActive('tools') ? 'active' : ''}`}
+                  className={`nav-link ${isLinkActive('rentals') ? 'active' : ''}`}
                   onClick={() => handleNavClick('/products')}
                 >
-                  Tools Rental
+                  Rentals
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#projects"
+                  className={`nav-link ${isLinkActive('projects') ? 'active' : ''}`}
+                  onClick={() => handleNavClick('/#projects', '#projects')}
+                >
+                  Projects
                 </Link>
               </li>
               <li>
@@ -178,6 +212,17 @@ export const Navbar = () => {
                   Contact
                 </Link>
               </li>
+              {isAdmin && (
+                <li>
+                  <Link
+                    to="/admin"
+                    className={`nav-link nav-link-admin ${isLinkActive('admin') ? 'active' : ''}`}
+                    onClick={() => handleNavClick('/admin')}
+                  >
+                    Admin Dashboard
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 
@@ -196,18 +241,21 @@ export const Navbar = () => {
 
             {currentUser ? (
               <>
-                <Link
-                  to="/admin"
-                  className="btn-nav-action btn-nav-user"
-                  title="Admin Dashboard"
-                >
-                  <User size={15} />
-                  <span>
-                    {currentUser.role === 'admin' || currentUser.username?.toLowerCase() === 'admin'
-                      ? 'Admin'
-                      : currentUser.username}
+                {isAdmin ? (
+                  <Link
+                    to="/admin"
+                    className="btn-nav-action btn-nav-user"
+                    title="Admin Dashboard"
+                  >
+                    <Shield size={15} />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                ) : (
+                  <span className="btn-nav-action btn-nav-user" title="Signed In User">
+                    <User size={15} />
+                    <span>{currentUser.username || 'Client'}</span>
                   </span>
-                </Link>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -220,11 +268,11 @@ export const Navbar = () => {
             ) : (
               <Link
                 to="/auth"
-                className="btn-nav-action btn-nav-user"
-                title="Admin / Sign In"
+                className={`btn-nav-action btn-nav-user ${isLinkActive('auth') ? 'active' : ''}`}
+                title="Sign In to MasonMate"
               >
                 <User size={15} />
-                <span>Admin / Login</span>
+                <span>Login</span>
               </Link>
             )}
 
@@ -233,7 +281,7 @@ export const Navbar = () => {
               id="nav-book-now-btn"
               className="btn btn-quote-cta btn-nav-cta"
             >
-              <span>Get a Quote</span>
+              <span>Book a Mason</span>
               <ArrowRight size={15} className="cta-arrow" />
             </Link>
           </div>
@@ -284,8 +332,16 @@ export const Navbar = () => {
         aria-label="Site Navigation Drawer"
       >
         <div className="nav-drawer-header">
-          <Link to="/" className="drawer-logo" onClick={() => setMobileOpen(false)}>
-            Mason <span>Mate</span>
+          <Link to="/" className="logo-brand-block" onClick={() => setMobileOpen(false)}>
+            <div className="logo-mark-box">
+              <HardHat size={18} />
+            </div>
+            <div className="logo-text-stack">
+              <span className="logo-title">
+                Mason<span>Mate</span>
+              </span>
+              <span className="logo-subtitle">SRM Akash Construction</span>
+            </div>
           </Link>
           <button
             type="button"
@@ -336,6 +392,30 @@ export const Navbar = () => {
             </Link>
 
             <Link
+              to="/#tools"
+              className={`drawer-nav-link ${isLinkActive('tools') ? 'active' : ''}`}
+              onClick={() => handleNavClick('/#tools', '#tools')}
+            >
+              <div className="drawer-link-left">
+                <Hammer size={18} className="drawer-link-icon" />
+                <span className="drawer-link-title">Tools</span>
+              </div>
+              <ChevronRight size={16} className="drawer-link-chevron" />
+            </Link>
+
+            <Link
+              to="/products"
+              className={`drawer-nav-link ${isLinkActive('rentals') ? 'active' : ''}`}
+              onClick={() => handleNavClick('/products')}
+            >
+              <div className="drawer-link-left">
+                <Wrench size={18} className="drawer-link-icon" />
+                <span className="drawer-link-title">Rentals</span>
+              </div>
+              <ChevronRight size={16} className="drawer-link-chevron" />
+            </Link>
+
+            <Link
               to="/#projects"
               className={`drawer-nav-link ${isLinkActive('projects') ? 'active' : ''}`}
               onClick={() => handleNavClick('/#projects', '#projects')}
@@ -343,18 +423,6 @@ export const Navbar = () => {
               <div className="drawer-link-left">
                 <Layers size={18} className="drawer-link-icon" />
                 <span className="drawer-link-title">Projects</span>
-              </div>
-              <ChevronRight size={16} className="drawer-link-chevron" />
-            </Link>
-
-            <Link
-              to="/products"
-              className={`drawer-nav-link ${isLinkActive('tools') ? 'active' : ''}`}
-              onClick={() => handleNavClick('/products')}
-            >
-              <div className="drawer-link-left">
-                <Wrench size={18} className="drawer-link-icon" />
-                <span className="drawer-link-title">Tools Rental</span>
               </div>
               <ChevronRight size={16} className="drawer-link-chevron" />
             </Link>
@@ -383,17 +451,19 @@ export const Navbar = () => {
               <ChevronRight size={16} className="drawer-link-chevron" />
             </Link>
 
-            <Link
-              to="/admin"
-              className={`drawer-nav-link ${isLinkActive('admin') ? 'active' : ''}`}
-              onClick={() => handleNavClick('/admin')}
-            >
-              <div className="drawer-link-left">
-                <Shield size={18} className="drawer-link-icon" />
-                <span className="drawer-link-title">Admin Portal</span>
-              </div>
-              <ChevronRight size={16} className="drawer-link-chevron" />
-            </Link>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={`drawer-nav-link ${isLinkActive('admin') ? 'active' : ''}`}
+                onClick={() => handleNavClick('/admin')}
+              >
+                <div className="drawer-link-left">
+                  <Shield size={18} className="drawer-link-icon" />
+                  <span className="drawer-link-title">Admin Dashboard</span>
+                </div>
+                <ChevronRight size={16} className="drawer-link-chevron" />
+              </Link>
+            )}
           </div>
         </div>
 
@@ -428,18 +498,21 @@ export const Navbar = () => {
           <div className="drawer-user-row">
             {currentUser ? (
               <>
-                <Link
-                  to="/admin"
-                  className="btn-drawer-action btn-drawer-user"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <User size={15} />
-                  <span>
-                    {currentUser.role === 'admin' || currentUser.username?.toLowerCase() === 'admin'
-                      ? 'Admin'
-                      : currentUser.username}
+                {isAdmin ? (
+                  <Link
+                    to="/admin"
+                    className="btn-drawer-action btn-drawer-user"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <Shield size={15} />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                ) : (
+                  <span className="btn-drawer-action btn-drawer-user">
+                    <User size={15} />
+                    <span>{currentUser.username || 'Client'}</span>
                   </span>
-                </Link>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -453,24 +526,15 @@ export const Navbar = () => {
                 </button>
               </>
             ) : (
-              <>
-                <Link
-                  to="/admin"
-                  className="btn-drawer-action btn-drawer-user"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <Shield size={15} />
-                  <span>Admin</span>
-                </Link>
-                <Link
-                  to="/auth"
-                  className="btn-drawer-action btn-drawer-user"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <User size={15} />
-                  <span>Sign In</span>
-                </Link>
-              </>
+              <Link
+                to="/auth"
+                className="btn-drawer-action btn-drawer-user"
+                style={{ gridColumn: '1 / -1' }}
+                onClick={() => setMobileOpen(false)}
+              >
+                <User size={15} />
+                <span>Login / Sign Up</span>
+              </Link>
             )}
           </div>
 
@@ -480,7 +544,7 @@ export const Navbar = () => {
             className="btn btn-quote-cta drawer-quote-btn"
             onClick={() => setMobileOpen(false)}
           >
-            <span>Get a Quote</span>
+            <span>Book a Mason</span>
             <ArrowRight size={17} className="cta-arrow" />
           </Link>
         </div>

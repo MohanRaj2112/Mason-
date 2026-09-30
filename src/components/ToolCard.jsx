@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Calendar, Zap } from 'lucide-react';
+import { ShoppingCart, Calendar, Wrench, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { RentalModal } from './RentalModal';
@@ -14,7 +14,7 @@ export const ToolCard = ({ tool }) => {
   if (!tool) return null;
 
   const toolId = tool._id || tool.id || 'tool';
-  const status = tool.availabilityStatus || (tool.available ? 'Available' : 'Rented');
+  const status = tool.availabilityStatus || (tool.available !== false ? 'Available' : 'Rented');
   let statusClass = 'available';
   let statusText = 'Available';
 
@@ -26,7 +26,7 @@ export const ToolCard = ({ tool }) => {
     statusText = 'Maintenance';
   }
 
-  const periodText = tool.period ? `/${tool.period.replace('Per ', '')}` : '/Day';
+  const cleanPeriod = tool.period ? tool.period.replace(/^Per\s+/i, '') : 'Day';
   const imageSrc = tool.image || tool.imageUrl || equipmentImg;
 
   const handleAddToCart = (e) => {
@@ -36,8 +36,8 @@ export const ToolCard = ({ tool }) => {
 
   const handleRentNowClick = (e) => {
     e.stopPropagation();
-    if (status === 'Maintenance') {
-      showToast('This tool is currently undergoing maintenance.', 'error');
+    if (statusClass === 'maintenance') {
+      showToast('This tool is currently undergoing calibration and maintenance.', 'error');
       return;
     }
     setShowRentalModal(true);
@@ -59,30 +59,42 @@ export const ToolCard = ({ tool }) => {
             }}
           />
           <div className="tool-media-scrim" />
+          <div className="tool-media-top-bar">
+            <span className="tool-category-tag">
+              {tool.category ? tool.category.replace(/-/g, ' ') : 'Equipment'}
+            </span>
+            <span className={`tool-availability-badge ${statusClass}`}>
+              {statusClass === 'available' && <CheckCircle2 size={13} />}
+              {statusClass === 'rented' && <Clock size={13} />}
+              {statusClass === 'maintenance' && <AlertCircle size={13} />}
+              <span>{statusText}</span>
+            </span>
+          </div>
         </div>
 
         <div className="tool-card-body">
-          <div>
-            {/* Clean unboxed metadata row */}
-            <div className="tool-meta-row">
-              <span>{tool.category ? tool.category.replace('-', ' ') : 'Equipment'}</span>
-              <span aria-hidden="true">·</span>
-              <span className={`tool-status-text ${statusClass}`}>
-                {statusText}
-              </span>
-            </div>
-
+          <div className="tool-card-info">
             <h3 className="tool-title">{tool.name}</h3>
             <p className="tool-desc">
-              {tool.desc || tool.description || 'Professional site-ready equipment with guaranteed calibration.'}
+              {tool.desc || tool.description || 'Heavy-duty construction tool calibrated for reliable on-site performance.'}
             </p>
+            {tool.specs && (
+              <div className="tool-specs-line">
+                <strong>Specs:</strong> {tool.specs}
+              </div>
+            )}
           </div>
 
-          <div>
+          <div className="tool-card-footer">
             <div className="tool-price-row">
-              <div className="tabular-nums">
-                <span className="tool-price-val">₹{(Number(tool.price) || 0).toLocaleString('en-IN')}</span>
-                <span className="tool-price-period">{periodText}</span>
+              <div className="tool-price-block tabular-nums">
+                <span className="tool-price-label">Rental Rate</span>
+                <div className="tool-price-figure">
+                  <span className="tool-price-val">
+                    ₹{(Number(tool.price) || 0).toLocaleString('en-IN')}
+                  </span>
+                  <span className="tool-price-period">/ {cleanPeriod}</span>
+                </div>
               </div>
               <span className="tool-delivery-note">
                 {tool.contactOption || 'Site Delivery'}
@@ -92,30 +104,31 @@ export const ToolCard = ({ tool }) => {
             <div className="tool-card-actions">
               <button
                 type="button"
-                className="btn btn-primary btn-sm btn-tool-cart"
-                onClick={handleAddToCart}
+                className="btn btn-accent btn-tool-rent"
+                onClick={handleRentNowClick}
                 disabled={statusClass === 'maintenance'}
               >
-                <ShoppingCart size={15} />
-                <span>Add to Cart</span>
+                <Wrench size={15} />
+                <span>Rent Tool</span>
               </button>
               <div className="tool-card-subactions">
                 <button
                   type="button"
-                  className="btn btn-accent btn-sm"
-                  onClick={handleRentNowClick}
-                  title="Rent Now"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleAddToCart}
+                  disabled={statusClass === 'maintenance'}
+                  title="Add to Equipment Cart"
                 >
-                  <Zap size={14} />
-                  <span>Rent Now</span>
+                  <ShoppingCart size={14} />
+                  <span>Add to Cart</span>
                 </button>
                 <Link
                   to={`/booking?type=tool_rental&tool=${encodeURIComponent(tool.name)}`}
                   className="btn btn-outline btn-sm"
-                  title="Quick Quote"
+                  title="Book with Site Schedule"
                 >
                   <Calendar size={14} />
-                  <span>Quote</span>
+                  <span>Schedule</span>
                 </Link>
               </div>
             </div>
@@ -129,7 +142,7 @@ export const ToolCard = ({ tool }) => {
         tool={tool}
         onSuccess={() => {
           setShowRentalModal(false);
-          showToast(`Booking initiated for ${tool.name}!`, 'success');
+          showToast(`Rental booking confirmed for ${tool.name}!`, 'success');
         }}
       />
     </>
