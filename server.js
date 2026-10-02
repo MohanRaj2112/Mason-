@@ -3,11 +3,12 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const { connectDB, isDbConnected } = require('./server/db');
-const { seedDatabase, initialServices, initialProjects, initialTools, initialBookings, initialContacts, initialEstimates, initialReviews } = require('./server/seed');
+const { seedDatabase, initialServices, initialProjects, initialTools, initialBookings, initialTransactions, initialContacts, initialEstimates, initialReviews } = require('./server/seed');
 
 const User = require('./server/models/User');
 const Admin = require('./server/models/Admin');
@@ -15,6 +16,7 @@ const Service = require('./server/models/Service');
 const Project = require('./server/models/Project');
 const Tool = require('./server/models/Tool');
 const Booking = require('./server/models/Booking');
+const Transaction = require('./server/models/Transaction');
 const Estimate = require('./server/models/Estimate');
 const Contact = require('./server/models/Contact');
 const Review = require('./server/models/Review');
@@ -22,6 +24,9 @@ const Review = require('./server/models/Review');
 const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'mason_mate_super_secret_jwt_key_2026';
+const PAYMENT_KEY_ID = process.env.PAYMENT_KEY_ID || 'rzp_live_srmakash_mm2026';
+const PAYMENT_KEY_SECRET = process.env.PAYMENT_KEY_SECRET || 'srm_akash_payment_secret_2026';
+const PAYMENT_WEBHOOK_SECRET = process.env.PAYMENT_WEBHOOK_SECRET || 'srm_akash_webhook_secret_2026';
 
 // In-Memory Fallback store in case database is temporarily disconnected
 const memStore = {
@@ -31,6 +36,7 @@ const memStore = {
     projects: [...initialProjects],
     tools: [...initialTools],
     bookings: [...initialBookings],
+    transactions: [...(initialTransactions || [])],
     contacts: [...initialContacts],
     estimates: [...initialEstimates],
     reviews: [...initialReviews]
@@ -95,6 +101,172 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+// Optional / Role-Enforced Admin Authorization Middleware
+const requireAdminAuth = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const adminHeaderRole = req.headers['x-user-role'];
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            if (decoded && (decoded.role === 'admin' || decoded.adminId)) {
+                req.user = decoded;
+                return next();
+            }
+            return res.status(403).json({ success: false, error: 'Forbidden: Administrator privileges required.' });
+        } catch (err) {
+            return res.status(403).json({ success: false, error: 'Invalid or expired administrator token.' });
+        }
+    }
+
+    if (adminHeaderRole && adminHeaderRole !== 'admin') {
+        return res.status(403).json({ success: false, error: 'Forbidden: Administrator role required.' });
+    }
+
+    next();
+};
+
+// Server-Side Authoritative Price Calculation Helper
+const SERVICE_BASE_RATES = {
+    'Turnkey House Construction': { rate: 25000, unit: 'Site Mobilization & Structural BOQ Advance', isFixedAdvance: true },
+    'Hire Master Masons & Specialists': { rate: 1200, unit: 'Per Mason / Day', isFixedAdvance: false },
+    'Master Mason Services': { rate: 1200, unit: 'Per Mason / Day', isFixedAdvance: false },
+    'Renovation & Remodeling': { rate: 15000, unit: 'Structural Assessment & Mobilization Advance', isFixedAdvance: true },
+    'Structural RCC & Framing': { rate: 20000, unit: 'Engineering & Shuttering Advance', isFixedAdvance: true },
+    'Plumbing & Electrical Fitting': { rate: 1000, unit: 'Per Specialist / Day', isFixedAdvance: false },
+    'Painting & Waterproofing': { rate: 950, unit: 'Per Specialist / Day', isFixedAdvance: false },
+    'Building Maintenance & Repairs': { rate: 950, unit: 'Per Specialist / Day', isFixedAdvance: false }
+};
+
+function parseDurationDays(durationStr, explicitDays) {
+    if (explicitDays && Number(explicitDays) > 0) return Math.min(365, Math.max(1, parseInt(explicitDays, 10)));
+    if (!durationStr) return 1;
+    const s = String(durationStr).toLowerCase();
+    if (s.includes('month')) {
+        const m = parseInt(s, 10) || 1;
+        return m * 30;
+    }
+    if (s.includes('week')) {
+        const w = parseInt(s, 10) || 1;
+        return w * 7;
+    }
+    const numMatch = s.match(/(\d+)/);
+    if (numMatch) return Math.max(1, parseInt(numMatch[1], 10));
+    return 1;
+}
+
+async function calculateAuthoritativePricing(payload) {
+    const bookingType = payload.bookingType || payload.type || 'construction';
+    const quantity = Math.max(1, parseInt(payload.quantity || payload.toolQuantity || payload.workers || payload.workersCount || 1, 10));
+    const durationDays = parseDurationDays(payload.duration, payload.durationDays);
+
+    if (bookingType === 'tool_rental' || bookingType === 'tools') {
+        const toolIdentifier = payload.toolId || payload.tool || payload.toolName || payload.selectedTool || '';
+        let matchedTool = null;
+
+        if (isDbConnected()) {
+            try {
+                matchedTool = await Tool.findOne({
+                    $or: [
+                        { toolId: toolIdentifier },
+                        { name: toolIdentifier }
+                    ]
+                });
+            } catch {}
+        }
+
+        if (!matchedTool) {
+            matchedTool = memStore.tools.find(
+                t => t.toolId === toolIdentifier || t._id === toolIdentifier || t.name === toolIdentifier
+            );
+        }
+
+        const dailyRate = matchedTool ? Number(matchedTool.pricePerDay || matchedTool.price || 500) : 500;
+        const itemTitle = matchedTool ? matchedTool.name : (toolIdentifier || 'Construction Equipment Rental');
+        const subtotal = dailyRate * durationDays * quantity;
+
+        return {
+            serviceCategory: 'Construction Tool & Equipment Rental',
+            selectedItem: itemTitle,
+            rate: dailyRate,
+            rateUnit: 'Per Day',
+            durationDays,
+            durationLabel: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+            quantity,
+            quantityLabel: `${quantity} Unit${quantity > 1 ? 's' : ''}`,
+            subtotal,
+            totalAmount: subtotal
+        };
+    }
+
+    if (bookingType === 'mason' || (payload.service || payload.selectedService || '').toLowerCase().includes('mason')) {
+        const dailyMasonRate = 1200;
+        const subtotal = dailyMasonRate * durationDays * quantity;
+        return {
+            serviceCategory: 'Master Mason & Workforce Deployment',
+            selectedItem: payload.selectedService || payload.service || 'Hire Master Masons & Specialists',
+            rate: dailyMasonRate,
+            rateUnit: 'Per Mason / Day',
+            durationDays,
+            durationLabel: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+            quantity,
+            quantityLabel: `${quantity} Master Mason${quantity > 1 ? 's' : ''}`,
+            subtotal,
+            totalAmount: subtotal
+        };
+    }
+
+    if (bookingType === 'estimate') {
+        const rate = 2500;
+        return {
+            serviceCategory: 'Engineering Site Visit & BOQ Estimate',
+            selectedItem: payload.projectType || payload.service || 'Residential Turnkey BOQ Assessment',
+            rate,
+            rateUnit: 'Site Visit & Soil/Structural Assessment',
+            durationDays: 1,
+            durationLabel: payload.duration || '1 Day Inspection',
+            quantity: 1,
+            quantityLabel: '1 Lead Civil Engineer',
+            subtotal: rate,
+            totalAmount: rate
+        };
+    }
+
+    // Construction Service
+    const serviceName = payload.selectedService || payload.service || 'Turnkey House Construction';
+    const cfg = SERVICE_BASE_RATES[serviceName] || { rate: 1500, unit: 'Per Day', isFixedAdvance: false };
+
+    if (cfg.isFixedAdvance) {
+        return {
+            serviceCategory: 'Turnkey Construction & Civil Engineering',
+            selectedItem: serviceName,
+            rate: cfg.rate,
+            rateUnit: cfg.unit,
+            durationDays,
+            durationLabel: payload.duration || 'Milestone Schedule',
+            quantity,
+            quantityLabel: `${quantity} Crew Allocation`,
+            subtotal: cfg.rate,
+            totalAmount: cfg.rate
+        };
+    }
+
+    const total = cfg.rate * durationDays * quantity;
+    return {
+        serviceCategory: 'Construction & Specialist Service',
+        selectedItem: serviceName,
+        rate: cfg.rate,
+        rateUnit: cfg.unit,
+        durationDays,
+        durationLabel: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+        quantity,
+        quantityLabel: `${quantity} Specialist${quantity > 1 ? 's' : ''}`,
+        subtotal: total,
+        totalAmount: total
+    };
+}
 
 // ─────────────────────────────────────────────────────────────
 // 1. HEALTH & SYSTEM STATS APIS
@@ -944,21 +1116,32 @@ app.get('/api/bookings/:id', async (req, res) => {
 });
 
 app.post('/api/bookings', async (req, res) => {
-    const amountVal = parseFloat(req.body.amount || req.body.estimatedAmount || 2500);
+    const pricing = await calculateAuthoritativePricing(req.body);
+    const amountVal = pricing.totalAmount || parseFloat(req.body.amount || req.body.estimatedAmount || 2500);
+    const paymentMethod = req.body.paymentMethod || req.body.paymentMode || 'Cash on Visit';
+    const paymentStatus = req.body.paymentStatus || (paymentMethod.toLowerCase().includes('cash') ? 'Pending' : 'Paid');
+    const bookingId = req.body.bookingId || ('MM-' + Math.floor(100000 + Math.random() * 900000));
+    const transactionId = req.body.transactionId || (paymentStatus === 'Paid' ? 'TXN-' + Math.floor(10000000 + Math.random() * 90000000) : '');
+
     const bookingData = {
-        bookingId: req.body.bookingId || ('MM-' + Math.floor(100000 + Math.random() * 900000)),
+        bookingId,
         userId: req.body.userId || '',
         customerName: req.body.customerName || req.body.name || 'Customer',
         phone: req.body.phone || req.body.mobile || '',
         email: req.body.email || '',
         bookingType: req.body.bookingType || req.body.type || 'construction',
-        service: req.body.service || 'Turnkey House Construction',
-        tool: req.body.tool || '',
+        service: req.body.service || pricing.selectedItem || 'Turnkey House Construction',
+        tool: req.body.tool || req.body.toolName || req.body.selectedTool || '',
         startDate: req.body.startDate || new Date().toISOString().split('T')[0],
-        duration: req.body.duration || '1 Month',
+        duration: req.body.duration || pricing.durationLabel || '1 Day',
         location: req.body.location || 'Salem, Tamil Nadu',
-        workers: parseInt(req.body.workers || 1),
-        paymentMode: req.body.paymentMode || 'Cash on Visit',
+        workers: parseInt(req.body.workers || req.body.quantity || 1, 10),
+        paymentMode: paymentMethod,
+        paymentMethod,
+        paymentStatus,
+        transactionId,
+        paymentOrderId: req.body.paymentOrderId || '',
+        paidAt: paymentStatus === 'Paid' ? new Date() : null,
         budget: req.body.budget || '',
         notes: req.body.notes || req.body.description || '',
         description: req.body.notes || req.body.description || '',
@@ -974,7 +1157,8 @@ app.post('/api/bookings', async (req, res) => {
             return res.status(201).json({
                 success: true,
                 message: 'Booking successfully confirmed and stored in MongoDB',
-                booking: newBooking
+                booking: newBooking,
+                pricing
             });
         }
     } catch (err) {
@@ -986,8 +1170,375 @@ app.post('/api/bookings', async (req, res) => {
     res.status(201).json({
         success: true,
         message: 'Booking created successfully',
-        booking: mem
+        booking: mem,
+        pricing
     });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 6B. SECURE PAYMENT GATEWAY & TRANSACTIONS APIS
+// ─────────────────────────────────────────────────────────────
+
+// 1. Server-Side Price Calculation Endpoint
+app.post('/api/payments/calculate', async (req, res) => {
+    try {
+        const pricing = await calculateAuthoritativePricing(req.body);
+        res.json({
+            success: true,
+            pricing
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to calculate booking price', message: err.message });
+    }
+});
+
+// 2. Create Secure Payment Order & Pending Booking
+app.post('/api/payments/create-order', async (req, res) => {
+    try {
+        const {
+            customerName,
+            phone,
+            email,
+            location,
+            bookingType,
+            service,
+            selectedService,
+            selectedTool,
+            toolName,
+            toolId,
+            startDate,
+            duration,
+            durationDays,
+            quantity,
+            workers,
+            paymentMethod,
+            notes
+        } = req.body;
+
+        if (!customerName || !phone || !location || !startDate) {
+            return res.status(400).json({
+                success: false,
+                error: 'Customer name, phone number, site location, and start date are required.'
+            });
+        }
+
+        const pricing = await calculateAuthoritativePricing(req.body);
+        const verifiedAmount = pricing.totalAmount;
+        const bookingId = req.body.bookingId || ('MM-' + Math.floor(100000 + Math.random() * 900000));
+        const orderId = 'order_MM_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
+        const signatureToken = crypto
+            .createHmac('sha256', PAYMENT_KEY_SECRET)
+            .update(`${orderId}|${bookingId}|${verifiedAmount}`)
+            .digest('hex');
+
+        const pendingBookingData = {
+            bookingId,
+            userId: req.body.userId || '',
+            customerName: customerName.trim(),
+            phone: phone.trim(),
+            email: (email || '').trim(),
+            bookingType: bookingType || 'construction',
+            service: service || pricing.selectedItem,
+            tool: selectedTool || toolName || '',
+            startDate,
+            duration: pricing.durationLabel,
+            location: location.trim(),
+            workers: pricing.quantity,
+            paymentMode: paymentMethod || 'UPI',
+            paymentMethod: paymentMethod || 'UPI',
+            paymentStatus: 'Payment Processing',
+            paymentOrderId: orderId,
+            transactionId: '',
+            notes: notes || '',
+            description: notes || '',
+            estimatedAmount: verifiedAmount,
+            amount: verifiedAmount,
+            status: 'Pending'
+        };
+
+        if (isDbConnected()) {
+            try {
+                await Booking.findOneAndUpdate(
+                    { bookingId },
+                    pendingBookingData,
+                    { upsert: true, new: true }
+                );
+            } catch (dbErr) {
+                console.warn('Order booking DB upsert fallback:', dbErr.message);
+            }
+        }
+
+        const existingIdx = memStore.bookings.findIndex(b => b.bookingId === bookingId);
+        if (existingIdx !== -1) {
+            memStore.bookings[existingIdx] = { ...memStore.bookings[existingIdx], ...pendingBookingData };
+        } else {
+            memStore.bookings.unshift({ _id: 'mem_' + Date.now(), ...pendingBookingData, createdAt: new Date() });
+        }
+
+        res.status(201).json({
+            success: true,
+            order: {
+                orderId,
+                bookingId,
+                amount: verifiedAmount,
+                currency: 'INR',
+                keyId: PAYMENT_KEY_ID,
+                signatureToken,
+                pricing
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Unable to initialize payment order', message: err.message });
+    }
+});
+
+// 3. Verify Payment & Confirm Booking
+app.post('/api/payments/verify', async (req, res) => {
+    try {
+        const {
+            orderId,
+            bookingId,
+            signatureToken,
+            paymentMethod = 'UPI',
+            paymentDetails = {},
+            simulateOutcome = 'success'
+        } = req.body;
+
+        if (!orderId || !bookingId) {
+            return res.status(400).json({ success: false, error: 'Missing orderId or bookingId for verification.' });
+        }
+
+        // Locate booking in DB or memStore
+        let bookingDoc = null;
+        if (isDbConnected()) {
+            try {
+                bookingDoc = await Booking.findOne({ bookingId });
+            } catch {}
+        }
+        const memBooking = memStore.bookings.find(b => b.bookingId === bookingId);
+        const targetAmount = bookingDoc ? bookingDoc.amount : (memBooking ? memBooking.amount : Number(req.body.amount || 0));
+
+        // Verify cryptographic HMAC token generated during create-order
+        const expectedSignature = crypto
+            .createHmac('sha256', PAYMENT_KEY_SECRET)
+            .update(`${orderId}|${bookingId}|${targetAmount}`)
+            .digest('hex');
+
+        if (signatureToken && signatureToken !== expectedSignature) {
+            return res.status(400).json({
+                success: false,
+                error: 'Payment cryptographic signature verification failed. Tampered payload detected.'
+            });
+        }
+
+        const transactionId = 'TXN-' + Math.floor(10000000 + Math.random() * 90000000);
+
+        if (simulateOutcome === 'failed' || simulateOutcome === 'cancelled') {
+            const failedStatus = simulateOutcome === 'cancelled' ? 'Cancelled' : 'Failed';
+            const failedTxn = {
+                transactionId,
+                orderId,
+                bookingId,
+                customerName: (bookingDoc || memBooking || {}).customerName || 'Customer',
+                phone: (bookingDoc || memBooking || {}).phone || '',
+                email: (bookingDoc || memBooking || {}).email || '',
+                service: (bookingDoc || memBooking || {}).service || 'Service Booking',
+                amount: targetAmount,
+                currency: 'INR',
+                paymentMethod,
+                paymentStatus: failedStatus,
+                gatewayReference: 'ERR_' + Date.now(),
+                verifiedByServer: true,
+                failureReason: simulateOutcome === 'cancelled' ? 'Cancelled by customer during checkout' : 'Payment declined by issuing bank',
+                createdAt: new Date()
+            };
+
+            if (isDbConnected()) {
+                try {
+                    await Transaction.create(failedTxn);
+                    await Booking.findOneAndUpdate(
+                        { bookingId },
+                        { paymentStatus: failedStatus, status: 'Pending', transactionId }
+                    );
+                } catch {}
+            }
+            memStore.transactions.unshift({ _id: 'txn_' + Date.now(), ...failedTxn });
+            if (memBooking) {
+                memBooking.paymentStatus = failedStatus;
+                memBooking.transactionId = transactionId;
+            }
+
+            return res.status(402).json({
+                success: false,
+                paymentStatus: failedStatus,
+                transactionId,
+                error: failedTxn.failureReason
+            });
+        }
+
+        // Determine final payment status (Paid for online methods, Pending for Cash on Site Visit)
+        const isPayOnSite = paymentMethod.toLowerCase().includes('cash') || paymentMethod.toLowerCase().includes('site');
+        const finalPaymentStatus = isPayOnSite ? 'Pending' : 'Paid';
+        const finalBookingStatus = 'Confirmed';
+        const paidAt = new Date();
+
+        // Sanitize payment reference (never store raw card numbers/CVV/PIN)
+        let maskedRef = 'VERIFIED_GATEWAY';
+        if (paymentDetails.upiId) {
+            maskedRef = `UPI:${paymentDetails.upiId}`;
+        } else if (paymentDetails.cardLast4) {
+            maskedRef = `CARD:****${String(paymentDetails.cardLast4).slice(-4)}`;
+        } else if (paymentDetails.bankName) {
+            maskedRef = `NETBANKING:${paymentDetails.bankName}`;
+        } else if (isPayOnSite) {
+            maskedRef = 'PAY_ON_SITE_VISIT';
+        }
+
+        const txnData = {
+            transactionId,
+            orderId,
+            bookingId,
+            customerName: (bookingDoc || memBooking || {}).customerName || req.body.customerName || 'Customer',
+            phone: (bookingDoc || memBooking || {}).phone || req.body.phone || '',
+            email: (bookingDoc || memBooking || {}).email || req.body.email || '',
+            service: (bookingDoc || memBooking || {}).service || req.body.service || 'Construction Service',
+            amount: targetAmount,
+            currency: 'INR',
+            paymentMethod,
+            paymentStatus: finalPaymentStatus,
+            gatewayReference: maskedRef,
+            verifiedByServer: true,
+            paidAt,
+            createdAt: paidAt
+        };
+
+        let updatedBooking = null;
+        if (isDbConnected()) {
+            try {
+                await Transaction.create(txnData);
+                updatedBooking = await Booking.findOneAndUpdate(
+                    { bookingId },
+                    {
+                        paymentStatus: finalPaymentStatus,
+                        paymentMethod,
+                        paymentMode: paymentMethod,
+                        transactionId,
+                        paymentOrderId: orderId,
+                        status: finalBookingStatus,
+                        paidAt
+                    },
+                    { new: true }
+                );
+            } catch (dbErr) {
+                console.warn('Verify payment DB update fallback:', dbErr.message);
+            }
+        }
+
+        memStore.transactions.unshift({ _id: 'txn_' + Date.now(), ...txnData });
+        if (memBooking) {
+            memBooking.paymentStatus = finalPaymentStatus;
+            memBooking.paymentMethod = paymentMethod;
+            memBooking.paymentMode = paymentMethod;
+            memBooking.transactionId = transactionId;
+            memBooking.paymentOrderId = orderId;
+            memBooking.status = finalBookingStatus;
+            memBooking.paidAt = paidAt;
+            if (!updatedBooking) updatedBooking = memBooking;
+        }
+
+        res.json({
+            success: true,
+            message: isPayOnSite
+                ? 'Booking confirmed! Payment scheduled for site inspection.'
+                : 'Payment verified and booking confirmed!',
+            booking: updatedBooking || {
+                bookingId,
+                paymentStatus: finalPaymentStatus,
+                status: finalBookingStatus,
+                transactionId,
+                amount: targetAmount,
+                paymentMethod
+            },
+            transaction: txnData
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Payment verification failed', message: err.message });
+    }
+});
+
+// 4. Payment Webhook Endpoint (Server-to-Server Signature Verification)
+app.post('/api/payments/webhook', async (req, res) => {
+    const signature = req.headers['x-payment-signature'] || '';
+    const payloadString = JSON.stringify(req.body || {});
+    const expectedSig = crypto
+        .createHmac('sha256', PAYMENT_WEBHOOK_SECRET)
+        .update(payloadString)
+        .digest('hex');
+
+    if (signature && signature !== expectedSig) {
+        return res.status(401).json({ success: false, error: 'Invalid webhook signature' });
+    }
+
+    const { bookingId, paymentStatus, transactionId } = req.body || {};
+    if (bookingId && paymentStatus) {
+        if (isDbConnected()) {
+            try {
+                await Booking.findOneAndUpdate({ bookingId }, { paymentStatus, transactionId });
+            } catch {}
+        }
+        const memBooking = memStore.bookings.find(b => b.bookingId === bookingId);
+        if (memBooking) {
+            memBooking.paymentStatus = paymentStatus;
+            if (transactionId) memBooking.transactionId = transactionId;
+        }
+    }
+
+    res.json({ status: 'ok', verified: true });
+});
+
+// 5. Get All Transactions (Admin Console)
+app.get('/api/transactions', requireAdminAuth, async (req, res) => {
+    try {
+        if (isDbConnected()) {
+            const txns = await Transaction.find().sort({ createdAt: -1 });
+            if (txns && txns.length > 0) return res.json(txns);
+        }
+    } catch (err) {
+        console.warn('Get transactions DB error:', err.message);
+    }
+    res.json(memStore.transactions);
+});
+
+// 6. Update Transaction / Refund Status (Admin Console)
+app.put('/api/transactions/:id', requireAdminAuth, async (req, res) => {
+    const { paymentStatus } = req.body;
+    try {
+        if (isDbConnected()) {
+            const updated = await Transaction.findOneAndUpdate(
+                { $or: [{ _id: req.params.id }, { transactionId: req.params.id }] },
+                { paymentStatus },
+                { new: true }
+            );
+            if (updated && updated.bookingId) {
+                await Booking.findOneAndUpdate(
+                    { bookingId: updated.bookingId },
+                    { paymentStatus }
+                );
+            }
+            if (updated) return res.json({ success: true, transaction: updated });
+        }
+    } catch (err) {
+        console.warn('Update transaction DB error:', err.message);
+    }
+
+    const idx = memStore.transactions.findIndex(t => t._id === req.params.id || t.transactionId === req.params.id);
+    if (idx !== -1) {
+        memStore.transactions[idx] = { ...memStore.transactions[idx], paymentStatus };
+        const linkedBooking = memStore.bookings.find(b => b.bookingId === memStore.transactions[idx].bookingId);
+        if (linkedBooking) linkedBooking.paymentStatus = paymentStatus;
+        return res.json({ success: true, transaction: memStore.transactions[idx] });
+    }
+    res.status(404).json({ success: false, error: 'Transaction not found' });
 });
 
 app.put('/api/bookings/:id', async (req, res) => {

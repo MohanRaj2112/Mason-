@@ -1,8 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import {
+  ShieldCheck,
+  Calendar,
+  MapPin,
+  CreditCard,
+  Smartphone,
+  Building2,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Lock,
+  Printer,
+  RefreshCw,
+  FileText
+} from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { initialToolsData } from '../data/tools';
-import { servicesData } from '../data/services';
 import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
 
 const BOOKING_TYPES = [
@@ -10,29 +25,29 @@ const BOOKING_TYPES = [
     id: 'construction',
     title: 'Construction Service',
     icon: '🏗️',
-    description: 'Turnkey building, structural RCC, masonry, renovations, or plumbing & electrical work.',
-    badge: 'Popular'
+    description: 'Turnkey house building, structural RCC, renovation, or plumbing & electrical work.',
+    badge: 'Turnkey & Civil'
+  },
+  {
+    id: 'mason',
+    title: 'Master Mason Hiring',
+    icon: '👷',
+    description: 'Hire certified master masons, bricklayers, plasterers, and tile specialists by the day.',
+    badge: '₹1,200 / Day'
   },
   {
     id: 'tool_rental',
-    title: 'Tool Rental',
+    title: 'Tool & Equipment Rental',
     icon: '🛠️',
-    description: 'Calibrated machinery: concrete mixers, hammer drills, scaffolding, and submersible pumps.',
-    badge: 'Equipment'
+    description: 'Rent calibrated hammers, rotary drills, concrete mixers, ladders, and scaffolding.',
+    badge: '12+ Tools'
   },
   {
     id: 'estimate',
-    title: 'Project Estimate',
+    title: 'Site Visit & BOQ Estimate',
     icon: '📋',
-    description: 'Free architectural & civil engineering BOQ estimate and structural site feasibility report.',
-    badge: 'Free Site Visit'
-  },
-  {
-    id: 'enquiry',
-    title: 'General Enquiry',
-    icon: '💬',
-    description: 'Soil testing, structural drawing inquiries, contractor advice, or consultation requests.',
-    badge: 'Consultation'
+    description: 'On-site plot inspection, soil feasibility check, and itemized Bill of Quantities.',
+    badge: 'Inspection'
   }
 ];
 
@@ -50,50 +65,64 @@ const PROJECT_TYPES = [
   'Duplex / Row House Build',
   'Commercial Complex / Office',
   'Floor Addition / Renovation',
-  'Boundary Wall & Structural RCC',
-  'Heritage Masonry & Stone Work'
+  'Boundary Wall & Structural RCC'
 ];
 
 export const Booking = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { showToast } = useToast();
+  const { currentUser } = useAuth();
 
-  // Booking Flow State
-  const [bookingType, setBookingType] = useState('construction');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  // Booking Flow Step: 'form' | 'payment' | 'confirmed'
+  const [flowStep, setFlowStep] = useState('form');
+  const [bookingType, setBookingType] = useState('tool_rental');
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [confirmedBookingId, setConfirmedBookingId] = useState('');
+  const [paymentError, setPaymentError] = useState('');
 
-  // Form Fields State
+  // Form Fields
   const [formData, setFormData] = useState({
-    // Step 2: Customer Details
     fullName: '',
     phone: '',
     email: '',
     location: '',
-
-    // Step 3: Service Details (Dynamic)
     selectedService: 'Turnkey House Construction',
-    selectedTool: 'Commercial Cement Mixer Drum (200L Diesel)',
-    toolQuantity: '1',
+    selectedTool: 'Heavy-Duty Rotary Hammer Drill (SDS-Plus)',
     projectType: 'Residential Independent Villa',
     preferredDate: '',
-    duration: '1-3 Months',
-    workersCount: '2',
-    enquirySubject: 'Free Site Inspection & Plot Feasibility',
-
-    // Project Requirements
-    projectDescription: '',
-    estimatedBudget: '',
-    additionalRequirements: '',
-
-    // Payment / Advance Preference
-    paymentMode: 'Cash on Site Consultation'
+    durationDays: 3,
+    quantity: 1,
+    notes: '',
+    paymentMethod: 'UPI'
   });
 
-  // Prepopulate from URL parameters
+  // Payment Gateway Modal / Step State
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [upiId, setUpiId] = useState('');
+  const [cardHolder, setCardHolder] = useState('');
+  const [cardLast4Input, setCardLast4Input] = useState('');
+  const [bankName, setBankName] = useState('State Bank of India (SBI)');
+
+  // Confirmed Booking & Transaction State
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [confirmedTransaction, setConfirmedTransaction] = useState(null);
+
+  // Server-Calculated Authoritative Pricing
+  const [serverPricing, setServerPricing] = useState({
+    serviceCategory: 'Construction Tool & Equipment Rental',
+    selectedItem: 'Heavy-Duty Rotary Hammer Drill (SDS-Plus)',
+    rate: 450,
+    rateUnit: 'Per Day',
+    durationDays: 3,
+    durationLabel: '3 Days',
+    quantity: 1,
+    quantityLabel: '1 Unit',
+    subtotal: 1350,
+    totalAmount: 1350
+  });
+
+  // Prepopulate from URL parameters & logged-in user
   useEffect(() => {
     const type = searchParams.get('type');
     const tool = searchParams.get('tool');
@@ -103,420 +132,835 @@ export const Booking = () => {
     if (type === 'tools' || tool) {
       setBookingType('tool_rental');
       if (tool) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           selectedTool: tool,
-          projectDescription: `Rental request for equipment: ${tool}`
+          notes: `Equipment rental request: ${tool}`
         }));
       }
     } else if (type === 'mason' || role) {
-      setBookingType('construction');
-      setFormData(prev => ({
+      setBookingType('mason');
+      setFormData((prev) => ({
         ...prev,
         selectedService: 'Hire Master Masons & Specialists',
-        projectDescription: role ? `Interested in hiring ${role}` : 'Hiring master masons for civil project'
+        notes: role ? `Hiring specialist: ${role}` : 'Master mason crew deployment'
       }));
     } else if (type === 'estimate' || plan) {
       setBookingType('estimate');
       if (plan) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          projectDescription: `Interested in ${plan.toUpperCase()} Construction Package Estimation`
+          notes: `Turnkey package estimate inquiry: ${plan.toUpperCase()}`
         }));
       }
+    } else if (type === 'construction') {
+      setBookingType('construction');
     }
 
-    // Default preferred date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().split('T')[0];
-    setFormData(prev => ({ ...prev, preferredDate: prev.preferredDate || dateStr }));
-  }, [searchParams]);
 
-  // Handle Input Changes
+    setFormData((prev) => ({
+      ...prev,
+      preferredDate: prev.preferredDate || dateStr,
+      fullName: prev.fullName || currentUser?.name || currentUser?.username || '',
+      phone: prev.phone || currentUser?.phone || currentUser?.mobile || '',
+      email: prev.email || currentUser?.email || ''
+    }));
+  }, [searchParams, currentUser]);
+
+  // Fetch authoritative server-side price whenever service/tool/duration/quantity changes
+  const fetchServerPrice = useCallback(async () => {
+    setIsCalculating(true);
+    try {
+      const res = await fetch('/api/payments/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingType,
+          selectedService: formData.selectedService,
+          selectedTool: formData.selectedTool,
+          projectType: formData.projectType,
+          durationDays: formData.durationDays,
+          duration: `${formData.durationDays} Days`,
+          quantity: formData.quantity
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.pricing) {
+        setServerPricing(data.pricing);
+      }
+    } catch {
+      // Fallback local calculation if offline
+      const matchTool = initialToolsData.find((t) => t.name === formData.selectedTool);
+      const rate =
+        bookingType === 'tool_rental'
+          ? Number(matchTool?.price || 450)
+          : bookingType === 'mason'
+          ? 1200
+          : bookingType === 'estimate'
+          ? 2500
+          : 25000;
+      const isFixed = bookingType === 'estimate' || (bookingType === 'construction' && rate >= 15000);
+      const total = isFixed ? rate : rate * Number(formData.durationDays || 1) * Number(formData.quantity || 1);
+      setServerPricing({
+        serviceCategory:
+          bookingType === 'tool_rental'
+            ? 'Construction Tool Rental'
+            : bookingType === 'mason'
+            ? 'Master Mason Service'
+            : bookingType === 'estimate'
+            ? 'Site Inspection & BOQ Estimate'
+            : 'Construction Service',
+        selectedItem:
+          bookingType === 'tool_rental'
+            ? formData.selectedTool
+            : bookingType === 'estimate'
+            ? formData.projectType
+            : formData.selectedService,
+        rate,
+        rateUnit: isFixed ? 'Milestone / Inspection Advance' : 'Per Day',
+        durationDays: Number(formData.durationDays || 1),
+        durationLabel: `${formData.durationDays} Day${Number(formData.durationDays) > 1 ? 's' : ''}`,
+        quantity: Number(formData.quantity || 1),
+        quantityLabel:
+          bookingType === 'tool_rental'
+            ? `${formData.quantity} Unit(s)`
+            : `${formData.quantity} Specialist(s)`,
+        subtotal: total,
+        totalAmount: total
+      });
+    } finally {
+      setIsCalculating(false);
+    }
+  }, [
+    bookingType,
+    formData.selectedService,
+    formData.selectedTool,
+    formData.projectType,
+    formData.durationDays,
+    formData.quantity
+  ]);
+
+  useEffect(() => {
+    fetchServerPrice();
+  }, [fetchServerPrice]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === 'durationDays' || name === 'quantity'
+          ? Math.max(1, parseInt(value, 10) || 1)
+          : value
+    }));
     if (errorMessage) setErrorMessage('');
   };
 
-  // Form Submission Handler
-  const handleSubmitBooking = async (e) => {
+  // Step 1 -> Step 2: Validate customer details & create secure payment order on server
+  const handleProceedToPayment = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setPaymentError('');
 
-    // Validation
     if (!formData.fullName.trim()) {
       setErrorMessage('Please enter your full name.');
       showToast('Full Name is required', 'error');
       return;
     }
-    if (!formData.phone.trim() || formData.phone.trim().length < 7) {
-      setErrorMessage('Please enter a valid phone number.');
-      showToast('Valid Phone Number is required', 'error');
+    const cleanPhone = formData.phone.replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setErrorMessage('Please enter a valid 10-digit mobile number.');
+      showToast('Valid 10-digit mobile number is required', 'error');
       return;
     }
     if (!formData.location.trim()) {
-      setErrorMessage('Please enter your project / site location.');
-      showToast('Site Location is required', 'error');
+      setErrorMessage('Please enter your project or delivery site address.');
+      showToast('Site location is required', 'error');
       return;
     }
     if (!formData.preferredDate) {
-      setErrorMessage('Please select a preferred date.');
-      showToast('Preferred Date is required', 'error');
+      setErrorMessage('Please select a booking start date.');
+      showToast('Start date is required', 'error');
       return;
     }
 
-    setIsSubmitting(true);
-
-    const generatedId = 'MM-' + Math.floor(100000 + Math.random() * 900000);
-    const resolvedServiceName =
-      bookingType === 'construction'
-        ? formData.selectedService
-        : bookingType === 'tool_rental'
-        ? `Tool Rental: ${formData.selectedTool} (${formData.toolQuantity} Unit)`
-        : bookingType === 'estimate'
-        ? `Project Estimate: ${formData.projectType}`
-        : `General Enquiry: ${formData.enquirySubject}`;
-
-    const bookingPayload = {
-      bookingId: generatedId,
-      customerName: formData.fullName.trim(),
-      phone: formData.phone.trim(),
-      email: formData.email.trim() || 'Not Provided',
-      location: formData.location.trim(),
-      service: resolvedServiceName,
-      bookingType: bookingType,
-      startDate: formData.preferredDate,
-      duration: formData.duration,
-      workers: parseInt(formData.workersCount, 10) || 1,
-      paymentMode: formData.paymentMode,
-      budget: formData.estimatedBudget.trim() || 'Standard Quote',
-      notes: [
-        formData.projectDescription.trim(),
-        formData.additionalRequirements.trim() ? `Additional Scope: ${formData.additionalRequirements.trim()}` : ''
-      ].filter(Boolean).join(' | '),
-      status: 'Confirmed',
-      createdAt: new Date().toISOString()
-    };
-
+    setIsProcessingPayment(true);
     try {
-      // 1. Save to client storage for instantaneous Admin & user availability
-      const existing = JSON.parse(localStorage.getItem('cp_my_bookings') || '[]');
-      existing.unshift(bookingPayload);
-      localStorage.setItem('cp_my_bookings', JSON.stringify(existing));
-
-      // 2. Transmit to backend API
-      await fetch('/api/bookings', {
+      const res = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingPayload)
-      }).catch(err => {
-        console.warn('Backend offline, saved locally to client store:', err);
+        body: JSON.stringify({
+          userId: currentUser?.userId || currentUser?._id || '',
+          customerName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim(),
+          location: formData.location.trim(),
+          bookingType,
+          selectedService: formData.selectedService,
+          selectedTool: formData.selectedTool,
+          projectType: formData.projectType,
+          startDate: formData.preferredDate,
+          durationDays: formData.durationDays,
+          duration: `${formData.durationDays} Days`,
+          quantity: formData.quantity,
+          paymentMethod: formData.paymentMethod,
+          notes: formData.notes.trim()
+        })
       });
 
-      setConfirmedBookingId(generatedId);
-      setSubmittedSuccess(true);
-      setIsSubmitting(false);
-      showToast('Booking submitted successfully! 🎉', 'success');
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-    } catch (error) {
-      console.error('Submission failed:', error);
-      setIsSubmitting(false);
-      setErrorMessage('Unable to submit your booking. Please check your network connection and try again.');
-      showToast('Failed to submit booking', 'error');
+      const data = await res.json();
+      if (res.ok && data.success && data.order) {
+        setActiveOrder(data.order);
+        if (data.order.pricing) {
+          setServerPricing(data.order.pricing);
+        }
+        setFlowStep('payment');
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      } else {
+        setErrorMessage(data.error || 'Could not initialize payment order. Please check your details.');
+      }
+    } catch {
+      setErrorMessage('Network error while creating payment order. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
-  const handleResetForm = () => {
-    setSubmittedSuccess(false);
-    setConfirmedBookingId('');
-    setFormData(prev => ({
-      ...prev,
-      projectDescription: '',
-      estimatedBudget: '',
-      additionalRequirements: ''
-    }));
+  // Step 2 -> Step 3: Verify payment on backend & confirm booking
+  const handleVerifyAndPay = async (simulateOutcome = 'success') => {
+    if (!activeOrder) return;
+    setPaymentError('');
+
+    if (simulateOutcome === 'success') {
+      if (formData.paymentMethod === 'UPI' && !upiId.trim()) {
+        setPaymentError('Please enter your UPI ID (e.g. name@okaxis) or select a UPI app.');
+        return;
+      }
+      if (formData.paymentMethod === 'Card' && (!cardHolder.trim() || cardLast4Input.replace(/\D/g, '').length < 4)) {
+        setPaymentError('Please enter cardholder name and last 4 digits for verification.');
+        return;
+      }
+    }
+
+    setIsProcessingPayment(true);
+    try {
+      const res = await fetch('/api/payments/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: activeOrder.orderId,
+          bookingId: activeOrder.bookingId,
+          signatureToken: activeOrder.signatureToken,
+          amount: activeOrder.amount,
+          paymentMethod: formData.paymentMethod,
+          simulateOutcome,
+          paymentDetails: {
+            upiId: upiId.trim(),
+            cardLast4: cardLast4Input.replace(/\D/g, '').slice(-4),
+            bankName
+          }
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setConfirmedBooking(data.booking);
+        setConfirmedTransaction(data.transaction);
+
+        // Sync with localStorage for immediate visibility
+        try {
+          const existing = JSON.parse(localStorage.getItem('cp_my_bookings') || '[]');
+          const filtered = existing.filter((b) => b.bookingId !== data.booking.bookingId);
+          filtered.unshift(data.booking);
+          localStorage.setItem('cp_my_bookings', JSON.stringify(filtered));
+        } catch {}
+
+        setFlowStep('confirmed');
+        showToast('Payment verified & booking confirmed!', 'success');
+        window.scrollTo({ top: 100, behavior: 'smooth' });
+      } else {
+        setPaymentError(
+          data.error || 'Payment verification failed or was declined. You can retry payment below.'
+        );
+        showToast(data.error || 'Payment failed', 'error');
+      }
+    } catch {
+      setPaymentError('Could not verify payment with server. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
-  const openWhatsApp = (msg) => {
-    const phone = '919159687408';
-    const text = encodeURIComponent(msg);
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank', 'noopener,noreferrer');
+  const handlePrintReceipt = () => {
+    window.print();
+  };
+
+  const handleResetBooking = () => {
+    setFlowStep('form');
+    setActiveOrder(null);
+    setConfirmedBooking(null);
+    setConfirmedTransaction(null);
+    setPaymentError('');
+    setErrorMessage('');
   };
 
   return (
-    <div className="booking-page" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '96px' }}>
-      {/* ── HEADER ── */}
+    <div className="booking-page" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '80px' }}>
+      {/* ── HERO BANNER ── */}
       <section
         className="hero page-hero"
         style={{
-          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.92) 0%, rgba(15, 23, 42, 0.82) 55%, rgba(168, 42, 16, 0.36) 100%), url(${heroBgImg})`,
-          padding: '64px 0 72px'
+          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.94) 0%, rgba(15, 23, 42, 0.85) 55%, rgba(168, 42, 16, 0.36) 100%), url(${heroBgImg})`,
+          padding: '56px 0 64px'
         }}
       >
         <div className="container">
-          <div className="hero-content" style={{ maxWidth: '800px' }}>
+          <div className="hero-content" style={{ maxWidth: '820px' }}>
             <div className="hero-kicker">
-              <span>BOOK YOUR SERVICE</span>
+              <span>SRM AKASH CONSTRUCTION</span>
               <span aria-hidden="true">·</span>
-              <span>ON-SITE CONSULTATION</span>
+              <span>SAFE BOOKING &amp; PAYMENT PORTAL</span>
             </div>
-            <h1 style={{ fontSize: 'clamp(2.1rem, 4.5vw, 3rem)', marginBottom: '14px', lineHeight: '1.2' }}>
-              Plan Your Construction Requirement with Mason Mate
+            <h1 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', marginBottom: '12px' }}>
+              Book Construction Services, Masons &amp; Tool Rentals
             </h1>
-            <p className="hero-desc" style={{ fontSize: '1.05rem', margin: 0, opacity: 0.9 }}>
-              Choose a service, provide your requirements, and submit your booking request for immediate on-site consultation and certified civil engineering support.
+            <p className="hero-desc" style={{ margin: 0 }}>
+              Select your service or equipment, review transparent server-verified pricing in your Booking Summary, and complete secure payment for instant confirmation.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── MAIN FORM SECTION ── */}
-      <div className="container" style={{ marginTop: '-32px', position: 'relative', zIndex: 10 }}>
-        {/* SUCCESS STATE */}
-        {submittedSuccess ? (
-          <div className="card booking-success-card">
-            <div
-              style={{
-                width: '76px',
-                height: '76px',
-                background: '#ECFDF5',
-                color: '#059669',
-                borderRadius: '50%',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2.5rem',
-                marginBottom: '20px',
-                border: '2px solid #A7F3D0'
-              }}
-            >
-              ✓
+      <div className="container" style={{ marginTop: '-28px', position: 'relative', zIndex: 10 }}>
+        {/* ── STEP PROGRESS BAR ── */}
+        <div className="booking-progress-bar">
+          <div className={`booking-step-pill ${flowStep === 'form' ? 'active' : 'completed'}`}>
+            <span className="step-num">1</span>
+            <span>Service, Date &amp; Details</span>
+          </div>
+          <div className="booking-step-connector" />
+          <div
+            className={`booking-step-pill ${
+              flowStep === 'payment' ? 'active' : flowStep === 'confirmed' ? 'completed' : ''
+            }`}
+          >
+            <span className="step-num">2</span>
+            <span>Summary &amp; Secure Payment</span>
+          </div>
+          <div className="booking-step-connector" />
+          <div className={`booking-step-pill ${flowStep === 'confirmed' ? 'active completed' : ''}`}>
+            <span className="step-num">3</span>
+            <span>Booking Confirmation</span>
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════
+            STAGE 3: CONFIRMED BOOKING & OFFICIAL RECEIPT
+        ════════════════════════════════════════════════════════════════ */}
+        {flowStep === 'confirmed' && confirmedBooking && (
+          <div className="card booking-success-card" id="printable-receipt">
+            <div className="booking-confirmed-icon">
+              <CheckCircle2 size={42} />
             </div>
 
-            <h2 style={{ fontSize: '1.9rem', color: 'var(--primary)', marginBottom: '10px' }}>
-              Booking Submitted Successfully
+            <span className="section-eyebrow" style={{ marginBottom: '4px' }}>
+              SRM AKASH CONSTRUCTION · OFFICIAL RECEIPT
+            </span>
+            <h2 style={{ fontSize: '1.85rem', color: 'var(--primary)', marginBottom: '8px' }}>
+              Booking Confirmed!
             </h2>
-
-            <p style={{ color: 'var(--text-muted)', fontSize: '1rem', maxWidth: '520px', margin: '0 auto 24px', lineHeight: '1.6' }}>
-              Thank you, <strong>{formData.fullName}</strong>. Your construction booking request has been logged. Our lead civil engineer will contact you shortly to confirm site arrangements.
+            <p style={{ color: 'var(--text-muted)', maxWidth: '540px', margin: '0 auto 24px' }}>
+              Thank you, <strong>{confirmedBooking.customerName}</strong>. Your booking has been verified and scheduled with our engineering dispatch desk.
             </p>
 
-            {/* Reference Badge */}
-            <div
-              style={{
-                display: 'inline-block',
-                background: 'var(--accent-light)',
-                border: '2px solid var(--accent)',
-                padding: '12px 28px',
-                borderRadius: '12px',
-                marginBottom: '32px'
-              }}
-            >
-              <span style={{ display: 'block', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--accent)' }}>
-                Booking Reference ID
-              </span>
-              <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.05em' }}>
-                {confirmedBookingId}
-              </span>
-            </div>
-
-            {/* Dossier Breakdown */}
-            <div
-              style={{
-                maxWidth: '560px',
-                margin: '0 auto 36px',
-                background: 'var(--bg-main)',
-                border: '1px solid var(--border-light)',
-                borderRadius: '14px',
-                padding: '20px 24px',
-                textAlign: 'left'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Booking Type:</span>
-                <strong style={{ color: 'var(--primary)', textTransform: 'capitalize' }}>{bookingType.replace('_', ' ')}</strong>
+            {/* Reference & Transaction IDs */}
+            <div className="receipt-badges-row">
+              <div className="receipt-id-box">
+                <span className="receipt-id-label">Booking Reference ID</span>
+                <strong className="receipt-id-val tabular-nums">{confirmedBooking.bookingId}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Contact Phone:</span>
-                <strong>{formData.phone}</strong>
+              <div className="receipt-id-box">
+                <span className="receipt-id-label">Transaction ID</span>
+                <strong className="receipt-id-val tabular-nums">
+                  {confirmedTransaction?.transactionId || confirmedBooking.transactionId || 'VERIFIED'}
+                </strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Site Location:</span>
-                <strong>{formData.location}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '0.9rem' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Scheduled Date:</span>
-                <strong style={{ color: 'var(--accent)' }}>{formData.preferredDate}</strong>
+              <div className="receipt-id-box">
+                <span className="receipt-id-label">Payment Status</span>
+                <span
+                  className={`receipt-status-badge ${
+                    confirmedBooking.paymentStatus === 'Paid' ? 'paid' : 'pending'
+                  }`}
+                >
+                  {confirmedBooking.paymentStatus || 'Confirmed'}
+                </span>
               </div>
             </div>
 
-            {/* Action CTAs */}
-            <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-accent btn-lg"
-                onClick={() => openWhatsApp(`Hello Mason Mate! I have submitted a booking with ID: ${confirmedBookingId}. Please share confirmation.`)}
-              >
-                💬 Chat on WhatsApp
+            {/* Detailed Summary Table */}
+            <div className="receipt-dossier-table">
+              <div className="receipt-row">
+                <span>Service Category</span>
+                <strong>{serverPricing.serviceCategory}</strong>
+              </div>
+              <div className="receipt-row">
+                <span>Selected Item / Service</span>
+                <strong>{confirmedBooking.service}</strong>
+              </div>
+              <div className="receipt-row">
+                <span>Customer Name &amp; Phone</span>
+                <strong>
+                  {confirmedBooking.customerName} ({confirmedBooking.phone})
+                </strong>
+              </div>
+              <div className="receipt-row">
+                <span>Site / Delivery Location</span>
+                <strong>{confirmedBooking.location}</strong>
+              </div>
+              <div className="receipt-row">
+                <span>Start Date &amp; Duration</span>
+                <strong>
+                  {confirmedBooking.startDate} · {confirmedBooking.duration}
+                </strong>
+              </div>
+              <div className="receipt-row">
+                <span>Payment Mode</span>
+                <strong>{confirmedBooking.paymentMethod || confirmedBooking.paymentMode}</strong>
+              </div>
+              <div className="receipt-row receipt-row-total">
+                <span>Total Verified Amount</span>
+                <strong className="tabular-nums" style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>
+                  ₹{Number(confirmedBooking.amount || serverPricing.totalAmount).toLocaleString('en-IN')}
+                </strong>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
+              <button type="button" className="btn btn-primary btn-lg" onClick={handlePrintReceipt}>
+                <Printer size={17} />
+                <span>Print / Save Receipt</span>
               </button>
-              <button
-                type="button"
-                className="btn btn-outline btn-lg"
-                onClick={handleResetForm}
-              >
-                Done / Book Another
+              <button type="button" className="btn btn-outline btn-lg" onClick={handleResetBooking}>
+                <span>Book Another Service</span>
               </button>
-              <Link to="/" className="btn btn-primary btn-lg">
-                🏠 Back to Home
+              <Link to="/" className="btn btn-accent btn-lg">
+                <span>Back to Home</span>
               </Link>
             </div>
           </div>
-        ) : (
-          /* BOOKING FORM CONTAINER */
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════
+            STAGE 2: SECURE PAYMENT CHECKOUT & VERIFICATION
+        ════════════════════════════════════════════════════════════════ */}
+        {flowStep === 'payment' && activeOrder && (
           <div className="booking-form-wrapper">
-            {/* ── LEFT: FORM FIELDS ── */}
             <div className="card booking-form-card">
-              <form onSubmit={handleSubmitBooking}>
-                {/* ERROR STATE BANNER */}
-                {errorMessage && (
-                  <div
-                    style={{
-                      background: '#FEF2F2',
-                      border: '1.5px solid #F87171',
-                      borderRadius: '12px',
-                      padding: '16px 20px',
-                      marginBottom: '28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '12px'
-                    }}
-                  >
-                    <div>
-                      <strong style={{ color: '#991B1B', display: 'block', fontSize: '0.95rem' }}>Unable to submit your booking.</strong>
-                      <span style={{ color: '#B91C1C', fontSize: '0.88rem' }}>{errorMessage}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      style={{ borderColor: '#F87171', color: '#991B1B', background: '#fff' }}
-                      onClick={() => setErrorMessage('')}
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <span className="section-eyebrow">ENCRYPTED GATEWAY CHECKOUT</span>
+                  <h3 style={{ fontSize: '1.5rem', color: 'var(--primary)', margin: 0 }}>
+                    Complete Your Booking Payment
+                  </h3>
+                </div>
+                <div className="gateway-order-tag tabular-nums">
+                  Order Ref: {activeOrder.bookingId}
+                </div>
+              </div>
 
-                {/* ──────────────────────────────────────────────────
-                    STEP 1: BOOKING TYPE
-                ────────────────────────────────────────────────── */}
-                <div style={{ marginBottom: '36px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <span
-                      style={{
-                        background: 'var(--primary)',
-                        color: '#fff',
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.85rem',
-                        fontWeight: 800
-                      }}
-                    >
-                      1
-                    </span>
-                    <h3 style={{ fontSize: '1.25rem', color: 'var(--primary)', margin: 0 }}>
-                      STEP 1: Choose Booking Type
-                    </h3>
+              {paymentError && (
+                <div className="booking-alert-error" role="alert">
+                  <AlertTriangle size={18} style={{ flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <strong>Payment Verification Notice</strong>
+                    <div>{paymentError}</div>
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: '0 0 18px 38px' }}>
-                    Select the service category that matches your immediate site requirement.
+                </div>
+              )}
+
+              {/* Payment Method Selector */}
+              <div className="form-group">
+                <label className="form-label">Select Payment Method</label>
+                <div className="payment-methods-grid">
+                  {[
+                    { id: 'UPI', label: 'UPI (GPay / PhonePe / Paytm)', icon: Smartphone },
+                    { id: 'Card', label: 'Credit / Debit Card', icon: CreditCard },
+                    { id: 'Net Banking', label: 'Net Banking (IMPS / NEFT)', icon: Building2 },
+                    { id: 'Cash on Site Visit', label: 'Pay on Site Delivery / Visit', icon: ShieldCheck }
+                  ].map((pm) => {
+                    const IconComp = pm.icon;
+                    const active = formData.paymentMethod === pm.id;
+                    return (
+                      <button
+                        key={pm.id}
+                        type="button"
+                        className={`payment-method-option ${active ? 'active' : ''}`}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, paymentMethod: pm.id }));
+                          setPaymentError('');
+                        }}
+                      >
+                        <IconComp size={18} />
+                        <span>{pm.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dynamic Method Input */}
+              {formData.paymentMethod === 'UPI' && (
+                <div className="payment-details-box">
+                  <label className="form-label">Enter UPI ID / VPA *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. customer@okicici or 9159687408@ybl"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                  />
+                  <div className="upi-quick-chips">
+                    {['@okaxis', '@okicici', '@ybl', '@paytm'].map((suffix) => (
+                      <button
+                        key={suffix}
+                        type="button"
+                        className="upi-chip-btn"
+                        onClick={() => {
+                          const base = upiId.split('@')[0] || formData.phone.replace(/\D/g, '').slice(-10) || 'user';
+                          setUpiId(`${base}${suffix}`);
+                        }}
+                      >
+                        {suffix}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {formData.paymentMethod === 'Card' && (
+                <div className="payment-details-box">
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                    <Lock size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                    Card details are tokenized directly by the gateway. We never store your card number or CVV.
                   </p>
+                  <div className="grid-2">
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Cardholder Name *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Name on card"
+                        value={cardHolder}
+                        onChange={(e) => setCardHolder(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Card Last 4 Digits *</label>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        className="form-control tabular-nums"
+                        placeholder="e.g. 4242"
+                        value={cardLast4Input}
+                        onChange={(e) => setCardLast4Input(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                  <div className="booking-type-grid">
-                    {BOOKING_TYPES.map(type => {
-                      const isSelected = bookingType === type.id;
-                      return (
-                        <div
-                          key={type.id}
-                          onClick={() => setBookingType(type.id)}
-                          style={{
-                            padding: '18px',
-                            borderRadius: '14px',
-                            border: `2px solid ${isSelected ? 'var(--accent)' : 'var(--border-light)'}`,
-                            background: isSelected ? 'var(--accent-light)' : 'var(--bg-main)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            position: 'relative'
-                          }}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '1.5rem' }}>{type.icon}</span>
-                            {type.badge && (
-                              <span
-                                style={{
-                                  fontSize: '0.72rem',
-                                  fontWeight: 700,
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.06em',
-                                  color: isSelected ? 'var(--accent)' : 'var(--text-muted)'
-                                }}
-                              >
-                                {type.badge}
-                              </span>
-                            )}
-                          </div>
-                          <h4 style={{ fontSize: '1.02rem', color: isSelected ? 'var(--primary)' : 'var(--text-main)', marginBottom: '4px' }}>
-                            {type.title}
-                          </h4>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>
-                            {type.description}
-                          </p>
-                        </div>
-                      );
-                    })}
+              {formData.paymentMethod === 'Net Banking' && (
+                <div className="payment-details-box">
+                  <label className="form-label">Select Your Bank</label>
+                  <select
+                    className="form-control"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  >
+                    <option>State Bank of India (SBI)</option>
+                    <option>HDFC Bank Corporate / Retail</option>
+                    <option>ICICI Bank NetBanking</option>
+                    <option>Axis Bank</option>
+                    <option>Indian Overseas Bank / Canara Bank</option>
+                  </select>
+                </div>
+              )}
+
+              {formData.paymentMethod === 'Cash on Site Visit' && (
+                <div className="payment-details-box">
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-body)' }}>
+                    Your booking will be confirmed immediately with status <strong>Payment Pending (Pay on Site Visit)</strong>. You can settle the amount directly via UPI or Cash when our team arrives on site.
+                  </p>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-lg"
+                  onClick={() => setFlowStep('form')}
+                  disabled={isProcessingPayment}
+                >
+                  ← Edit Details
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-quote-cta btn-lg"
+                  style={{ flex: 1 }}
+                  onClick={() => handleVerifyAndPay('success')}
+                  disabled={isProcessingPayment}
+                >
+                  <Lock size={16} />
+                  <span>
+                    {isProcessingPayment
+                      ? 'Verifying Payment...'
+                      : formData.paymentMethod === 'Cash on Site Visit'
+                      ? `Confirm Booking (₹${Number(activeOrder.amount).toLocaleString('en-IN')})`
+                      : `Pay ₹${Number(activeOrder.amount).toLocaleString('en-IN')} & Confirm Booking`}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Sticky Booking Summary */}
+            <aside className="booking-sidebar-sticky">
+              <div className="booking-summary-box">
+                <div className="summary-header-kicker">BOOKING SUMMARY</div>
+                <h4 style={{ color: '#FFFFFF', fontSize: '1.25rem', marginBottom: '18px' }}>
+                  Verified Order Breakdown
+                </h4>
+
+                <div className="summary-lines">
+                  <div className="summary-line-item">
+                    <span>Service:</span>
+                    <strong>{serverPricing.serviceCategory}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Selected Item:</span>
+                    <strong>{serverPricing.selectedItem}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Start Date:</span>
+                    <strong className="tabular-nums">{formData.preferredDate}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Duration:</span>
+                    <strong>{serverPricing.durationLabel}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Quantity / Crew:</span>
+                    <strong>{serverPricing.quantityLabel}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Rate:</span>
+                    <strong className="tabular-nums">
+                      ₹{Number(serverPricing.rate).toLocaleString('en-IN')} ({serverPricing.rateUnit})
+                    </strong>
                   </div>
                 </div>
 
-                {/* ──────────────────────────────────────────────────
-                    STEP 2: YOUR DETAILS
-                ────────────────────────────────────────────────── */}
-                <div style={{ marginBottom: '36px', paddingTop: '28px', borderTop: '1px solid var(--border-light)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <span
-                      style={{
-                        background: 'var(--primary)',
-                        color: '#fff',
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.85rem',
-                        fontWeight: 800
-                      }}
-                    >
-                      2
-                    </span>
-                    <h3 style={{ fontSize: '1.25rem', color: 'var(--primary)', margin: 0 }}>
-                      STEP 2: Your Details
-                    </h3>
+                <div className="summary-total-banner">
+                  <span>Total Amount</span>
+                  <strong className="tabular-nums">
+                    ₹{Number(activeOrder.amount).toLocaleString('en-IN')}
+                  </strong>
+                </div>
+
+                <div className="summary-security-note">
+                  <ShieldCheck size={16} style={{ color: '#10B981', flexShrink: 0 }} />
+                  <span>
+                    Server-verified pricing by SRM Akash Construction. HMAC-SHA256 transaction protection active.
+                  </span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════
+            STAGE 1: BOOKING CONFIGURATION & LIVE BOOKING SUMMARY
+        ════════════════════════════════════════════════════════════════ */}
+        {flowStep === 'form' && (
+          <div className="booking-form-wrapper">
+            <div className="card booking-form-card">
+              <form onSubmit={handleProceedToPayment} noValidate>
+                {errorMessage && (
+                  <div className="booking-alert-error" role="alert">
+                    <AlertTriangle size={18} style={{ flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>{errorMessage}</div>
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: '0 0 18px 38px' }}>
-                    Enter contact details so our Salem civil engineering coordination team can reach you.
-                  </p>
+                )}
+
+                {/* 1. SELECT SERVICE / TOOL / RENTAL */}
+                <div className="booking-section-block">
+                  <div className="booking-section-head">
+                    <span className="booking-step-badge">1</span>
+                    <div>
+                      <h3>Select Service / Tool Rental</h3>
+                      <p>Choose the construction service, master mason crew, or tool rental you need.</p>
+                    </div>
+                  </div>
+
+                  <div className="booking-type-grid">
+                    {BOOKING_TYPES.map((type) => {
+                      const isSelected = bookingType === type.id;
+                      return (
+                        <button
+                          type="button"
+                          key={type.id}
+                          onClick={() => setBookingType(type.id)}
+                          className={`booking-type-card ${isSelected ? 'selected' : ''}`}
+                        >
+                          <div className="booking-type-top">
+                            <span style={{ fontSize: '1.5rem' }}>{type.icon}</span>
+                            <span className="booking-type-badge">{type.badge}</span>
+                          </div>
+                          <h4>{type.title}</h4>
+                          <p>{type.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Specific Item Selector */}
+                  <div style={{ marginTop: '20px' }}>
+                    {bookingType === 'tool_rental' && (
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Select Construction Tool / Equipment *</label>
+                        <select
+                          name="selectedTool"
+                          className="form-control"
+                          value={formData.selectedTool}
+                          onChange={handleChange}
+                        >
+                          {initialToolsData.map((tool) => (
+                            <option key={tool._id || tool.id} value={tool.name}>
+                              {tool.icon} {tool.name} — ₹{tool.price} / Day
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {(bookingType === 'construction' || bookingType === 'mason') && (
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Select Construction / Mason Service *</label>
+                        <select
+                          name="selectedService"
+                          className="form-control"
+                          value={formData.selectedService}
+                          onChange={handleChange}
+                        >
+                          {CONSTRUCTION_SERVICES.map((srv) => (
+                            <option key={srv} value={srv}>
+                              {srv}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {bookingType === 'estimate' && (
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Select Project Type for BOQ Estimate *</label>
+                        <select
+                          name="projectType"
+                          className="form-control"
+                          value={formData.projectType}
+                          onChange={handleChange}
+                        >
+                          {PROJECT_TYPES.map((pt) => (
+                            <option key={pt} value={pt}>
+                              {pt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. SELECT BOOKING DATE & DURATION */}
+                <div className="booking-section-block">
+                  <div className="booking-section-head">
+                    <span className="booking-step-badge">2</span>
+                    <div>
+                      <h3>Select Booking Date &amp; Duration</h3>
+                      <p>Specify your preferred start date, required duration in days, and quantity/crew size.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid-3">
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">
+                        <Calendar size={14} style={{ display: 'inline', marginRight: '5px' }} />
+                        Start Date *
+                      </label>
+                      <input
+                        type="date"
+                        name="preferredDate"
+                        className="form-control"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={formData.preferredDate}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">Duration (Days) *</label>
+                      <select
+                        name="durationDays"
+                        className="form-control"
+                        value={formData.durationDays}
+                        onChange={handleChange}
+                      >
+                        <option value={1}>1 Day</option>
+                        <option value={2}>2 Days</option>
+                        <option value={3}>3 Days</option>
+                        <option value={5}>5 Days</option>
+                        <option value={7}>7 Days (1 Week)</option>
+                        <option value={14}>14 Days (2 Weeks)</option>
+                        <option value={30}>30 Days (1 Month)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label">
+                        {bookingType === 'tool_rental' ? 'Units Needed' : 'Masons / Crew Size'}
+                      </label>
+                      <select
+                        name="quantity"
+                        className="form-control"
+                        value={formData.quantity}
+                        onChange={handleChange}
+                      >
+                        <option value={1}>1 {bookingType === 'tool_rental' ? 'Unit' : 'Specialist'}</option>
+                        <option value={2}>2 {bookingType === 'tool_rental' ? 'Units' : 'Specialists'}</option>
+                        <option value={3}>3 {bookingType === 'tool_rental' ? 'Units' : 'Specialists'}</option>
+                        <option value={4}>4 {bookingType === 'tool_rental' ? 'Units' : 'Specialists'}</option>
+                        <option value={6}>6 {bookingType === 'tool_rental' ? 'Units' : 'Specialists'}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. CUSTOMER DETAILS */}
+                <div className="booking-section-block" style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
+                  <div className="booking-section-head">
+                    <span className="booking-step-badge">3</span>
+                    <div>
+                      <h3>Enter Customer &amp; Site Details</h3>
+                      <p>Provide your contact details and site address for delivery or engineer dispatch.</p>
+                    </div>
+                  </div>
 
                   <div className="grid-2">
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                        Full Name <span style={{ color: 'var(--accent)' }}>*</span>
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Full Name *</label>
                       <input
                         type="text"
                         name="fullName"
@@ -525,32 +969,26 @@ export const Booking = () => {
                         value={formData.fullName}
                         onChange={handleChange}
                         required
-                        style={{ height: '46px', borderRadius: '10px' }}
                       />
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                        Phone Number <span style={{ color: 'var(--accent)' }}>*</span>
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Mobile Number *</label>
                       <input
                         type="tel"
                         name="phone"
                         className="form-control"
-                        placeholder="e.g. +91 9159687408"
+                        placeholder="+91 9159687408"
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        style={{ height: '46px', borderRadius: '10px' }}
                       />
                     </div>
                   </div>
 
                   <div className="grid-2">
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                        Email Address <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(Optional)</span>
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Email Address (Optional)</label>
                       <input
                         type="email"
                         name="email"
@@ -558,510 +996,125 @@ export const Booking = () => {
                         placeholder="you@domain.com"
                         value={formData.email}
                         onChange={handleChange}
-                        style={{ height: '46px', borderRadius: '10px' }}
                       />
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                        Site / Project Location <span style={{ color: 'var(--accent)' }}>*</span>
+                    <div className="form-group">
+                      <label className="form-label">
+                        <MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                        Site / Delivery Address *
                       </label>
                       <input
                         type="text"
                         name="location"
                         className="form-control"
-                        placeholder="e.g. Fairlands, Salem or Saravanampatti, CBE"
+                        placeholder="e.g. Fairlands, Salem or RS Puram, Coimbatore"
                         value={formData.location}
                         onChange={handleChange}
                         required
-                        style={{ height: '46px', borderRadius: '10px' }}
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* ──────────────────────────────────────────────────
-                    STEP 3: SERVICE DETAILS (DYNAMIC)
-                ────────────────────────────────────────────────── */}
-                <div style={{ marginBottom: '36px', paddingTop: '28px', borderTop: '1px solid var(--border-light)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <span
-                      style={{
-                        background: 'var(--primary)',
-                        color: '#fff',
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.85rem',
-                        fontWeight: 800
-                      }}
-                    >
-                      3
-                    </span>
-                    <h3 style={{ fontSize: '1.25rem', color: 'var(--primary)', margin: 0 }}>
-                      STEP 3: Service Details
-                    </h3>
-                  </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: '0 0 18px 38px' }}>
-                    Provide specific parameters based on your selected booking type.
-                  </p>
-
-                  {/* ── CASE A: CONSTRUCTION SERVICE ── */}
-                  {bookingType === 'construction' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Select Construction Service <span style={{ color: 'var(--accent)' }}>*</span>
-                        </label>
-                        <select
-                          name="selectedService"
-                          className="form-control"
-                          value={formData.selectedService}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          {CONSTRUCTION_SERVICES.map(srv => (
-                            <option key={srv} value={srv}>{srv}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid-2">
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Preferred Start Date <span style={{ color: 'var(--accent)' }}>*</span>
-                          </label>
-                          <input
-                            type="date"
-                            name="preferredDate"
-                            className="form-control"
-                            value={formData.preferredDate}
-                            onChange={handleChange}
-                            required
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Expected Duration
-                          </label>
-                          <select
-                            name="duration"
-                            className="form-control"
-                            value={formData.duration}
-                            onChange={handleChange}
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          >
-                            <option value="1-2 Weeks">1 – 2 Weeks (Minor Works)</option>
-                            <option value="1-3 Months">1 – 3 Months (Structural/Finishing)</option>
-                            <option value="6-9 Months">6 – 9 Months (Full Turnkey Villa)</option>
-                            <option value="12+ Months">12+ Months (Commercial/Multi-Unit)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Workforce / Crew Size Needed
-                        </label>
-                        <select
-                          name="workersCount"
-                          className="form-control"
-                          value={formData.workersCount}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          <option value="1">1 Master Mason / Mistri</option>
-                          <option value="2">2 Masons + 2 Helpers (Standard Crew)</option>
-                          <option value="4">4 Masons + 4 Helpers (Heavy Brickwork)</option>
-                          <option value="8">8+ Specialized Structural Team</option>
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── CASE B: TOOL RENTAL ── */}
-                  {bookingType === 'tool_rental' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Select Tool / Machinery <span style={{ color: 'var(--accent)' }}>*</span>
-                        </label>
-                        <select
-                          name="selectedTool"
-                          className="form-control"
-                          value={formData.selectedTool}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          {initialToolsData.map(tool => (
-                            <option key={tool._id || tool.id} value={tool.name}>
-                              {tool.icon} {tool.name} — ₹{tool.price}/Day
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid-2">
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Rental Start Date <span style={{ color: 'var(--accent)' }}>*</span>
-                          </label>
-                          <input
-                            type="date"
-                            name="preferredDate"
-                            className="form-control"
-                            value={formData.preferredDate}
-                            onChange={handleChange}
-                            required
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Rental Duration
-                          </label>
-                          <select
-                            name="duration"
-                            className="form-control"
-                            value={formData.duration}
-                            onChange={handleChange}
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          >
-                            <option value="1 Day">1 Day</option>
-                            <option value="3 Days">3 Days</option>
-                            <option value="1 Week">1 Week (7 Days)</option>
-                            <option value="2 Weeks">2 Weeks</option>
-                            <option value="1 Month">1 Month (30 Days)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Quantity Needed
-                        </label>
-                        <select
-                          name="toolQuantity"
-                          className="form-control"
-                          value={formData.toolQuantity}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          <option value="1">1 Unit</option>
-                          <option value="2">2 Units</option>
-                          <option value="3">3 Units</option>
-                          <option value="5+">5+ Units (Bulk On-Site Setup)</option>
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── CASE C: PROJECT ESTIMATE ── */}
-                  {bookingType === 'estimate' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Select Project Classification <span style={{ color: 'var(--accent)' }}>*</span>
-                        </label>
-                        <select
-                          name="projectType"
-                          className="form-control"
-                          value={formData.projectType}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          {PROJECT_TYPES.map(pt => (
-                            <option key={pt} value={pt}>{pt}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid-2">
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Target Start Date / Inspection Date <span style={{ color: 'var(--accent)' }}>*</span>
-                          </label>
-                          <input
-                            type="date"
-                            name="preferredDate"
-                            className="form-control"
-                            value={formData.preferredDate}
-                            onChange={handleChange}
-                            required
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                            Project Time Horizon
-                          </label>
-                          <select
-                            name="duration"
-                            className="form-control"
-                            value={formData.duration}
-                            onChange={handleChange}
-                            style={{ height: '46px', borderRadius: '10px' }}
-                          >
-                            <option value="Immediate (This Month)">Immediate (This Month)</option>
-                            <option value="Next 1-3 Months">Next 1 – 3 Months</option>
-                            <option value="Planning for Next Year">Planning Stage (Next Year)</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── CASE D: GENERAL ENQUIRY ── */}
-                  {bookingType === 'enquiry' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Enquiry Subject / Topic <span style={{ color: 'var(--accent)' }}>*</span>
-                        </label>
-                        <select
-                          name="enquirySubject"
-                          className="form-control"
-                          value={formData.enquirySubject}
-                          onChange={handleChange}
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        >
-                          <option value="Free Site Inspection & Plot Feasibility">Free Site Inspection &amp; Plot Feasibility</option>
-                          <option value="Soil Testing & Structural Drawing Inquiry">Soil Testing &amp; Structural Drawing Inquiry</option>
-                          <option value="Subcontractor & Equipment Fleet Requirement">Subcontractor &amp; Equipment Fleet Requirement</option>
-                          <option value="Material Quality & Vastu Consultation">Material Quality &amp; Vastu Consultation</option>
-                          <option value="General Question / Customer Support">General Question / Customer Support</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                          Preferred Callback / Visit Date <span style={{ color: 'var(--accent)' }}>*</span>
-                        </label>
-                        <input
-                          type="date"
-                          name="preferredDate"
-                          className="form-control"
-                          value={formData.preferredDate}
-                          onChange={handleChange}
-                          required
-                          style={{ height: '46px', borderRadius: '10px' }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ──────────────────────────────────────────────────
-                    PROJECT REQUIREMENTS
-                ────────────────────────────────────────────────── */}
-                <div style={{ marginBottom: '36px', paddingTop: '28px', borderTop: '1px solid var(--border-light)' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: 'var(--primary)', marginBottom: '18px' }}>
-                    PROJECT REQUIREMENTS
-                  </h3>
-
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                      Project Description
-                    </label>
+                  <div className="form-group">
+                    <label className="form-label">Project / Site Instructions (Optional)</label>
                     <textarea
-                      name="projectDescription"
-                      className="form-control"
-                      rows={3}
-                      placeholder="Describe your site condition, plot dimensions (e.g. 30x40 ft), structural requirements, or masonry scope..."
-                      value={formData.projectDescription}
-                      onChange={handleChange}
-                      style={{ borderRadius: '10px', minHeight: '100px' }}
-                    />
-                  </div>
-
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                      Estimated Budget (₹ INR)
-                    </label>
-                    <input
-                      type="text"
-                      name="estimatedBudget"
-                      className="form-control"
-                      placeholder="e.g. ₹25 Lakhs – ₹40 Lakhs or ₹5,000 / Day"
-                      value={formData.estimatedBudget}
-                      onChange={handleChange}
-                      style={{ height: '46px', borderRadius: '10px' }}
-                    />
-                  </div>
-
-                  <div className="form-group" style={{ marginBottom: '20px' }}>
-                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                      Additional Requirements
-                    </label>
-                    <textarea
-                      name="additionalRequirements"
+                      name="notes"
                       className="form-control"
                       rows={2}
-                      placeholder="Specific cement brand (e.g. UltraTech, Dalmia), Fe550D TMT steel grade, scaffolding delivery access, electricity connection on site..."
-                      value={formData.additionalRequirements}
+                      placeholder="Mention plot landmark, preferred delivery timing, or specific masonry scope..."
+                      value={formData.notes}
                       onChange={handleChange}
-                      style={{ borderRadius: '10px', minHeight: '80px' }}
                     />
                   </div>
 
-                  {/* Payment Preference */}
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                      Preferred Payment / Verification Mode
-                    </label>
-                    <select
-                      name="paymentMode"
-                      className="form-control"
-                      value={formData.paymentMode}
-                      onChange={handleChange}
-                      style={{ height: '46px', borderRadius: '10px' }}
-                    >
-                      <option value="Cash on Site Consultation">Cash on Site Consultation (Zero Advance)</option>
-                      <option value="UPI / Google Pay (Milestone Billing)">UPI / Google Pay (Milestone Billing)</option>
-                      <option value="Bank NEFT / RTGS Transfer">Bank NEFT / RTGS Transfer</option>
-                      <option value="Credit / Debit Card">Credit / Debit Card</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* ──────────────────────────────────────────────────
-                    SUBMIT BUTTON
-                ────────────────────────────────────────────────── */}
-                <div style={{ paddingTop: '12px' }}>
                   <button
                     type="submit"
-                    id="btn-submit-booking"
-                    className="btn btn-quote-cta btn-lg btn-full"
-                    disabled={isSubmitting}
-                    style={{
-                      height: '52px',
-                      fontSize: '1.05rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.02em',
-                      textTransform: 'uppercase',
-                      borderRadius: '12px',
-                      boxShadow: 'var(--shadow-md)'
-                    }}
+                    className="btn btn-quote-cta btn-full btn-lg"
+                    disabled={isProcessingPayment || isCalculating}
                   >
-                    {isSubmitting ? '⏳ Submitting Booking Request...' : 'Submit Booking Request →'}
+                    <span>
+                      {isProcessingPayment
+                        ? 'Preparing Secure Order...'
+                        : `Proceed to Payment (₹${Number(serverPricing.totalAmount).toLocaleString('en-IN')})`}
+                    </span>
+                    <ArrowRight size={18} className="cta-arrow" />
                   </button>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px', marginBottom: 0 }}>
-                    🔒 100% Free Initial Site Assessment • No Obligation • Salem &amp; Coimbatore Coverage
-                  </p>
                 </div>
               </form>
             </div>
 
-            {/* ── RIGHT: SUMMARY CARD ── */}
-            <div className="booking-sidebar-sticky">
+            {/* ── RIGHT SIDEBAR: LIVE BOOKING SUMMARY ── */}
+            <aside className="booking-sidebar-sticky">
               <div className="booking-summary-box">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.12)', paddingBottom: '16px', marginBottom: '20px' }}>
-                  <h4 style={{ color: '#fff', fontSize: '1.15rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    📋 Booking Summary
-                  </h4>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      background: 'rgba(217, 119, 6, 0.2)',
-                      color: 'var(--accent)',
-                      border: '1px solid var(--accent)',
-                      padding: '3px 10px',
-                      borderRadius: '50px',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    {bookingType.replace('_', ' ')}
-                  </span>
-                </div>
+                <div className="summary-header-kicker">BOOKING SUMMARY</div>
+                <h4 style={{ color: '#FFFFFF', fontSize: '1.3rem', marginBottom: '18px' }}>
+                  Review Your Selection
+                </h4>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.88rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Service Focus:</span>
-                    <strong style={{ color: '#fff', textAlign: 'right', maxWidth: '180px' }}>
-                      {bookingType === 'construction' && formData.selectedService}
-                      {bookingType === 'tool_rental' && formData.selectedTool}
-                      {bookingType === 'estimate' && formData.projectType}
-                      {bookingType === 'enquiry' && formData.enquirySubject}
+                <div className="summary-lines">
+                  <div className="summary-line-item">
+                    <span>Service:</span>
+                    <strong>{serverPricing.serviceCategory}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Selected Item:</span>
+                    <strong>{serverPricing.selectedItem}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Start Date:</span>
+                    <strong className="tabular-nums">{formData.preferredDate || 'Select Date'}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Duration:</span>
+                    <strong>{serverPricing.durationLabel}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Quantity / Crew:</span>
+                    <strong>{serverPricing.quantityLabel}</strong>
+                  </div>
+                  <div className="summary-line-item">
+                    <span>Rate:</span>
+                    <strong className="tabular-nums">
+                      ₹{Number(serverPricing.rate).toLocaleString('en-IN')} /{' '}
+                      {serverPricing.rateUnit.replace('Per ', '')}
                     </strong>
                   </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Site Location:</span>
-                    <strong style={{ color: '#fff' }}>{formData.location || 'Not Specified'}</strong>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Scheduled Date:</span>
-                    <strong style={{ color: 'var(--accent)' }}>{formData.preferredDate || 'Select Date'}</strong>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Timeline:</span>
-                    <strong style={{ color: '#fff' }}>{formData.duration}</strong>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Payment Mode:</span>
-                    <strong style={{ color: '#fff' }}>{formData.paymentMode}</strong>
-                  </div>
                 </div>
 
-                {/* Assurance Box */}
-                <div
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    marginTop: '24px'
-                  }}
+                <div className="summary-total-banner">
+                  <span>Total Amount</span>
+                  <strong className="tabular-nums">
+                    {isCalculating
+                      ? 'Calculating...'
+                      : `₹${Number(serverPricing.totalAmount).toLocaleString('en-IN')}`}
+                  </strong>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-quote-cta btn-full"
+                  style={{ marginTop: '16px' }}
+                  onClick={handleProceedToPayment}
+                  disabled={isProcessingPayment || isCalculating}
                 >
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '1.2rem' }}>🛡️</span>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', color: 'var(--accent)', marginBottom: '3px' }}>
-                        Mason Mate Assurance
-                      </strong>
-                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255,255,255,0.65)', lineHeight: '1.45' }}>
-                        Licensed civil engineer plot inspection, calibrated IS 456 standard materials, and transparent stage-wise signoffs.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  <span>Proceed to Payment</span>
+                  <ArrowRight size={16} className="cta-arrow" />
+                </button>
 
-                {/* Direct Contact Phone */}
-                <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>
-                    Prefer instant assistance?
+                <div className="summary-security-note">
+                  <ShieldCheck size={16} style={{ color: '#10B981', flexShrink: 0 }} />
+                  <span>
+                    Managed by <strong>S. SIVAJI</strong> · SRM Akash Construction. Transparent rates with instant booking confirmation.
                   </span>
-                  <a
-                    href="tel:+919159687408"
-                    style={{
-                      color: 'var(--accent)',
-                      fontWeight: 700,
-                      fontSize: '0.95rem',
-                      textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    📞 +91 9159687408
-                  </a>
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         )}
       </div>
     </div>
   );
 };
+
+export default Booking;

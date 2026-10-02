@@ -294,16 +294,16 @@ export const Home = () => {
           {/* ── LEADERSHIP SECTION ── */}
           <div className="leadership-section-wrap" id="leadership">
             <AdminOwnerCard
-              name="Er. Mohanraj"
-              role="Founder & Chief Managing Contractor"
-              company="SRM Akash Construction · MasonMate"
+              name="S. SIVAJI"
+              role="Founder & Owner"
+              company="SRM Akash Construction"
               location="Salem & Coimbatore, Tamil Nadu"
               experience="15+ Years Field Leadership"
-              description="With over 15 years of hands-on site supervision and civil contracting across Salem and Coimbatore, Mohanraj personally oversees structural quality checks, foundation reinforcements, and transparent client handovers."
+              description="With over 15 years of hands-on site supervision and civil contracting across Salem and Coimbatore, S. SIVAJI personally oversees structural quality checks, foundation reinforcements, and transparent client handovers."
               phone="+91 9159687408"
               onWhatsAppClick={() =>
                 openWhatsApp(
-                  'Hello Mohanraj / SRM Akash Construction! I would like to consult about our upcoming house construction project.'
+                  'Hello S. SIVAJI / SRM Akash Construction! I would like to consult about our upcoming house construction project.'
                 )
               }
             />

@@ -5,9 +5,9 @@ import daddyImg from '../assets/images/daddy.jpeg';
 import founderImg from '../assets/images/founder_portrait_1786882840416.jpg';
 
 export const AdminOwnerCard = ({
-  name = 'Er. Mohanraj',
-  role = 'Founder & Chief Managing Contractor',
-  company = 'SRM AKASH CONSTRUCTION · Mason Mate',
+  name = 'S. SIVAJI',
+  role = 'Founder & Owner',
+  company = 'SRM Akash Construction',
   location = 'Salem & Coimbatore, Tamil Nadu',
   experience = '15+ Years Field Leadership',
   description = 'Directing residential turnkey projects, structural RCC execution, and skilled master mason deployment with uncompromising engineering standards and transparent client communication.',

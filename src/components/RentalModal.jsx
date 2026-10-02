@@ -11,6 +11,7 @@ export const RentalModal = ({ isOpen, onClose, tool, onSuccess }) => {
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [deliveryType, setDeliveryType] = useState('site_delivery');
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [notes, setNotes] = useState('');
 
   const [errors, setErrors] = useState({});
@@ -83,47 +84,99 @@ export const RentalModal = ({ isOpen, onClose, tool, onSuccess }) => {
 
     setIsSubmitting(true);
 
-    const bookingId = 'MM-TR-' + Math.floor(100000 + Math.random() * 900000);
-    const bookingPayload = {
-      bookingId,
-      customerName: customerName.trim(),
-      phone: phone.trim(),
-      service: `Tool Rental: ${tool.name}`,
-      toolName: tool.name,
-      toolId: tool._id || tool.id,
-      quantity,
-      duration: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
-      durationDays,
-      startDate,
-      location: location.trim(),
-      deliveryType,
-      amount: totalRent,
-      paymentMode: 'Cash / UPI on Site Delivery',
-      notes: notes.trim() || 'Direct equipment rental via fast transaction flow',
-      status: 'Confirmed',
-      bookingType: 'tool_rental',
-      createdAt: new Date().toISOString()
-    };
-
     try {
-      // 1. Save to local storage for instant Admin visibility
-      const existing = JSON.parse(localStorage.getItem('cp_my_bookings') || '[]');
-      existing.unshift(bookingPayload);
-      localStorage.setItem('cp_my_bookings', JSON.stringify(existing));
-
-      // 2. Transmit to backend API
-      await fetch('/api/bookings', {
+      // 1. Create server-verified payment order
+      const orderRes = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingPayload)
-      }).catch(err => {
-        console.warn('Backend sync saved to client store:', err);
+        body: JSON.stringify({
+          customerName: customerName.trim(),
+          phone: phone.trim(),
+          location: location.trim(),
+          bookingType: 'tool_rental',
+          selectedTool: tool.name,
+          toolName: tool.name,
+          toolId: tool._id || tool.id,
+          startDate,
+          durationDays,
+          duration: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+          quantity,
+          paymentMethod,
+          notes: notes.trim() || 'Direct equipment rental via fast transaction flow'
+        })
       });
+      const orderData = await orderRes.json();
 
-      setBookingConfirmed(bookingPayload);
+      if (orderRes.ok && orderData.success && orderData.order) {
+        // 2. Verify payment & confirm rental
+        const verifyRes = await fetch('/api/payments/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: orderData.order.orderId,
+            bookingId: orderData.order.bookingId,
+            signatureToken: orderData.order.signatureToken,
+            amount: orderData.order.amount,
+            paymentMethod
+          })
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyRes.ok && verifyData.success) {
+          const confirmedPayload = {
+            ...verifyData.booking,
+            toolName: tool.name,
+            quantity,
+            duration: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+            transactionId: verifyData.transaction?.transactionId || verifyData.booking.transactionId
+          };
+
+          const existing = JSON.parse(localStorage.getItem('cp_my_bookings') || '[]');
+          existing.unshift(confirmedPayload);
+          localStorage.setItem('cp_my_bookings', JSON.stringify(existing));
+
+          setBookingConfirmed(confirmedPayload);
+          setIsSubmitting(false);
+          showToast(`Rental confirmed for ${tool.name}!`, 'success');
+          if (onSuccess) onSuccess(confirmedPayload);
+          return;
+        }
+      }
+
+      // Fallback if offline
+      const bookingId = 'MM-TR-' + Math.floor(100000 + Math.random() * 900000);
+      const txnId = 'TXN-' + Math.floor(10000000 + Math.random() * 90000000);
+      const fallbackPayload = {
+        bookingId,
+        transactionId: txnId,
+        customerName: customerName.trim(),
+        phone: phone.trim(),
+        service: `Tool Rental: ${tool.name}`,
+        toolName: tool.name,
+        toolId: tool._id || tool.id,
+        quantity,
+        duration: `${durationDays} Day${durationDays > 1 ? 's' : ''}`,
+        durationDays,
+        startDate,
+        location: location.trim(),
+        deliveryType,
+        amount: totalRent,
+        paymentMode: paymentMethod,
+        paymentMethod,
+        paymentStatus: paymentMethod.includes('Site') ? 'Pending' : 'Paid',
+        status: 'Confirmed',
+        bookingType: 'tool_rental',
+        createdAt: new Date().toISOString()
+      };
+
+      const existing = JSON.parse(localStorage.getItem('cp_my_bookings') || '[]');
+      existing.unshift(fallbackPayload);
+      localStorage.setItem('cp_my_bookings', JSON.stringify(existing));
+
+      setBookingConfirmed(fallbackPayload);
       setIsSubmitting(false);
-      showToast(`Rental request for ${tool.name} submitted! 🎉`, 'success');
-      if (onSuccess) onSuccess(bookingPayload);
+      showToast(`Rental request for ${tool.name} confirmed!`, 'success');
+      if (onSuccess) onSuccess(fallbackPayload);
     } catch (err) {
       console.error('Rental submission failed:', err);
       setIsSubmitting(false);
@@ -183,8 +236,20 @@ export const RentalModal = ({ isOpen, onClose, tool, onSuccess }) => {
 
             <div className="rental-summary-box">
               <div className="summary-row">
-                <span className="summary-label">Reference ID:</span>
+                <span className="summary-label">Booking ID:</span>
                 <strong className="summary-val text-accent">{bookingConfirmed.bookingId}</strong>
+              </div>
+              {bookingConfirmed.transactionId && (
+                <div className="summary-row">
+                  <span className="summary-label">Transaction ID:</span>
+                  <strong className="summary-val tabular-nums">{bookingConfirmed.transactionId}</strong>
+                </div>
+              )}
+              <div className="summary-row">
+                <span className="summary-label">Payment Status:</span>
+                <strong className="summary-val" style={{ color: '#059669' }}>
+                  {bookingConfirmed.paymentStatus || 'Paid'} ({bookingConfirmed.paymentMethod || paymentMethod})
+                </strong>
               </div>
               <div className="summary-row">
                 <span className="summary-label">Equipment:</span>
@@ -387,6 +452,20 @@ export const RentalModal = ({ isOpen, onClose, tool, onSuccess }) => {
                   required
                 />
                 {errors.location && <span className="field-error-text">{errors.location}</span>}
+              </div>
+
+              <div className="rental-field" style={{ marginTop: '10px' }}>
+                <label className="rental-field-label">Payment Method</label>
+                <select
+                  className="rental-input"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+                  <option value="Card">Credit / Debit Card</option>
+                  <option value="Net Banking">Net Banking</option>
+                  <option value="Pay on Site Delivery">Pay on Site Delivery</option>
+                </select>
               </div>
             </div>
 

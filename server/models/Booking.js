@@ -22,10 +22,20 @@ const bookingSchema = new mongoose.Schema({
     description: { type: String },
     estimatedAmount: { type: Number },
     amount: { type: Number },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Payment Processing', 'Paid', 'Failed', 'Cancelled', 'Refunded'],
+        default: 'Pending'
+    },
+    transactionId: { type: String, default: '' },
+    paymentOrderId: { type: String, default: '' },
+    paymentMethod: { type: String, default: 'UPI' },
+    paidAt: { type: Date },
+    idempotencyKey: { type: String, index: true },
     status: { 
         type: String, 
-        enum: ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'], 
-        default: 'Confirmed' 
+        enum: ['Pending', 'Confirmed', 'Active', 'In Progress', 'Completed', 'Cancelled'], 
+        default: 'Pending' 
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

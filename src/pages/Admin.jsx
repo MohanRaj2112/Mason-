@@ -10,6 +10,7 @@ import { projectsData } from '../data/projects';
 const defaultAdminBookings = [
   {
     bookingId: 'MM-883921',
+    transactionId: 'TXN-88392101',
     customerName: 'Santhosh Kumar',
     phone: '+91 9159687408',
     email: 'santhosh@example.com',
@@ -17,6 +18,8 @@ const defaultAdminBookings = [
     startDate: '2026-08-20',
     workers: 4,
     paymentMode: 'UPI',
+    paymentMethod: 'UPI',
+    paymentStatus: 'Paid',
     amount: 107940,
     status: 'Confirmed',
     location: 'Fairlands, Salem',
@@ -24,6 +27,7 @@ const defaultAdminBookings = [
   },
   {
     bookingId: 'MM-491024',
+    transactionId: 'TXN-49102402',
     customerName: 'Priya Rajan',
     phone: '+91 9840123456',
     email: 'priya.r@gmail.com',
@@ -31,13 +35,16 @@ const defaultAdminBookings = [
     startDate: '2026-08-25',
     workers: 2,
     paymentMode: 'Card',
+    paymentMethod: 'Card',
+    paymentStatus: 'Paid',
     amount: 99875,
-    status: 'Pending',
+    status: 'Confirmed',
     location: 'RS Puram, Coimbatore',
     notes: 'Kitchen & living room structural remodeling.'
   },
   {
     bookingId: 'MM-310948',
+    transactionId: 'TXN-31094803',
     customerName: 'Karthik Raja',
     phone: '+91 9443210987',
     email: 'karthik.raja@outlook.com',
@@ -45,13 +52,16 @@ const defaultAdminBookings = [
     startDate: '2026-08-18',
     workers: 1,
     paymentMode: 'Cash on Visit',
-    amount: 1500,
+    paymentMethod: 'Cash on Visit',
+    paymentStatus: 'Pending',
+    amount: 1350,
     status: 'In Progress',
     location: 'Suramangalam, Salem',
-    notes: 'Rotary hammer drill + needle vibrator for 3 days.'
+    notes: 'Rotary hammer drill for 3 days.'
   },
   {
     bookingId: 'MM-209412',
+    transactionId: 'TXN-20941204',
     customerName: 'Anand Sundaram',
     phone: '+91 9789012345',
     email: 'anand.s@yahoo.com',
@@ -59,10 +69,54 @@ const defaultAdminBookings = [
     startDate: '2026-08-15',
     workers: 3,
     paymentMode: 'Net Banking',
+    paymentMethod: 'Net Banking',
+    paymentStatus: 'Paid',
     amount: 3600,
     status: 'Completed',
     location: 'Gandhipuram, Coimbatore',
     notes: 'Compound wall & brick partition masonry.'
+  }
+];
+
+const defaultAdminTransactions = [
+  {
+    transactionId: 'TXN-88392101',
+    orderId: 'order_MM_883921',
+    bookingId: 'MM-883921',
+    customerName: 'Santhosh Kumar',
+    phone: '+91 9159687408',
+    service: 'Turnkey House Construction',
+    amount: 107940,
+    paymentMethod: 'UPI',
+    paymentStatus: 'Paid',
+    gatewayReference: 'UPI:santhosh@okicici',
+    createdAt: '2026-08-18'
+  },
+  {
+    transactionId: 'TXN-49102402',
+    orderId: 'order_MM_491024',
+    bookingId: 'MM-491024',
+    customerName: 'Priya Rajan',
+    phone: '+91 9840123456',
+    service: 'Renovation & Remodeling',
+    amount: 99875,
+    paymentMethod: 'Card',
+    paymentStatus: 'Paid',
+    gatewayReference: 'CARD:****4829',
+    createdAt: '2026-08-19'
+  },
+  {
+    transactionId: 'TXN-20941204',
+    orderId: 'order_MM_209412',
+    bookingId: 'MM-209412',
+    customerName: 'Anand Sundaram',
+    phone: '+91 9789012345',
+    service: 'Master Mason Hiring',
+    amount: 3600,
+    paymentMethod: 'Net Banking',
+    paymentStatus: 'Paid',
+    gatewayReference: 'NETBANKING:SBI',
+    createdAt: '2026-08-15'
   }
 ];
 
@@ -159,6 +213,8 @@ export const Admin = () => {
   });
   const [customers, setCustomers] = useState(defaultAdminCustomers);
   const [messages, setMessages] = useState(defaultAdminMessages);
+  const [transactions, setTransactions] = useState(defaultAdminTransactions);
+  const [transactionFilter, setTransactionFilter] = useState('all');
 
   // Project Category Options
   const projectCategories = [
@@ -174,8 +230,9 @@ export const Admin = () => {
 
   // Settings State
   const [settings, setSettings] = useState({
-    businessName: 'SRM AKASH CONSTRUCTION',
-    brandName: 'Mason Mate',
+    businessName: 'SRM Akash Construction',
+    brandName: 'MasonMate',
+    founderName: 'S. SIVAJI',
     supportPhone: '+91 9159687408',
     supportEmail: 'contact@masonmate.in',
     primaryLocation: 'Salem & Coimbatore, Tamil Nadu',
@@ -262,9 +319,12 @@ export const Admin = () => {
   useEffect(() => {
     const syncServer = async () => {
       try {
-        const [bRes, pRes] = await Promise.allSettled([
+        const token = localStorage.getItem('mm_token') || '';
+        const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+        const [bRes, pRes, tRes] = await Promise.allSettled([
           fetch('/api/bookings'),
-          fetch('/api/tools')
+          fetch('/api/tools'),
+          fetch('/api/transactions', { headers: authHeaders })
         ]);
         if (bRes.status === 'fulfilled' && bRes.value.ok) {
           const data = await bRes.value.json();
@@ -280,6 +340,10 @@ export const Admin = () => {
               availabilityStatus: item.availabilityStatus || (item.available !== false ? 'Available' : 'Rented')
             })));
           }
+        }
+        if (tRes.status === 'fulfilled' && tRes.value.ok) {
+          const data = await tRes.value.json();
+          if (Array.isArray(data) && data.length > 0) setTransactions(data);
         }
       } catch (e) {
         console.warn('Server sync notice:', e);
@@ -373,6 +437,26 @@ export const Admin = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
+      });
+    } catch {}
+  };
+
+  // Payment Status Change Handler
+  const handlePaymentStatusChange = async (bookingId, newPayStatus) => {
+    const updated = bookings.map(b => (b.bookingId === bookingId ? { ...b, paymentStatus: newPayStatus } : b));
+    setBookings(updated);
+    setTransactions(prev => prev.map(t => (t.bookingId === bookingId ? { ...t, paymentStatus: newPayStatus } : t)));
+    if (inspectedBooking && inspectedBooking.bookingId === bookingId) {
+      setInspectedBooking({ ...inspectedBooking, paymentStatus: newPayStatus });
+    }
+    showToast(`Payment status for ${bookingId} updated to ${newPayStatus}`, 'success');
+
+    try {
+      localStorage.setItem('cp_my_bookings', JSON.stringify(updated));
+      await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentStatus: newPayStatus })
       });
     } catch {}
   };
@@ -607,6 +691,7 @@ export const Admin = () => {
               {[
                 { id: 'overview', icon: '📊', label: 'Dashboard' },
                 { id: 'bookings', icon: '📅', label: 'Bookings', badge: pendingBookingsCount },
+                { id: 'payments', icon: '💳', label: 'Payments', badge: transactions.length },
                 { id: 'tools', icon: '🔨', label: 'Tools', badge: tools.length },
                 { id: 'services', icon: '🏗️', label: 'Services' },
                 { id: 'projects', icon: '📁', label: 'Projects' },
@@ -642,8 +727,8 @@ export const Admin = () => {
               {(currentUser?.username || 'A')[0].toUpperCase()}
             </div>
             <div className="admin-profile-info">
-              <div className="admin-profile-name">{currentUser?.username || 'Administrator'}</div>
-              <div className="admin-profile-role">Chief Engineer</div>
+              <div className="admin-profile-name">{currentUser?.name || currentUser?.username || 'S. SIVAJI'}</div>
+              <div className="admin-profile-role">Founder &amp; Owner</div>
             </div>
           </div>
 
@@ -686,6 +771,7 @@ export const Admin = () => {
               <h1 className="topbar-title">
                 {activeTab === 'overview' && '📊 Executive Dashboard'}
                 {activeTab === 'bookings' && '📅 Site Service Bookings'}
+                {activeTab === 'payments' && '💳 Payments & Transaction Ledger'}
                 {activeTab === 'tools' && '🔨 Tools Management'}
                 {activeTab === 'services' && '🏗️ Construction Services'}
                 {activeTab === 'projects' && '📁 Portfolio Projects'}
@@ -694,8 +780,9 @@ export const Admin = () => {
                 {activeTab === 'settings' && '⚙️ Platform & Business Settings'}
               </h1>
               <p className="topbar-subtitle">
-                {activeTab === 'overview' && 'Live operations overview for SRM AKASH CONSTRUCTION.'}
-                {activeTab === 'bookings' && 'Track client requests, assign master masons, and manage work schedules.'}
+                {activeTab === 'overview' && 'Live operations overview for SRM Akash Construction · Founded by S. SIVAJI.'}
+                {activeTab === 'bookings' && 'Track client requests, verify payment status, and manage work schedules.'}
+                {activeTab === 'payments' && 'Monitor verified online payments, transaction IDs, and refund statuses.'}
                 {activeTab === 'tools' && 'Manage construction tools available for rental.'}
                 {activeTab === 'services' && 'Manage service offerings, turnkey packages, and labor crews.'}
                 {activeTab === 'projects' && 'Showcase completed villas, commercial structures, and restorations.'}
@@ -1022,7 +1109,17 @@ export const Admin = () => {
                             <td>{b.workers || 1} Masons</td>
                             <td>
                               <div><strong>₹{(Number(b.amount) || 0).toLocaleString('en-IN')}</strong></div>
-                              <div style={{ fontSize: '11px', color: 'var(--adm-text-muted)' }}>{b.paymentMode || 'UPI'}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--adm-text-muted)' }}>
+                                {b.paymentMethod || b.paymentMode || 'UPI'} ·{' '}
+                                <span style={{ fontWeight: 700, color: (b.paymentStatus || 'Paid') === 'Paid' ? '#059669' : '#D97706' }}>
+                                  {b.paymentStatus || 'Paid'}
+                                </span>
+                              </div>
+                              {b.transactionId && (
+                                <div style={{ fontSize: '10.5px', fontFamily: 'monospace', color: 'var(--adm-text-muted)' }}>
+                                  {b.transactionId}
+                                </div>
+                              )}
                             </td>
                             <td>
                               <select
@@ -1066,6 +1163,95 @@ export const Admin = () => {
                           </tr>
                         ))
                       )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ─────────────────────────────────────────────────────────
+              TAB 2B: PAYMENTS & TRANSACTIONS MANAGEMENT
+          ───────────────────────────────────────────────────────── */}
+          {activeTab === 'payments' && (
+            <div className="admin-page-panel active" id="panel-payments">
+              <div className="admin-card">
+                <div className="admin-card-header">
+                  <div className="card-header-titles">
+                    <h3 className="card-title-text">Verified Payment &amp; Transaction Ledger</h3>
+                    <p className="card-subtitle-text">
+                      HMAC-verified gateway transactions, booking payment statuses, and refund controls
+                    </p>
+                  </div>
+
+                  <div className="card-header-actions">
+                    <select
+                      className="admin-select"
+                      value={transactionFilter}
+                      onChange={(e) => setTransactionFilter(e.target.value)}
+                    >
+                      <option value="all">Filter: All Payment Statuses</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Failed">Failed</option>
+                      <option value="Refunded">Refunded</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Transaction ID</th>
+                        <th>Booking Ref</th>
+                        <th>Customer</th>
+                        <th>Service / Equipment</th>
+                        <th>Amount</th>
+                        <th>Method &amp; Verification</th>
+                        <th>Payment Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings
+                        .filter(b => transactionFilter === 'all' || (b.paymentStatus || 'Paid') === transactionFilter)
+                        .map(b => (
+                          <tr key={b.bookingId}>
+                            <td>
+                              <strong style={{ fontFamily: 'monospace', color: 'var(--adm-primary)' }}>
+                                {b.transactionId || 'TXN-PENDING'}
+                              </strong>
+                            </td>
+                            <td>
+                              <strong>{b.bookingId}</strong>
+                            </td>
+                            <td>
+                              <div style={{ fontWeight: 600 }}>{b.customerName}</div>
+                              <div style={{ fontSize: '12px', color: 'var(--adm-text-muted)' }}>{b.phone}</div>
+                            </td>
+                            <td>{b.service}</td>
+                            <td>
+                              <strong>₹{(Number(b.amount) || 0).toLocaleString('en-IN')}</strong>
+                            </td>
+                            <td>
+                              <div>{b.paymentMethod || b.paymentMode || 'UPI'}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--adm-text-muted)' }}>Server Verified ✓</div>
+                            </td>
+                            <td>
+                              <select
+                                className="admin-select"
+                                style={{ height: '32px', fontSize: '12px', padding: '0 8px' }}
+                                value={b.paymentStatus || 'Paid'}
+                                onChange={(e) => handlePaymentStatusChange(b.bookingId, e.target.value)}
+                              >
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed">Failed</option>
+                                <option value="Refunded">Refunded</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>

@@ -36,18 +36,22 @@ function ScrollToTop() {
   return null;
 }
 
-// Layout wrapper that hides public navbar/footer on admin page
+// Layout wrapper that hides public navbar/footer on admin page and hides footer on auth/login page
 function Layout({ children }) {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isAuthPath =
+    location.pathname.startsWith('/auth') ||
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/register');
 
   return (
     <>
       {!isAdminPath && <Navbar />}
       <CartSidebar />
-      <div style={{ flex: 1 }}>{children}</div>
-      {!isAdminPath && <FloatingActions />}
-      {!isAdminPath && <Footer />}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</div>
+      {!isAdminPath && !isAuthPath && <FloatingActions />}
+      {!isAdminPath && !isAuthPath && <Footer />}
     </>
   );
 }
