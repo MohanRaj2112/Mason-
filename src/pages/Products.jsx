@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Plus, SlidersHorizontal, Truck } from 'lucide-react';
+import { Search, Plus, SlidersHorizontal, Truck, X } from 'lucide-react';
 import { initialToolsData, toolCategories } from '../data/tools';
 import { ToolCard } from '../components/ToolCard';
 import { AddToolModal } from '../components/AddToolModal';
@@ -23,7 +23,9 @@ export const Products = () => {
               (t) => t.name === item.name || t._id === item._id
             );
             return {
+              ...localMatch,
               ...item,
+              specifications: item.specifications || localMatch?.specifications || null,
               image:
                 item.image && !item.image.includes('unsplash.com')
                   ? item.image
@@ -69,11 +71,12 @@ export const Products = () => {
                 ...localMatch,
                 ...item,
                 image: validImg,
+                specifications: item.specifications || localMatch?.specifications || null,
                 desc:
                   item.description ||
                   item.desc ||
                   localMatch?.desc ||
-                  'Professional construction tool.',
+                  'Professional construction tool calibrated for reliable on-site performance.',
                 specs: item.specs || localMatch?.specs || '',
                 period: item.period || 'Day',
                 availabilityStatus:
@@ -122,7 +125,8 @@ export const Products = () => {
           category: enrichedTool.category,
           price: enrichedTool.price,
           description: enrichedTool.desc,
-          icon: enrichedTool.icon || '🔨',
+          specs: enrichedTool.specs,
+          specifications: enrichedTool.specifications,
           available: enrichedTool.availabilityStatus === 'Available',
           image: enrichedTool.image
         })
@@ -133,23 +137,27 @@ export const Products = () => {
     }
   };
 
+  // Search filter based on tool name, category, and specifications
   const filteredTools = useMemo(() => {
     return tools
       .filter((tool) => {
         const matchesCategory =
           selectedCategory === 'all' || tool.category === selectedCategory;
         const q = searchQuery.toLowerCase().trim();
+        
+        // Search checks tool name, category, and specifications as required
         const matchesSearch =
           !q ||
           tool.name?.toLowerCase().includes(q) ||
-          tool.desc?.toLowerCase().includes(q) ||
           tool.category?.toLowerCase().includes(q) ||
-          tool.specs?.toLowerCase().includes(q);
+          (tool.specs && tool.specs.toLowerCase().includes(q)) ||
+          (tool.specifications && Object.values(tool.specifications).some(v => String(v).toLowerCase().includes(q)));
+        
         return matchesCategory && matchesSearch;
       })
       .sort((a, b) => {
-        if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
-        if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+        if (sortBy === 'price-low') return (Number(a.price) || 0) - (Number(b.price) || 0);
+        if (sortBy === 'price-high') return (Number(b.price) || 0) - (Number(a.price) || 0);
         if (sortBy === 'name-asc') return (a.name || '').localeCompare(b.name || '');
         if (sortBy === 'availability') {
           const aAvail =
@@ -186,14 +194,14 @@ export const Products = () => {
             </div>
             <h1>Commercial Tool &amp; Equipment Rentals</h1>
             <p className="hero-desc">
-              Browse heavy power tools, diesel concrete mixers, tubular steel scaffolding frames, and de-watering pumps available for daily, weekly, or monthly site rentals.
+              Browse calibrated power tools, diesel concrete mixers, tubular steel scaffolding frames, and de-watering pumps available for daily, weekly, or monthly site rentals.
             </p>
           </div>
         </div>
       </section>
 
       {/* ── MAIN CATALOG SECTION ── */}
-      <section className="section">
+      <section className="section" id="tools-catalog">
         <div className="container">
           <div className="catalog-top-header">
             <div>
@@ -214,49 +222,70 @@ export const Products = () => {
             </button>
           </div>
 
-          {/* Filter Bar */}
-          <div className="filter-bar">
-            <div className="search-box">
-              <Search size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-              <input
-                type="text"
-                id="searchInput"
-                placeholder="Search power drills, mixers, scaffolding..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+          {/* Clean Professional Category Filter & Search Bar */}
+          <div className="tools-filter-panel">
+            {/* Search Input Row */}
+            <div className="tools-search-row">
+              <div className="search-box">
+                <Search size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search tools, equipment, or specifications..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+                    title="Clear search"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
 
-            <div className="cat-filters" id="catFilters">
-              {toolCategories.map((cat) => (
-                <button
-                  type="button"
-                  key={cat.id}
-                  className={`cat-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-                  onClick={() => handleCategorySelect(cat.id)}
+              <div className="sort-select-wrap">
+                <SlidersHorizontal size={15} style={{ color: 'var(--text-muted)' }} />
+                <select
+                  className="sort-select"
+                  id="sortSelect"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
                 >
-                  {cat.label}
-                </button>
-              ))}
+                  <option value="recommended">Sort: Recommended</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="name-asc">Name: A–Z</option>
+                  <option value="availability">Availability First</option>
+                </select>
+              </div>
             </div>
 
-            <div className="sort-select-wrap">
-              <SlidersHorizontal size={15} style={{ color: 'var(--text-muted)' }} />
-              <select
-                className="sort-select"
-                id="sortSelect"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="recommended">Sort: Recommended</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name-asc">Name: A–Z</option>
-                <option value="availability">Availability First</option>
-              </select>
+            {/* Clean Category Navigation (Strictly NO Emojis as requested) */}
+            <div className="tools-category-nav" id="catFilters" role="tablist" aria-label="Tool Categories">
+              {toolCategories.map((cat) => {
+                const isActive = selectedCategory === cat.id;
+                return (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    role="tab"
+                    aria-selected={isActive}
+                    className={`tools-cat-pill ${isActive ? 'active' : ''}`}
+                    onClick={() => handleCategorySelect(cat.id)}
+                  >
+                    <span className="tools-cat-label">{cat.label}</span>
+                    {isActive && <span className="tools-cat-active-line" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Meta Bar */}
           <div className="catalog-meta-bar">
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
               Showing{' '}
@@ -264,6 +293,9 @@ export const Products = () => {
                 {filteredTools.length}
               </strong>{' '}
               equipment units in catalog
+              {selectedCategory !== 'all' && (
+                <span> &bull; Filtered by <em>{toolCategories.find(c => c.id === selectedCategory)?.label}</em></span>
+              )}
             </p>
             <div className="catalog-delivery-tag">
               <Truck size={16} />
@@ -271,7 +303,7 @@ export const Products = () => {
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* Products Grid (Compact Cards) */}
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
               Loading equipment catalog...
@@ -296,7 +328,7 @@ export const Products = () => {
           ) : (
             <div className="products-grid" id="productsGrid">
               {filteredTools.map((tool) => (
-                <ToolCard key={tool._id || tool.id} tool={tool} />
+                <ToolCard key={tool._id || tool.id || tool.toolId} tool={tool} />
               ))}
             </div>
           )}

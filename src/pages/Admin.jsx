@@ -269,6 +269,11 @@ export const Admin = () => {
     image: '',
     desc: '',
     specs: '',
+    material: '',
+    weight: '',
+    power: '',
+    capacity: '',
+    type: '',
     availabilityStatus: 'Available'
   });
 
@@ -469,6 +474,23 @@ export const Admin = () => {
       return;
     }
 
+    const structuredSpecs = {};
+    if (newToolData.material?.trim()) structuredSpecs.Material = newToolData.material.trim();
+    if (newToolData.weight?.trim()) structuredSpecs.Weight = newToolData.weight.trim();
+    if (newToolData.power?.trim()) structuredSpecs.Power = newToolData.power.trim();
+    if (newToolData.capacity?.trim()) structuredSpecs.Capacity = newToolData.capacity.trim();
+    if (newToolData.type?.trim()) structuredSpecs.Type = newToolData.type.trim();
+
+    const specsSummaryParts = [];
+    if (newToolData.material?.trim()) specsSummaryParts.push(`Material: ${newToolData.material.trim()}`);
+    if (newToolData.weight?.trim()) specsSummaryParts.push(`Weight: ${newToolData.weight.trim()}`);
+    if (newToolData.power?.trim()) specsSummaryParts.push(`Power: ${newToolData.power.trim()}`);
+    if (newToolData.capacity?.trim()) specsSummaryParts.push(`Capacity: ${newToolData.capacity.trim()}`);
+    if (newToolData.type?.trim()) specsSummaryParts.push(`Type: ${newToolData.type.trim()}`);
+    if (newToolData.specs?.trim()) specsSummaryParts.push(newToolData.specs.trim());
+
+    const finalSpecs = specsSummaryParts.join(', ') || newToolData.specs || 'Certified standard equipment';
+
     const created = {
       _id: 'tool_' + Date.now(),
       id: 'tool_' + Date.now(),
@@ -479,7 +501,8 @@ export const Admin = () => {
       icon: newToolData.icon || '🔨',
       image: newToolData.image || '',
       desc: newToolData.desc || 'Professional-grade equipment calibrated for civil masonry & construction.',
-      specs: newToolData.specs || 'Certified standard equipment',
+      specs: finalSpecs,
+      specifications: Object.keys(structuredSpecs).length > 0 ? structuredSpecs : null,
       availabilityStatus: newToolData.availabilityStatus,
       available: newToolData.availabilityStatus === 'Available'
     };
@@ -495,6 +518,11 @@ export const Admin = () => {
       image: '',
       desc: '',
       specs: '',
+      material: '',
+      weight: '',
+      power: '',
+      capacity: '',
+      type: '',
       availabilityStatus: 'Available'
     });
 
@@ -1339,7 +1367,7 @@ export const Admin = () => {
                     >
                       <option value="all">Category: All Categories</option>
                       {toolCategories.map(c => (
-                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                        <option key={c.id} value={c.id}>{c.label || c.name}</option>
                       ))}
                     </select>
                     <div className="admin-view-toggle">
@@ -2006,8 +2034,8 @@ export const Admin = () => {
                       value={newToolData.category}
                       onChange={(e) => setNewToolData({ ...newToolData, category: e.target.value })}
                     >
-                      {toolCategories.map(c => (
-                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                      {toolCategories.filter(c => c.id !== 'all').map(c => (
+                        <option key={c.id} value={c.id}>{c.label || c.name}</option>
                       ))}
                     </select>
                   </div>
@@ -2038,41 +2066,92 @@ export const Admin = () => {
                     </select>
                   </div>
                   <div className="adm-form-group">
-                    <label className="adm-form-label">Icon Emoji</label>
+                    <label className="adm-form-label">Image URL (Optional)</label>
                     <input
-                      type="text"
+                      type="url"
                       className="adm-form-control"
-                      placeholder="🔨"
-                      value={newToolData.icon}
-                      onChange={(e) => setNewToolData({ ...newToolData, icon: e.target.value })}
+                      placeholder="https://..."
+                      value={newToolData.image}
+                      onChange={(e) => setNewToolData({ ...newToolData, image: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="adm-form-group">
-                  <label className="adm-form-label">Image URL (Optional)</label>
-                  <input
-                    type="url"
-                    className="adm-form-control"
-                    placeholder="https://images.unsplash.com/photo-..."
-                    value={newToolData.image}
-                    onChange={(e) => setNewToolData({ ...newToolData, image: e.target.value })}
-                  />
+                {/* Structured Specifications in Admin */}
+                <div style={{ background: 'var(--adm-bg)', padding: '12px', borderRadius: '8px', margin: '10px 0', border: '1px solid var(--adm-border)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--adm-primary)', marginBottom: '8px', textTransform: 'uppercase' }}>
+                    Tool Specifications (Structured Fields)
+                  </div>
+                  <div className="adm-form-row-2">
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Material</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. Drop-Forged Steel"
+                        value={newToolData.material || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, material: e.target.value })}
+                      />
+                    </div>
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Weight / Load</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. 2 kg or 150 kg"
+                        value={newToolData.weight || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, weight: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="adm-form-row-2" style={{ marginTop: '6px' }}>
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Power / Voltage</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. 800W / 220V"
+                        value={newToolData.power || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, power: e.target.value })}
+                      />
+                    </div>
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Capacity / Volume</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. 200 Litres"
+                        value={newToolData.capacity || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, capacity: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="adm-form-row-2" style={{ marginTop: '6px' }}>
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Type / Standard</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. Heavy Duty"
+                        value={newToolData.type || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, type: e.target.value })}
+                      />
+                    </div>
+                    <div className="adm-form-group">
+                      <label className="adm-form-label">Other Specifications</label>
+                      <input
+                        type="text"
+                        className="adm-form-control"
+                        placeholder="e.g. 3-Mode Hammer/Chisel"
+                        value={newToolData.specs || ''}
+                        onChange={(e) => setNewToolData({ ...newToolData, specs: e.target.value })}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="adm-form-group">
-                  <label className="adm-form-label">Specifications &amp; Capacity</label>
-                  <input
-                    type="text"
-                    className="adm-form-control"
-                    placeholder="e.g. 230V / 50Hz, 45 Joules impact energy, SDS-Max chuck"
-                    value={newToolData.specs}
-                    onChange={(e) => setNewToolData({ ...newToolData, specs: e.target.value })}
-                  />
-                </div>
-
-                <div className="adm-form-group">
-                  <label className="adm-form-label">Description</label>
+                  <label className="adm-form-label">Description (Complete paragraph)</label>
                   <textarea
                     className="adm-form-control"
                     placeholder="Provide a clear description of suitable masonry and construction applications..."
@@ -2132,8 +2211,8 @@ export const Admin = () => {
                       value={editingTool.category}
                       onChange={(e) => setEditingTool({ ...editingTool, category: e.target.value })}
                     >
-                      {toolCategories.map(c => (
-                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                      {toolCategories.filter(c => c.id !== 'all').map(c => (
+                        <option key={c.id} value={c.id}>{c.label || c.name}</option>
                       ))}
                     </select>
                   </div>

@@ -157,17 +157,17 @@ export const Home = () => {
             }
           />
 
-          {/* Interactive Category Filter Bar */}
+          {/* Interactive Category Filter Bar (No emojis) */}
           <div className="home-tools-filter-bar">
             {toolCategories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
-                className={`cat-btn ${selectedToolCat === cat.id ? 'active' : ''}`}
+                className={`tools-cat-pill ${selectedToolCat === cat.id ? 'active' : ''}`}
                 onClick={() => setSelectedToolCat(cat.id)}
               >
-                <span>{cat.icon}</span>
-                <span>{cat.label}</span>
+                <span className="tools-cat-label">{cat.label}</span>
+                {selectedToolCat === cat.id && <span className="tools-cat-active-line" />}
               </button>
             ))}
           </div>

@@ -998,6 +998,7 @@ app.post(['/api/tools', '/api/products'], async (req, res) => {
         description: req.body.description || req.body.desc || '',
         desc: req.body.description || req.body.desc || '',
         specs: req.body.specs || '',
+        specifications: req.body.specifications || null,
         pricePerDay: priceVal,
         price: priceVal,
         period: req.body.period || 'Per Day',

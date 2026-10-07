@@ -207,7 +207,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.9,
         featured: true,
-        specs: 'Drop-forged carbon steel head, fiberglass shock-absorbing grip (Claw + 4kg Sledge)',
+        specifications: {
+            Material: 'Drop-Forged Carbon Steel',
+            Weight: '4 kg (Sledge) + Claw',
+            Handle: 'Fiberglass Shock Grip',
+            Type: 'Heavy Duty Demolition'
+        },
+        specs: 'Material: Carbon Steel, Weight: 4 kg + Claw, Grip: Fiberglass Shock-Absorbing, Type: Heavy Duty',
         description: 'Heavy-duty construction claw and sledge hammer set engineered for formwork, masonry chiseling, and structural demolition.'
     },
     {
@@ -226,7 +232,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.9,
         featured: true,
-        specs: '800W motor, 3-mode (drilling, hammer, chiseling), SDS-Plus chuck, depth gauge',
+        specifications: {
+            Power: '800W Motor',
+            Chuck: 'SDS-Plus Quick Lock',
+            Modes: '3-Mode (Hammer/Drill/Chisel)',
+            Type: 'Heavy Duty Impact'
+        },
+        specs: 'Power: 800W, Chuck: SDS-Plus, Modes: 3-Mode Hammer/Chisel, Type: Heavy Duty',
         description: 'High-impact rotary hammer drill for reinforced concrete anchoring, granite coring, and electrical wall channelling.'
     },
     {
@@ -245,7 +257,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.9,
         featured: true,
-        specs: '200L drum capacity, 6HP Greaves diesel engine, cast-iron ring gear, towable wheels',
+        specifications: {
+            Capacity: '200 Litres Batch',
+            Engine: '6HP Greaves Diesel',
+            Gear: 'Cast-Iron Ring Gear',
+            Type: 'Towable Tilting Drum'
+        },
+        specs: 'Capacity: 200 Litres, Engine: 6HP Diesel, Gear: Cast-Iron Ring, Type: Tilting Drum Mixer',
         description: 'Heavy-gauge tilting drum concrete mixer for continuous RCC slab casting, foundation concrete, and mortar preparation.'
     },
     {
@@ -264,7 +282,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.8,
         featured: true,
-        specs: '2400W high-torque motor, 355mm abrasive/diamond wheel, laser guide & water cooling',
+        specifications: {
+            Power: '2400W High Torque',
+            Blade: '355mm Diamond Wheel',
+            Cooling: 'Integrated Water Jet Feed',
+            Type: 'Fe550D TMT & Granite Cutter'
+        },
+        specs: 'Power: 2400W, Blade: 355mm Diamond, Cooling: Wet/Dry Water Feed, Type: TMT & Granite Cutter',
         description: 'Precision wet and dry cutting machine for vitrified tiles, granite slabs, and Fe550D TMT steel reinforcement bars.'
     },
     {
@@ -283,7 +307,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.8,
         featured: true,
-        specs: 'Aircraft-grade 6061 aluminum alloy, 150kg load capacity, anti-skid rubber shoes, rope pulley',
+        specifications: {
+            Material: '6061-T6 Aircraft Aluminum',
+            Height: '24 Feet (Dual Section)',
+            Capacity: '150 kg Safe Work Load',
+            Safety: 'Anti-Skid Swivel Shoes'
+        },
+        specs: 'Material: 6061 Aluminum, Height: 24 Feet, Capacity: 150 kg, Safety: Anti-Skid Rubber Shoes',
         description: 'Industrial dual-section extension ladder with slip-resistant D-rungs for exterior painting, plastering, and electrical work.'
     },
     {
@@ -302,7 +332,13 @@ const initialTools = [
         contactOption: 'Pickup / Delivery',
         rating: 4.7,
         featured: false,
-        specs: 'Heat-treated manganese steel blade, reinforced socket, ergonomic hardwood D-handle',
+        specifications: {
+            Material: 'Manganese Tempered Steel',
+            Handle: 'Ergonomic Hardwood D-Grip',
+            Type: 'Square & Round Trenching',
+            Finish: 'Anti-Rust Powder Coat'
+        },
+        specs: 'Material: Tempered Steel, Handle: Hardwood D-Grip, Type: Square & Round Trenching',
         description: 'Heavy-duty square and round-mouth construction shovels for sand aggregate mixing, trenching, and foundation earthwork.'
     },
     {
@@ -321,7 +357,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.8,
         featured: true,
-        specs: '110L seamless pressed steel tray, 180kg load rating, heavy pneumatic puncture-proof tire',
+        specifications: {
+            Capacity: '110 Litres Volume',
+            Weight: '180 kg Load Rating',
+            Material: 'Seamless Pressed Steel Tray',
+            Tire: 'Puncture-Proof Pneumatic'
+        },
+        specs: 'Capacity: 110 Litres, Load: 180 kg, Material: Pressed Steel, Tire: Puncture-Proof',
         description: 'Balanced single-wheel contractor barrow for effortless on-site transport of wet concrete, bricks, and debris.'
     },
     {
@@ -340,7 +382,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.9,
         featured: false,
-        specs: '100m laser rangefinder (±1.5mm accuracy), 1200mm magnetic spirit level, plumb bob & 30m steel tape',
+        specifications: {
+            Range: '100 Meters Range',
+            Accuracy: '±1.5mm Precision',
+            Level: '1200mm Magnetic Spirit Bar',
+            Type: 'Civil Layout & Leveling Kit'
+        },
+        specs: 'Range: 100 Meters, Accuracy: ±1.5mm, Level: 1200mm Magnetic, Type: Civil Engineering Kit',
         description: 'Complete civil engineering layout and leveling kit for column alignment, floor slope checks, and boundary measurement.'
     },
     {
@@ -359,7 +407,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 5.0,
         featured: false,
-        specs: 'ISI Class-C ABS helmet, dual-lanyard fall arrest harness, steel-toe boots & reflective vest',
+        specifications: {
+            Certification: 'ISI Class-C Approved',
+            Material: 'High-Impact ABS Shell',
+            Harness: 'Dual-Lanyard Fall Arrest',
+            Footwear: 'Steel-Toe ISI Grade Boots'
+        },
+        specs: 'Standard: ISI Class-C, Shell: High-Impact ABS, Harness: Dual-Lanyard Fall Arrest',
         description: 'Certified site safety PPE kit engineered for high-elevation scaffolding, roofing, and structural erection teams.'
     },
     {
@@ -378,7 +432,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.9,
         featured: false,
-        specs: '40mm GI scaffolding H-frames, non-slip steel walkways, self-drilling hex driver & sheet seamer',
+        specifications: {
+            Frame: '40mm GI Steel H-Frames',
+            Walkway: 'Anti-Slip Galvanized Planks',
+            Driver: 'Self-Drilling Hex Chuck',
+            Type: 'Modular Elevation Set'
+        },
+        specs: 'Frame: 40mm GI Steel, Walkway: Anti-Slip Planks, Driver: Self-Drilling Hex, Type: Modular Set',
         description: 'Complete roofing and elevation work package including modular steel scaffolding frames and truss fastener tools.'
     },
     {
@@ -397,7 +457,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.8,
         featured: false,
-        specs: '2HP 2800 RPM electric motor, 6m flexible shaft hose, 40mm high-frequency poker needle',
+        specifications: {
+            Power: '2HP High-Torque Motor',
+            Speed: '2800 RPM Vibration',
+            Shaft: '6m Flexible Braided Hose',
+            Needle: '40mm Hardened Poker'
+        },
+        specs: 'Power: 2HP Motor, Speed: 2800 RPM, Shaft: 6m Braided Hose, Needle: 40mm Poker',
         description: 'Essential RCC concrete vibrator for eliminating honeycombing and air pockets during column, beam, and slab pouring.'
     },
     {
@@ -416,7 +482,13 @@ const initialTools = [
         contactOption: 'Site Delivery',
         rating: 4.7,
         featured: false,
-        specs: '3HP heavy motor, 500 LPM discharge rate, cast-iron non-clog impeller, 25m delivery hose',
+        specifications: {
+            Power: '3HP Copper Motor',
+            Discharge: '500 LPM High Flow',
+            Impeller: 'Non-Clog Cast Iron Vortex',
+            Hose: '25m Reinforced Delivery Hose'
+        },
+        specs: 'Power: 3HP Motor, Discharge: 500 Litres/Min, Impeller: Cast-Iron Non-Clog, Hose: 25m',
         description: 'High-discharge submersible pump for rapid de-watering of waterlogged foundation pits, sumps, and basement excavations.'
     }
 ];

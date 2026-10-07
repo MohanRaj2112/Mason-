@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Calendar, Wrench, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
+import { CheckCircle2, Clock, AlertCircle, Wrench, Eye } from 'lucide-react';
 import { RentalModal } from './RentalModal';
+import { ToolDetailsModal } from './ToolDetailsModal';
+import { getToolSpecifications } from '../utils/specsParser';
+import { useToast } from '../context/ToastContext';
 import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
 
 export const ToolCard = ({ tool }) => {
-  const { addToCart } = useCart();
   const { showToast } = useToast();
   const [showRentalModal, setShowRentalModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   if (!tool) return null;
 
@@ -28,11 +28,11 @@ export const ToolCard = ({ tool }) => {
 
   const cleanPeriod = tool.period ? tool.period.replace(/^Per\s+/i, '') : 'Day';
   const imageSrc = tool.image || tool.imageUrl || equipmentImg;
+  const priceVal = Number(tool.price || tool.pricePerDay || 0);
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    addToCart(tool);
-  };
+  // Extract real specifications only (limit to top 3-4 for clean compact card presentation)
+  const allSpecs = getToolSpecifications(tool);
+  const displaySpecs = allSpecs.slice(0, 4);
 
   const handleRentNowClick = (e) => {
     e.stopPropagation();
@@ -43,10 +43,16 @@ export const ToolCard = ({ tool }) => {
     setShowRentalModal(true);
   };
 
+  const handleViewDetailsClick = (e) => {
+    e.stopPropagation();
+    setShowDetailsModal(true);
+  };
+
   return (
     <>
-      <article className="tool-card" id={`tool-${toolId}`}>
-        <div className="tool-card-media">
+      <article className="tool-compact-card" id={`tool-${toolId}`}>
+        {/* Tool Media */}
+        <div className="tool-card-media" onClick={handleViewDetailsClick} role="button" tabIndex={0} title="Click to view details">
           <img
             src={imageSrc}
             alt={tool.name}
@@ -72,70 +78,89 @@ export const ToolCard = ({ tool }) => {
           </div>
         </div>
 
-        <div className="tool-card-body">
-          <div className="tool-card-info">
-            <h3 className="tool-title">{tool.name}</h3>
-            <p className="tool-desc">
-              {tool.desc || tool.description || 'Heavy-duty construction tool calibrated for reliable on-site performance.'}
-            </p>
-            {tool.specs && (
-              <div className="tool-specs-line">
-                <strong>Specs:</strong> {tool.specs}
+        {/* Tool Card Content */}
+        <div className="tool-compact-body">
+          {/* Prominent Tool Name */}
+          <div className="tool-title-wrap">
+            <h3 className="tool-prominent-name" title={tool.name}>
+              {tool.name}
+            </h3>
+          </div>
+
+          {/* Specifications Section (No long descriptions) */}
+          <div className="tool-compact-specs-box">
+            <div className="tool-specs-heading">Specifications</div>
+            {displaySpecs.length > 0 ? (
+              <div className="tool-specs-compact-grid">
+                {displaySpecs.map((spec, idx) => (
+                  <div key={idx} className="tool-spec-row">
+                    <span className="tool-spec-key">{spec.key}</span>
+                    <span className="tool-spec-val" title={spec.value}>{spec.value}</span>
+                  </div>
+                ))}
+              </div>
+            ) : tool.specs ? (
+              <div className="tool-spec-single-line" title={tool.specs}>
+                {tool.specs}
+              </div>
+            ) : (
+              <div className="tool-spec-placeholder">
+                Site Calibrated &bull; Heavy-Duty
               </div>
             )}
           </div>
 
-          <div className="tool-card-footer">
-            <div className="tool-price-row">
-              <div className="tool-price-block tabular-nums">
-                <span className="tool-price-label">Rental Rate</span>
-                <div className="tool-price-figure">
-                  <span className="tool-price-val">
-                    ₹{(Number(tool.price) || 0).toLocaleString('en-IN')}
-                  </span>
-                  <span className="tool-price-period">/ {cleanPeriod}</span>
-                </div>
-              </div>
-              <span className="tool-delivery-note">
-                {tool.contactOption || 'Site Delivery'}
+          {/* Price / Availability */}
+          <div className="tool-price-avail-section">
+            <div className="tool-compact-price">
+              <span className="tool-compact-price-figure">
+                ₹{priceVal.toLocaleString('en-IN')}
               </span>
+              <span className="tool-compact-period">/ {cleanPeriod}</span>
             </div>
+            <div className={`tool-status-inline ${statusClass}`}>
+              <span className="status-indicator-dot" />
+              <span>{statusText}</span>
+            </div>
+          </div>
 
-            <div className="tool-card-actions">
-              <button
-                type="button"
-                className="btn btn-accent btn-tool-rent"
-                onClick={handleRentNowClick}
-                disabled={statusClass === 'maintenance'}
-              >
-                <Wrench size={15} />
-                <span>Rent Tool</span>
-              </button>
-              <div className="tool-card-subactions">
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleAddToCart}
-                  disabled={statusClass === 'maintenance'}
-                  title="Add to Equipment Cart"
-                >
-                  <ShoppingCart size={14} />
-                  <span>Add to Cart</span>
-                </button>
-                <Link
-                  to={`/booking?type=tool_rental&tool=${encodeURIComponent(tool.name)}`}
-                  className="btn btn-outline btn-sm"
-                  title="Book with Site Schedule"
-                >
-                  <Calendar size={14} />
-                  <span>Schedule</span>
-                </Link>
-              </div>
-            </div>
+          {/* Action Buttons: [View Details] [Rent Tool] */}
+          <div className="tool-compact-actions">
+            <button
+              type="button"
+              className="btn btn-tool-details"
+              onClick={handleViewDetailsClick}
+              title="View full description and specifications"
+            >
+              <Eye size={15} />
+              <span>View Details</span>
+            </button>
+            <button
+              type="button"
+              className="btn btn-accent btn-tool-rent-action"
+              onClick={handleRentNowClick}
+              disabled={statusClass === 'maintenance'}
+              title="Rent this equipment"
+            >
+              <Wrench size={15} />
+              <span>Rent Tool</span>
+            </button>
           </div>
         </div>
       </article>
 
+      {/* Tool Details Modal */}
+      <ToolDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        tool={tool}
+        onRentClick={() => {
+          setShowDetailsModal(false);
+          setShowRentalModal(true);
+        }}
+      />
+
+      {/* Rental Booking Modal */}
       <RentalModal
         isOpen={showRentalModal}
         onClose={() => setShowRentalModal(false)}

@@ -7,6 +7,7 @@ const toolSchema = new mongoose.Schema({
     description: { type: String },
     desc: { type: String },
     specs: { type: String },
+    specifications: { type: mongoose.Schema.Types.Mixed },
     pricePerDay: { type: Number, required: true, default: 0 },
     price: { type: Number },
     period: { type: String, default: 'Per Day' },
