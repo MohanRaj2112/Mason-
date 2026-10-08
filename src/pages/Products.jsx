@@ -5,8 +5,8 @@ import { initialToolsData, toolCategories } from '../data/tools';
 import { ToolCard } from '../components/ToolCard';
 import { AddToolModal } from '../components/AddToolModal';
 import { useToast } from '../context/ToastContext';
-import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
-import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
+import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
+import equipmentImg from '../assets/images/srm_equipment_rental_1791445442334.jpg';
 
 export const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -137,44 +137,67 @@ export const Products = () => {
     }
   };
 
-  // Search filter based on tool name, category, and specifications
+  // Curate recommended tools based on genuine availability, featured flag, and high rating
+  const recommendedTools = useMemo(() => {
+    const candidatePool = selectedCategory === 'all'
+      ? tools
+      : tools.filter((t) => t.category === selectedCategory);
+
+    const matches = candidatePool.filter((t) => {
+      const isAvail = (t.availabilityStatus || (t.available ? 'Available' : 'Rented')) === 'Available';
+      return isAvail && (t.featured || Number(t.rating) >= 4.8);
+    });
+
+    // Fallback to top featured if pool has few
+    const finalSelection = matches.length >= 2
+      ? matches
+      : candidatePool.filter((t) => t.featured || Number(t.rating) >= 4.8);
+
+    return finalSelection.slice(0, 4);
+  }, [tools, selectedCategory]);
+
+  // Search filter and professional sorting
   const filteredTools = useMemo(() => {
     return tools
       .filter((tool) => {
         const matchesCategory =
           selectedCategory === 'all' || tool.category === selectedCategory;
         const q = searchQuery.toLowerCase().trim();
-        
-        // Search checks tool name, category, and specifications as required
+
         const matchesSearch =
           !q ||
           tool.name?.toLowerCase().includes(q) ||
           tool.category?.toLowerCase().includes(q) ||
           (tool.specs && tool.specs.toLowerCase().includes(q)) ||
-          (tool.specifications && Object.values(tool.specifications).some(v => String(v).toLowerCase().includes(q)));
-        
+          (tool.specifications && Object.values(tool.specifications).some((v) => String(v).toLowerCase().includes(q)));
+
         return matchesCategory && matchesSearch;
       })
       .sort((a, b) => {
-        if (sortBy === 'price-low') return (Number(a.price) || 0) - (Number(b.price) || 0);
-        if (sortBy === 'price-high') return (Number(b.price) || 0) - (Number(a.price) || 0);
+        const priceA = Number(a.price || a.pricePerDay || 0);
+        const priceB = Number(b.price || b.pricePerDay || 0);
+
+        if (sortBy === 'price-low') return priceA - priceB;
+        if (sortBy === 'price-high') return priceB - priceA;
         if (sortBy === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+        if (sortBy === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+        if (sortBy === 'newest') {
+          return (b._id || '').localeCompare(a._id || '');
+        }
         if (sortBy === 'availability') {
-          const aAvail =
-            (a.availabilityStatus || (a.available ? 'Available' : 'Rented')) === 'Available'
-              ? 1
-              : 0;
-          const bAvail =
-            (b.availabilityStatus || (b.available ? 'Available' : 'Rented')) === 'Available'
-              ? 1
-              : 0;
+          const aAvail = (a.availabilityStatus || (a.available ? 'Available' : 'Rented')) === 'Available' ? 1 : 0;
+          const bAvail = (b.availabilityStatus || (b.available ? 'Available' : 'Rented')) === 'Available' ? 1 : 0;
           return bAvail - aAvail;
         }
+
+        // Default 'recommended': featured first, then highest rating
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
-        return (b.rating || 0) - (a.rating || 0);
+        return (Number(b.rating) || 0) - (Number(a.rating) || 0);
       });
   }, [tools, selectedCategory, searchQuery, sortBy]);
+
+  const currentCategoryLabel = toolCategories.find((c) => c.id === selectedCategory)?.label || 'All';
 
   return (
     <div className="products-page">
@@ -188,27 +211,27 @@ export const Products = () => {
         <div className="container">
           <div className="hero-content">
             <div className="hero-kicker">
-              <span>EQUIPMENT &amp; MACHINERY FLEET</span>
+              <span>SRM AKASH CONSTRUCTION</span>
               <span aria-hidden="true">·</span>
-              <span>EXPRESS SITE DELIVERY</span>
+              <span>EQUIPMENT RENTALS</span>
             </div>
             <h1>Commercial Tool &amp; Equipment Rentals</h1>
             <p className="hero-desc">
-              Browse calibrated power tools, diesel concrete mixers, tubular steel scaffolding frames, and de-watering pumps available for daily, weekly, or monthly site rentals.
+              Browse calibrated power tools, diesel concrete mixers, tubular steel scaffolding, and excavation equipment available for daily or monthly site rentals.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── MAIN CATALOG SECTION ── */}
+      {/* ── MAIN TOOLS SECTION ── */}
       <section className="section" id="tools-catalog">
         <div className="container">
           <div className="catalog-top-header">
             <div>
-              <span className="section-eyebrow">RENTAL INVENTORY</span>
-              <h2 style={{ fontSize: '2rem', marginBottom: '4px' }}>Site-Ready Construction Equipment</h2>
+              <span className="section-eyebrow">EQUIPMENT INVENTORY</span>
+              <h2 style={{ fontSize: '2rem', marginBottom: '4px' }}>Tools &amp; Equipment Fleet</h2>
               <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
-                Calibrated and safety-inspected machinery ready for immediate dispatch.
+                Certified and safety-inspected machinery ready for rapid on-site deployment.
               </p>
             </div>
             <button
@@ -222,10 +245,11 @@ export const Products = () => {
             </button>
           </div>
 
-          {/* Clean Professional Category Filter & Search Bar */}
+          {/* Clean Professional Category Filter & Search/Sort Bar */}
           <div className="tools-filter-panel">
-            {/* Search Input Row */}
-            <div className="tools-search-row">
+            {/* Search + Sort Controls Row */}
+            <div className="tools-controls-row">
+              {/* Search Box */}
               <div className="search-box">
                 <Search size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                 <input
@@ -247,24 +271,31 @@ export const Products = () => {
                 )}
               </div>
 
-              <div className="sort-select-wrap">
-                <SlidersHorizontal size={15} style={{ color: 'var(--text-muted)' }} />
-                <select
-                  className="sort-select"
-                  id="sortSelect"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="recommended">Sort: Recommended</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name-asc">Name: A–Z</option>
-                  <option value="availability">Availability First</option>
-                </select>
+              {/* Compact Professional Sort Control */}
+              <div className="sort-control-container">
+                <label htmlFor="sortSelect" className="sort-label">Sort by:</label>
+                <div className="sort-select-box">
+                  <SlidersHorizontal size={14} className="sort-icon" />
+                  <select
+                    className="sort-select"
+                    id="sortSelect"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    aria-label="Sort tools"
+                  >
+                    <option value="recommended">Recommended</option>
+                    <option value="name-asc">Name: A → Z</option>
+                    <option value="name-desc">Name: Z → A</option>
+                    <option value="price-low">Price: Low → High</option>
+                    <option value="price-high">Price: High → Low</option>
+                    <option value="newest">Newest</option>
+                    <option value="availability">Availability</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            {/* Clean Category Navigation (Strictly NO Emojis as requested) */}
+            {/* Minimal Text-Only Category Navigation (Strictly NO Emojis) */}
             <div className="tools-category-nav" id="catFilters" role="tablist" aria-label="Tool Categories">
               {toolCategories.map((cat) => {
                 const isActive = selectedCategory === cat.id;
@@ -277,8 +308,7 @@ export const Products = () => {
                     className={`tools-cat-pill ${isActive ? 'active' : ''}`}
                     onClick={() => handleCategorySelect(cat.id)}
                   >
-                    <span className="tools-cat-label">{cat.label}</span>
-                    {isActive && <span className="tools-cat-active-line" />}
+                    <span>{cat.label}</span>
                   </button>
                 );
               })}
@@ -294,16 +324,16 @@ export const Products = () => {
               </strong>{' '}
               equipment units in catalog
               {selectedCategory !== 'all' && (
-                <span> &bull; Filtered by <em>{toolCategories.find(c => c.id === selectedCategory)?.label}</em></span>
+                <span> &bull; Category: <em>{currentCategoryLabel}</em></span>
               )}
             </p>
             <div className="catalog-delivery-tag">
               <Truck size={16} />
-              <span>2-Hour Express Site Delivery Across Salem &amp; Coimbatore</span>
+              <span>Express Site Delivery Across Salem &amp; Coimbatore</span>
             </div>
           </div>
 
-          {/* Products Grid (Compact Cards) */}
+          {/* Content Loading & Empty States */}
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
               Loading equipment catalog...
@@ -326,10 +356,52 @@ export const Products = () => {
               </button>
             </div>
           ) : (
-            <div className="products-grid" id="productsGrid">
-              {filteredTools.map((tool) => (
-                <ToolCard key={tool._id || tool.id || tool.toolId} tool={tool} />
-              ))}
+            <div className="tools-display-layout">
+              {/* ── RECOMMENDED TOOLS SECTION (When no search active and recommended tools exist) ── */}
+              {!searchQuery && recommendedTools.length > 0 && (
+                <div className="tools-block recommended-block">
+                  <div className="tools-block-header">
+                    <h3 className="tools-block-title">Recommended Tools</h3>
+                    <span className="tools-block-caption">
+                      Frequently rented &bull; Calibrated site favorites
+                    </span>
+                  </div>
+                  <div className="products-grid">
+                    {recommendedTools.map((tool) => (
+                      <ToolCard
+                        key={`rec-${tool._id || tool.id || tool.toolId}`}
+                        tool={tool}
+                        isRecommended={true}
+                      />
+                    ))}
+                  </div>
+                  <div className="tools-section-divider" />
+                </div>
+              )}
+
+              {/* ── ALL TOOLS SECTION ── */}
+              <div className="tools-block all-tools-block">
+                <div className="tools-block-header">
+                  <h3 className="tools-block-title">
+                    {searchQuery
+                      ? `Search Results (${filteredTools.length})`
+                      : selectedCategory !== 'all'
+                      ? `${currentCategoryLabel} Equipment (${filteredTools.length})`
+                      : `All Tools (${filteredTools.length})`}
+                  </h3>
+                  <span className="tools-block-caption">
+                    Complete inventory catalog with live availability
+                  </span>
+                </div>
+                <div className="products-grid" id="productsGrid">
+                  {filteredTools.map((tool) => (
+                    <ToolCard
+                      key={tool._id || tool.id || tool.toolId}
+                      tool={tool}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>

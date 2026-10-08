@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
-import heroSiteImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import heroSiteImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 
 export const ServiceCard = ({ service, index = 0 }) => {
   if (!service) return null;

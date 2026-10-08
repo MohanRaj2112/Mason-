@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, AlertCircle, Wrench, Eye } from 'lucide-react';
 import { RentalModal } from './RentalModal';
 import { ToolDetailsModal } from './ToolDetailsModal';
-import { getToolSpecifications } from '../utils/specsParser';
+import { getOneLineSpecification } from '../utils/specsParser';
 import { useToast } from '../context/ToastContext';
-import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
+import equipmentImg from '../assets/images/srm_equipment_rental_1791445442334.jpg';
 
-export const ToolCard = ({ tool }) => {
+export const ToolCard = ({ tool, isRecommended: explicitRecommended }) => {
   const { showToast } = useToast();
   const [showRentalModal, setShowRentalModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -30,9 +29,13 @@ export const ToolCard = ({ tool }) => {
   const imageSrc = tool.image || tool.imageUrl || equipmentImg;
   const priceVal = Number(tool.price || tool.pricePerDay || 0);
 
-  // Extract real specifications only (limit to top 3-4 for clean compact card presentation)
-  const allSpecs = getToolSpecifications(tool);
-  const displaySpecs = allSpecs.slice(0, 4);
+  // Exactly ONE short, accurate specification line based on real existing specs
+  const oneLineSpec = getOneLineSpecification(tool);
+
+  // Recommendation status
+  const isRecommended = explicitRecommended !== undefined
+    ? explicitRecommended
+    : Boolean(tool.featured || tool.isRecommended);
 
   const handleRentNowClick = (e) => {
     e.stopPropagation();
@@ -52,7 +55,13 @@ export const ToolCard = ({ tool }) => {
     <>
       <article className="tool-compact-card" id={`tool-${toolId}`}>
         {/* Tool Media */}
-        <div className="tool-card-media" onClick={handleViewDetailsClick} role="button" tabIndex={0} title="Click to view details">
+        <div
+          className="tool-card-media"
+          onClick={handleViewDetailsClick}
+          role="button"
+          tabIndex={0}
+          title="Click to view details"
+        >
           <img
             src={imageSrc}
             alt={tool.name}
@@ -64,17 +73,15 @@ export const ToolCard = ({ tool }) => {
               e.currentTarget.src = equipmentImg;
             }}
           />
-          <div className="tool-media-scrim" />
           <div className="tool-media-top-bar">
             <span className="tool-category-tag">
               {tool.category ? tool.category.replace(/-/g, ' ') : 'Equipment'}
             </span>
-            <span className={`tool-availability-badge ${statusClass}`}>
-              {statusClass === 'available' && <CheckCircle2 size={13} />}
-              {statusClass === 'rented' && <Clock size={13} />}
-              {statusClass === 'maintenance' && <AlertCircle size={13} />}
-              <span>{statusText}</span>
-            </span>
+            {isRecommended && (
+              <span className="tool-recommended-badge">
+                Recommended
+              </span>
+            )}
           </div>
         </div>
 
@@ -87,27 +94,9 @@ export const ToolCard = ({ tool }) => {
             </h3>
           </div>
 
-          {/* Specifications Section (No long descriptions) */}
-          <div className="tool-compact-specs-box">
-            <div className="tool-specs-heading">Specifications</div>
-            {displaySpecs.length > 0 ? (
-              <div className="tool-specs-compact-grid">
-                {displaySpecs.map((spec, idx) => (
-                  <div key={idx} className="tool-spec-row">
-                    <span className="tool-spec-key">{spec.key}</span>
-                    <span className="tool-spec-val" title={spec.value}>{spec.value}</span>
-                  </div>
-                ))}
-              </div>
-            ) : tool.specs ? (
-              <div className="tool-spec-single-line" title={tool.specs}>
-                {tool.specs}
-              </div>
-            ) : (
-              <div className="tool-spec-placeholder">
-                Site Calibrated &bull; Heavy-Duty
-              </div>
-            )}
+          {/* Single-line Specification Rule: ONE line, no multiple lines */}
+          <div className="tool-compact-spec-line" title={oneLineSpec || 'Industrial Grade • Calibrated'}>
+            {oneLineSpec || 'Industrial Grade • Calibrated'}
           </div>
 
           {/* Price / Availability */}
@@ -132,24 +121,22 @@ export const ToolCard = ({ tool }) => {
               onClick={handleViewDetailsClick}
               title="View full description and specifications"
             >
-              <Eye size={15} />
               <span>View Details</span>
             </button>
             <button
               type="button"
-              className="btn btn-accent btn-tool-rent-action"
+              className="btn btn-tool-rent-action"
               onClick={handleRentNowClick}
               disabled={statusClass === 'maintenance'}
               title="Rent this equipment"
             >
-              <Wrench size={15} />
               <span>Rent Tool</span>
             </button>
           </div>
         </div>
       </article>
 
-      {/* Tool Details Modal */}
+      {/* Full Tool Details Modal */}
       <ToolDetailsModal
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}

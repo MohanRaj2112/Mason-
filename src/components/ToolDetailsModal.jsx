@@ -3,7 +3,7 @@ import { Wrench, ShoppingCart, Calendar, CheckCircle2, Clock, AlertCircle, Shiel
 import { getToolSpecifications } from '../utils/specsParser';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
+import equipmentImg from '../assets/images/srm_equipment_rental_1791445442334.jpg';
 
 export const ToolDetailsModal = ({ isOpen, onClose, tool, onRentClick }) => {
   const { addToCart } = useCart();

@@ -21,7 +21,7 @@ import { ToolCard } from '../components/ToolCard';
 import { SectionHeading } from '../components/SectionHeading';
 import { AdminOwnerCard } from '../components/AdminOwnerCard';
 import { ContactItem } from '../components/ContactItem';
-import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 import villaImg from '../assets/images/project_luxury_villa_1790694687569.jpg';
 import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
 
@@ -172,7 +172,7 @@ export const Home = () => {
             ))}
           </div>
 
-          <div className="grid-3">
+          <div className="products-grid">
             {displayedTools.map((tool) => (
               <ToolCard key={tool._id || tool.id} tool={tool} />
             ))}

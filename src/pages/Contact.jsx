@@ -3,7 +3,7 @@ import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Star } from 'lucide-re
 import { useToast } from '../context/ToastContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { ContactItem } from '../components/ContactItem';
-import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 
 const defaultReviews = [
   {

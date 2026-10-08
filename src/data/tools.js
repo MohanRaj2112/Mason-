@@ -1,11 +1,11 @@
-import equipmentImg from '../assets/images/equipment_rental_fleet_1790694712199.jpg';
-import heroSiteImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import equipmentImg from '../assets/images/srm_equipment_rental_1791445442334.jpg';
+import heroSiteImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
-import footerArchImg from '../assets/images/footer_architecture_bg_1790694673575.jpg';
+import footerArchImg from '../assets/images/srm_footer_bg_1791445429334.jpg';
 
-// Category definitions without emojis as required
+// Category definitions: minimal, professional, text-only without emojis
 export const toolCategories = [
-  { id: 'all', label: 'All Tools' },
+  { id: 'all', label: 'All' },
   { id: 'hand-tools', label: 'Hand Tools' },
   { id: 'power-tools', label: 'Power Tools' },
   { id: 'mixing', label: 'Construction Equipment' },

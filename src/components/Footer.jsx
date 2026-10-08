@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, MessageSquare, HardHat, Globe } from 'lucide-react';
-import footerBgImg from '../assets/images/footer_architecture_bg_1790694673575.jpg';
+import footerBgImg from '../assets/images/srm_footer_bg_1791445429334.jpg';
 
 export const Footer = () => {
   const openWhatsApp = () => {

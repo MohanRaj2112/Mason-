@@ -1828,8 +1828,9 @@ app.post('/api/reviews', async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 
 app.get('*', (req, res) => {
-    // If request has a file extension (like .js, .css, .png) and wasn't found in static, 404
-    if (path.extname(req.path)) {
+    // If request has a file extension (other than .html) and wasn't found in static, 404
+    const ext = path.extname(req.path).toLowerCase();
+    if (ext && ext !== '.html') {
         return res.status(404).send('Not found');
     }
     const distIndex = path.join(distPath, 'index.html');

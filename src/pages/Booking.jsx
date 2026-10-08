@@ -18,7 +18,7 @@ import {
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { initialToolsData } from '../data/tools';
-import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 
 const BOOKING_TYPES = [
   {

@@ -4,7 +4,7 @@ import { ArrowRight, Check, HardHat, Phone } from 'lucide-react';
 import { servicesData, turnkeyPackages, masterMasonsData } from '../data/services';
 import { ServiceCard } from '../components/ServiceCard';
 import { SectionHeading } from '../components/SectionHeading';
-import heroBgImg from '../assets/images/hero_construction_site_1790694659406.jpg';
+import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 
 export const Services = () => {
   return (
