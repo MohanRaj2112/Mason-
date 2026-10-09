@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+mongoose.set('strictQuery', false);
+mongoose.set('bufferCommands', false);
+
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mason_mate';
 
 let isConnected = false;
@@ -8,12 +11,9 @@ async function connectDB() {
     if (isConnected) return true;
 
     try {
-        mongoose.set('strictQuery', false);
-        mongoose.set('bufferCommands', false);
-
         await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 3000,
-            socketTimeoutMS: 45000,
+            serverSelectionTimeoutMS: 1000,
+            socketTimeoutMS: 10000,
         });
 
         isConnected = true;

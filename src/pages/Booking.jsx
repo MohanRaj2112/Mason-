@@ -408,33 +408,25 @@ export const Booking = () => {
   };
 
   return (
-    <div className="booking-page" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '80px' }}>
-      {/* ── HERO BANNER ── */}
-      <section
-        className="hero page-hero"
-        style={{
-          backgroundImage: `linear-gradient(115deg, rgba(10, 14, 23, 0.94) 0%, rgba(15, 23, 42, 0.85) 55%, rgba(168, 42, 16, 0.36) 100%), url(${heroBgImg})`,
-          padding: '56px 0 64px'
-        }}
-      >
+    <div className="booking-page" id="booking">
+      {/* ── SECTION HEADING & SHORT DESCRIPTION ── */}
+      <section className="booking-hero-strip">
         <div className="container">
-          <div className="hero-content" style={{ maxWidth: '820px' }}>
-            <div className="hero-kicker">
+          <div className="booking-header-block">
+            <div className="booking-kicker">
               <span>SRM AKASH CONSTRUCTION</span>
               <span aria-hidden="true">·</span>
-              <span>SAFE BOOKING &amp; PAYMENT PORTAL</span>
+              <span>MASONMATE PORTAL</span>
             </div>
-            <h1 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', marginBottom: '12px' }}>
-              Book Construction Services, Masons &amp; Tool Rentals
-            </h1>
-            <p className="hero-desc" style={{ margin: 0 }}>
-              Select your service or equipment, review transparent server-verified pricing in your Booking Summary, and complete secure payment for instant confirmation.
+            <h1 className="booking-main-title">Book a Construction Service</h1>
+            <p className="booking-main-subtitle">
+              Choose the service you need and submit your booking request.
             </p>
           </div>
         </div>
       </section>
 
-      <div className="container" style={{ marginTop: '-28px', position: 'relative', zIndex: 10 }}>
+      <div className="container" style={{ position: 'relative', zIndex: 10 }}>
         {/* ── STEP PROGRESS BAR ── */}
         <div className="booking-progress-bar">
           <div className={`booking-step-pill ${flowStep === 'form' ? 'active' : 'completed'}`}>
@@ -735,7 +727,7 @@ export const Booking = () => {
 
                 <div className="summary-lines">
                   <div className="summary-line-item">
-                    <span>Service:</span>
+                    <span>Selected Service:</span>
                     <strong>{serverPricing.serviceCategory}</strong>
                   </div>
                   <div className="summary-line-item">
@@ -743,7 +735,7 @@ export const Booking = () => {
                     <strong>{serverPricing.selectedItem}</strong>
                   </div>
                   <div className="summary-line-item">
-                    <span>Start Date:</span>
+                    <span>Booking Date:</span>
                     <strong className="tabular-nums">{formData.preferredDate}</strong>
                   </div>
                   <div className="summary-line-item">
@@ -763,7 +755,7 @@ export const Booking = () => {
                 </div>
 
                 <div className="summary-total-banner">
-                  <span>Total Amount</span>
+                  <span>Estimated Amount</span>
                   <strong className="tabular-nums">
                     ₹{Number(activeOrder.amount).toLocaleString('en-IN')}
                   </strong>
@@ -897,7 +889,7 @@ export const Booking = () => {
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label className="form-label">
                         <Calendar size={14} style={{ display: 'inline', marginRight: '5px' }} />
-                        Start Date *
+                        Booking Date *
                       </label>
                       <input
                         type="date"
@@ -949,18 +941,18 @@ export const Booking = () => {
                 </div>
 
                 {/* 3. CUSTOMER DETAILS */}
-                <div className="booking-section-block" style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
+                <div className="booking-section-block">
                   <div className="booking-section-head">
                     <span className="booking-step-badge">3</span>
                     <div>
-                      <h3>Enter Customer &amp; Site Details</h3>
+                      <h3>Customer &amp; Site Details</h3>
                       <p>Provide your contact details and site address for delivery or engineer dispatch.</p>
                     </div>
                   </div>
 
                   <div className="grid-2">
                     <div className="form-group">
-                      <label className="form-label">Full Name *</label>
+                      <label className="form-label">Customer Name *</label>
                       <input
                         type="text"
                         name="fullName"
@@ -973,7 +965,7 @@ export const Booking = () => {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Mobile Number *</label>
+                      <label className="form-label">Phone Number *</label>
                       <input
                         type="tel"
                         name="phone"
@@ -1016,8 +1008,8 @@ export const Booking = () => {
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Project / Site Instructions (Optional)</label>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Required Details / Site Instructions (Optional)</label>
                     <textarea
                       name="notes"
                       className="form-control"
@@ -1027,7 +1019,52 @@ export const Booking = () => {
                       onChange={handleChange}
                     />
                   </div>
+                </div>
 
+                {/* ── MOBILE-ONLY BOOKING SUMMARY (Stacks before submit button on mobile) ── */}
+                <div className="booking-summary-mobile">
+                  <div className="booking-summary-box">
+                    <div className="summary-header-kicker">BOOKING SUMMARY</div>
+                    <h4 style={{ color: '#FFFFFF', fontSize: '1.2rem', marginBottom: '14px' }}>
+                      Review Your Selection
+                    </h4>
+
+                    <div className="summary-lines">
+                      <div className="summary-line-item">
+                        <span>Selected Service:</span>
+                        <strong>{serverPricing.serviceCategory}</strong>
+                      </div>
+                      <div className="summary-line-item">
+                        <span>Selected Item:</span>
+                        <strong>{serverPricing.selectedItem}</strong>
+                      </div>
+                      <div className="summary-line-item">
+                        <span>Booking Date:</span>
+                        <strong className="tabular-nums">{formData.preferredDate || 'Select Date'}</strong>
+                      </div>
+                      <div className="summary-line-item">
+                        <span>Duration:</span>
+                        <strong>{serverPricing.durationLabel}</strong>
+                      </div>
+                      <div className="summary-line-item">
+                        <span>Quantity / Crew:</span>
+                        <strong>{serverPricing.quantityLabel}</strong>
+                      </div>
+                    </div>
+
+                    <div className="summary-total-banner">
+                      <span>Estimated Amount</span>
+                      <strong className="tabular-nums">
+                        {isCalculating
+                          ? 'Calculating...'
+                          : `₹${Number(serverPricing.totalAmount).toLocaleString('en-IN')}`}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SUBMIT BOOKING BUTTON */}
+                <div style={{ marginTop: '24px' }}>
                   <button
                     type="submit"
                     className="btn btn-quote-cta btn-full btn-lg"
@@ -1036,7 +1073,7 @@ export const Booking = () => {
                     <span>
                       {isProcessingPayment
                         ? 'Preparing Secure Order...'
-                        : `Proceed to Payment (₹${Number(serverPricing.totalAmount).toLocaleString('en-IN')})`}
+                        : `Submit Booking · Proceed to Payment (₹${Number(serverPricing.totalAmount).toLocaleString('en-IN')})`}
                     </span>
                     <ArrowRight size={18} className="cta-arrow" />
                   </button>
@@ -1044,7 +1081,7 @@ export const Booking = () => {
               </form>
             </div>
 
-            {/* ── RIGHT SIDEBAR: LIVE BOOKING SUMMARY ── */}
+            {/* ── DESKTOP RIGHT SIDEBAR: LIVE BOOKING SUMMARY ── */}
             <aside className="booking-sidebar-sticky">
               <div className="booking-summary-box">
                 <div className="summary-header-kicker">BOOKING SUMMARY</div>
@@ -1054,7 +1091,7 @@ export const Booking = () => {
 
                 <div className="summary-lines">
                   <div className="summary-line-item">
-                    <span>Service:</span>
+                    <span>Selected Service:</span>
                     <strong>{serverPricing.serviceCategory}</strong>
                   </div>
                   <div className="summary-line-item">
@@ -1062,7 +1099,7 @@ export const Booking = () => {
                     <strong>{serverPricing.selectedItem}</strong>
                   </div>
                   <div className="summary-line-item">
-                    <span>Start Date:</span>
+                    <span>Booking Date:</span>
                     <strong className="tabular-nums">{formData.preferredDate || 'Select Date'}</strong>
                   </div>
                   <div className="summary-line-item">
@@ -1083,7 +1120,7 @@ export const Booking = () => {
                 </div>
 
                 <div className="summary-total-banner">
-                  <span>Total Amount</span>
+                  <span>Estimated Amount</span>
                   <strong className="tabular-nums">
                     {isCalculating
                       ? 'Calculating...'
@@ -1098,7 +1135,7 @@ export const Booking = () => {
                   onClick={handleProceedToPayment}
                   disabled={isProcessingPayment || isCalculating}
                 >
-                  <span>Proceed to Payment</span>
+                  <span>Submit Booking</span>
                   <ArrowRight size={16} className="cta-arrow" />
                 </button>
 

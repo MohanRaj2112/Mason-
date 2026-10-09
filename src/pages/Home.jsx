@@ -10,7 +10,9 @@ import {
   Hammer,
   Building2,
   HardHat,
-  Wrench
+  Wrench,
+  MessageSquare,
+  Award
 } from 'lucide-react';
 import { servicesData } from '../data/services';
 import { projectsData } from '../data/projects';
@@ -19,11 +21,11 @@ import { ServiceCard } from '../components/ServiceCard';
 import { ProjectCard } from '../components/ProjectCard';
 import { ToolCard } from '../components/ToolCard';
 import { SectionHeading } from '../components/SectionHeading';
-import { AdminOwnerCard } from '../components/AdminOwnerCard';
 import { ContactItem } from '../components/ContactItem';
 import heroBgImg from '../assets/images/srm_hero_site_1791445418459.jpg';
 import villaImg from '../assets/images/project_luxury_villa_1790694687569.jpg';
-import masonryImg from '../assets/images/service_masonry_work_1790694699452.jpg';
+import daddyImg from '../assets/images/daddy.jpeg';
+import founderImg from '../assets/images/founder_portrait_1786882840416.jpg';
 
 export const Home = () => {
   const [selectedToolCat, setSelectedToolCat] = useState('all');
@@ -187,126 +189,122 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* ── 4. ABOUT / BUSINESS SECTION ── */}
+      {/* ── 4. COMBINED ABOUT & FOUNDER SECTION ── */}
       <section className="section" id="about">
         <div className="container">
-          <div className="about-business-grid">
-            {/* Left: Construction & Architectural Visuals */}
+          <div className="about-combined-grid">
+            {/* Left Column: Exactly One Business / Construction Image */}
             <div className="about-visual-column">
-              <div className="about-primary-photo">
+              <div className="about-business-image-wrap">
                 <img
                   src={villaImg}
-                  alt="Completed residential duplex villa by SRM Akash Construction"
+                  alt="Turnkey residential duplex villa completed by SRM Akash Construction"
+                  className="about-business-image"
                   referrerPolicy="no-referrer"
                 />
-              </div>
-              <div className="about-secondary-row">
-                <div className="about-secondary-photo">
-                  <img
-                    src={masonryImg}
-                    alt="Master mason bricklaying craftsmanship on site"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="about-stat-callout">
-                  <span className="about-callout-num tabular-nums">15+</span>
-                  <span className="about-callout-label">
-                    Years of Civil Engineering &amp; Contracting Excellence Since 2009
-                  </span>
+                <div className="about-business-image-badge">
+                  <span className="badge-num tabular-nums">15+</span>
+                  <div className="badge-text">
+                    <strong>Years of Civil Excellence</strong>
+                    <small>Salem &amp; Coimbatore · Since 2009</small>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Business Story, Quality & Stats */}
-            <div className="about-copy-column">
-              <span className="section-eyebrow">ABOUT SRM AKASH CONSTRUCTION</span>
-              <h2 className="about-heading">
-                Engineering Dependable Homes &amp; Infrastructure Across Tamil Nadu
-              </h2>
-              <p className="about-lead-copy">
-                Founded under <strong>SRM Akash Construction</strong>, MasonMate unites licensed civil engineering oversight, trade-tested master masons, and a calibrated construction machinery fleet under one accountable platform.
-              </p>
-              <p className="about-body-copy">
-                Whether you are constructing a custom independent duplex villa from the ground up, remodeling an existing structure, or hiring specialized masonry crews and equipment on a daily schedule, every project is governed by strict IS 456 structural compliance, transparent Bill of Quantities (BOQ) pricing, and milestone sign-offs.
-              </p>
+            {/* Right Column: Business Story & Integrated Founder Profile */}
+            <div className="about-content-column">
+              <div className="about-business-story">
+                <span className="section-eyebrow">ABOUT SRM AKASH CONSTRUCTION</span>
+                <h2 className="about-main-title">
+                  Engineering Dependable Homes &amp; Quality Infrastructure
+                </h2>
+                <p className="about-lead-text">
+                  Founded under <strong>SRM Akash Construction</strong>, MasonMate unites licensed civil engineering oversight, trade-tested master masons, and a calibrated construction machinery fleet under one accountable platform.
+                </p>
+                <p className="about-body-text">
+                  From custom turnkey independent villas to structural renovations, every project is executed with strict IS 456 compliance, itemized Bill of Quantities (BOQ) billing, and milestone quality sign-offs.
+                </p>
 
-              <div className="about-pillars-grid">
-                <div className="about-pillar-item">
-                  <div className="about-pillar-icon-wrap">
-                    <Building2 size={20} className="about-pillar-icon" />
+                {/* Services & Commitments Highlights */}
+                <div className="about-services-list">
+                  <div className="about-service-item">
+                    <Building2 size={18} className="about-service-icon" />
+                    <span><strong>Turnkey Residential Builds:</strong> Soil testing, RCC framing, and key handover.</span>
                   </div>
-                  <div>
-                    <strong>Turnkey Residential Builds</strong>
-                    <p>Soil testing, structural RCC framing, Fe550D TMT steel, and key-in-hand execution.</p>
+                  <div className="about-service-item">
+                    <HardHat size={18} className="about-service-icon" />
+                    <span><strong>Vetted Master Masons:</strong> Experienced mistris on daily and contract rates.</span>
                   </div>
-                </div>
-                <div className="about-pillar-item">
-                  <div className="about-pillar-icon-wrap">
-                    <HardHat size={20} className="about-pillar-icon" />
+                  <div className="about-service-item">
+                    <Hammer size={18} className="about-service-icon" />
+                    <span><strong>Commercial Tool Fleet:</strong> Mixers, scaffolding, and drills dispatched to site.</span>
                   </div>
-                  <div>
-                    <strong>Vetted Master Masons</strong>
-                    <p>Experienced chief mistris, bricklayers, plasterers, and tile artisans on demand.</p>
-                  </div>
-                </div>
-                <div className="about-pillar-item">
-                  <div className="about-pillar-icon-wrap">
-                    <Hammer size={20} className="about-pillar-icon" />
-                  </div>
-                  <div>
-                    <strong>Commercial Tool Fleet</strong>
-                    <p>Concrete mixers, scaffolding sets, drills, ladders, and breakers delivered to site.</p>
-                  </div>
-                </div>
-                <div className="about-pillar-item">
-                  <div className="about-pillar-icon-wrap">
-                    <ShieldCheck size={20} className="about-pillar-icon" />
-                  </div>
-                  <div>
-                    <strong>Transparent Sign-Offs</strong>
-                    <p>Itemized stage billing, weekly progress logs, and a 10-year structural warranty.</p>
+                  <div className="about-service-item">
+                    <ShieldCheck size={18} className="about-service-icon" />
+                    <span><strong>Our Commitment:</strong> Transparent stage billing and a 10-year warranty.</span>
                   </div>
                 </div>
               </div>
 
-              {/* Verified Business Statistics */}
-              <div className="about-metrics-bar">
-                <div className="about-metric-cell">
-                  <strong className="tabular-nums">15+</strong>
-                  <span>Years Experience</span>
+              {/* Integrated Founder / Owner Profile */}
+              <div className="founder-integrated-card" id="leadership">
+                <div className="founder-card-top">
+                  <div className="founder-avatar-frame">
+                    <img
+                      src="/images/daddy.png"
+                      alt="S. SIVAJI – Founder & Owner"
+                      className="founder-avatar-img"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        if (e.currentTarget.src.includes('daddy.png')) {
+                          e.currentTarget.src = daddyImg;
+                        } else {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = founderImg;
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="founder-header-info">
+                    <div className="founder-tag">FOUNDER / OWNER</div>
+                    <h3 className="founder-name">S. SIVAJI</h3>
+                    <div className="founder-role-title">Founder &amp; Owner · SRM Akash Construction</div>
+                    <div className="founder-location-line">
+                      <MapPin size={13} />
+                      <span>Salem &amp; Coimbatore, Tamil Nadu</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="about-metric-cell">
-                  <strong className="tabular-nums">500+</strong>
-                  <span>Projects Completed</span>
-                </div>
-                <div className="about-metric-cell">
-                  <strong className="tabular-nums">12+</strong>
-                  <span>Tool Categories</span>
-                </div>
-                <div className="about-metric-cell">
-                  <strong className="tabular-nums">4.9★</strong>
-                  <span>Client Rating</span>
+
+                <p className="founder-bio-text">
+                  With over 15 years of hands-on site supervision and civil contracting across Western Tamil Nadu, S. SIVAJI personally directs structural foundation integrity, Fe550D steel compliance, and transparent client communication.
+                </p>
+
+                <div className="founder-actions-row">
+                  <Link to="/booking" className="btn schedule-consultation-btn">
+                    <span>Schedule Consultation</span>
+                    <ArrowRight size={15} />
+                  </Link>
+                  <a href="tel:+919159687408" className="btn btn-outline btn-sm">
+                    <Phone size={14} />
+                    <span>+91 9159687408</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openWhatsApp(
+                        'Hello S. SIVAJI / SRM Akash Construction! I would like to consult about our upcoming construction project.'
+                      )
+                    }
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <MessageSquare size={14} />
+                    <span>WhatsApp</span>
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* ── LEADERSHIP SECTION ── */}
-          <div className="leadership-section-wrap" id="leadership">
-            <AdminOwnerCard
-              name="S. SIVAJI"
-              role="Founder & Owner"
-              company="SRM Akash Construction"
-              location="Salem & Coimbatore, Tamil Nadu"
-              experience="15+ Years Field Leadership"
-              description="With over 15 years of hands-on site supervision and civil contracting across Salem and Coimbatore, S. SIVAJI personally oversees structural quality checks, foundation reinforcements, and transparent client handovers."
-              phone="+91 9159687408"
-              onWhatsAppClick={() =>
-                openWhatsApp(
-                  'Hello S. SIVAJI / SRM Akash Construction! I would like to consult about our upcoming house construction project.'
-                )
-              }
-            />
           </div>
         </div>
       </section>

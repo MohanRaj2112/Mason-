@@ -66,7 +66,7 @@ export const AdminOwnerCard = ({
         </div>
 
         <div className="leadership-card-actions">
-          <Link to="/booking" className="btn btn-accent">
+          <Link to="/booking" className="btn schedule-consultation-btn">
             <span>Schedule Consultation</span>
             <ArrowRight size={16} />
           </Link>
