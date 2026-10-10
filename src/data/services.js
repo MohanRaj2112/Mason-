@@ -13,6 +13,7 @@ export const servicesData = [
     icon: '🏗️',
     tag: 'All-Inclusive Civil Build',
     image: villaImg,
+    shortDescription: 'Reliable turnkey construction solutions for residential buildings and independent villas.',
     description: 'Complete end-to-end residential construction from soil testing, structural RCC framing, and red-brick masonry to custom architectural finishes.',
     features: [
       'Architectural 2D/3D floor plans & structural drawings',
@@ -22,7 +23,7 @@ export const servicesData = [
     ],
     priceRange: '₹1,750 – ₹2,650 / Sq.Ft',
     link: '/booking?type=construction',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   },
   {
     id: 'master-masons',
@@ -32,6 +33,7 @@ export const servicesData = [
     icon: '👷',
     tag: 'Verified Workforce',
     image: masonryImg,
+    shortDescription: 'Skilled masonry work and certified mistris with attention to quality and durability.',
     description: 'Book trade-tested, background-verified master masons (mistris) and skilled helpers on a daily wage or milestone contract basis.',
     features: [
       'Precision Flemish & English bond brick & AAC block work',
@@ -41,7 +43,7 @@ export const servicesData = [
     ],
     priceRange: '₹650 – ₹1,150 / Day',
     link: '/booking?type=mason',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   },
   {
     id: 'tool-rentals',
@@ -51,6 +53,7 @@ export const servicesData = [
     icon: '🔨',
     tag: 'Site Delivery Fleet',
     image: equipmentImg,
+    shortDescription: 'Calibrated construction machinery, power tools, and scaffolding delivered directly to your site.',
     description: 'Commercial-grade concrete mixers, demolition rotary hammers, needle vibrators, and modular scaffolding delivered directly to your site.',
     features: [
       'Daily serviced, calibrated & safety-tested machinery',
@@ -60,7 +63,7 @@ export const servicesData = [
     ],
     priceRange: 'From ₹150 / Day',
     link: '/products',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   },
   {
     id: 'renovation-remodeling',
@@ -70,6 +73,7 @@ export const servicesData = [
     icon: '🏠',
     tag: 'Civil Retrofit',
     image: heroSiteImg,
+    shortDescription: 'Complete structural remodeling, beam reinforcement, waterproofing, and modern residential renovations.',
     description: 'Comprehensive structural remodeling, beam retrofitting, second-floor vertical expansions, and modern bathroom and kitchen makeovers.',
     features: [
       'RCC structural beam reinforcement & load analysis',
@@ -79,7 +83,7 @@ export const servicesData = [
     ],
     priceRange: 'From ₹850 / Sq.Ft',
     link: '/booking?type=renovation',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   },
   {
     id: 'plumbing-electrical',
@@ -89,6 +93,7 @@ export const servicesData = [
     icon: '⚡',
     tag: 'Concealed Systems',
     image: footerArchImg,
+    shortDescription: 'Certified civil plumbing, concealed electrical fittings, and preventative building maintenance services.',
     description: 'Certified civil plumbers and electricians for concealed CPVC/UPVC pipelines, sanitary installations, and copper modular wiring.',
     features: [
       'High-pressure concealed CPVC line testing',
@@ -98,7 +103,7 @@ export const servicesData = [
     ],
     priceRange: 'From ₹600 / Day',
     link: '/booking?type=plumbing',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   },
   {
     id: 'architectural-design',
@@ -108,6 +113,7 @@ export const servicesData = [
     icon: '📐',
     tag: '100% Vastu Compliant',
     image: villaImg,
+    shortDescription: 'Vastu-compliant residential floor layouts, structural drawings, and photorealistic 3D exterior elevations.',
     description: 'Customized floor plans aligned with 100% Vastu Shastra principles, 3D photorealistic elevations, and municipal approval liaisons.',
     features: [
       '100% Vastu-compliant residential floor layouts',
@@ -117,7 +123,7 @@ export const servicesData = [
     ],
     priceRange: 'Free with Build Plans',
     link: '/booking',
-    buttonText: 'Learn More →'
+    buttonText: 'View Details'
   }
 ];
 

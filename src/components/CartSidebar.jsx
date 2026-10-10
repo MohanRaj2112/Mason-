@@ -66,10 +66,10 @@ export const CartSidebar = () => {
                 </div>
                 <button
                   onClick={() => removeFromCart(item._id)}
-                  style={{ background: 'transparent', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: '1rem', padding: '4px' }}
-                  title="Remove"
+                  style={{ background: 'transparent', border: '1px solid rgba(220, 38, 38, 0.4)', borderRadius: '4px', color: '#DC2626', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, padding: '3px 8px' }}
+                  title="Remove item"
                 >
-                  🗑️
+                  Remove
                 </button>
               </div>
             ))
